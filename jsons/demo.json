@@ -1,0 +1,1055 @@
+{
+  "Introduction": {
+    "covertDatesToToday": true,
+    "reportDate": "2023-08-01",
+    "reportTitle": "Introduction to No-code-dashboard",
+    "maxValues": 30,
+    "files": [
+      "https://raw.githubusercontent.com/abhijitmajumdar2020/MAAS/main/datafiles/notes.csv"
+    ],
+    "columnNames": ["Notes"],
+    "columnTypes": ["String"],
+    "chartProperties": [
+      {
+        "chartTitle": "NO-CODE-DASHBOARD APP",
+        "chartType": "Note",
+        "chartSize": "Small",
+        "message": "These dashboards have been created using the <b>No-code-dashboard App</b>.\n        The App takes a CSV file as input and creates charts that can be sliced and diced for analysis. You can click on the bar charts to filter (i.e. slice and dice) the data.\n        The charts can customised using the menu located at top right of each chart. In this dashboad you can modify the charts but not save the modifications. \n        The data used is synthetic and representative of the real world."
+      },
+      {
+        "chartTitle": "DEMO DASHBOARDS",
+        "chartType": "Note",
+        "chartSize": "Small",
+        "message": "Following dashboards are available: \n        1. <b>Basic.</b> This shows the 'default' dashboard i.e before any specific configuration.\n        2. <b>Modified Basic.</b> Shows how the 'default' is reconfigured to make better dashboard,\n        3. <b>Test Execution.</b> Demonstrates a test execution dashboard, \n        4. <b>State Change.</b> Illustrates how state changes can be shown as dashboard, \n        5. <b>Risk.</b> Shows 5x5 risk charts in a dashboard,   \n        6. <b>Plan.</b> Demonstrates a dashboard with Gantt charts.\n        More on the <i>Basic</i> in the next note."
+      },
+      {
+        "chartTitle": "BASIC",
+        "chartType": "Note",
+        "chartSize": "Small",
+        "message": "As mentioned in the previous note, the <i>Basic</i> dashboard shows the dashboard before any configuration.\n        Based on the input the App automatically generates the following charts:\n        * A note listing all columns found in the input,  \n        * A set of \"bar charts\", one for each of the column found,\n        * A data table showing first and last 5 rows of the data,  \n        * A data description that shows types of data, max, min etc for each row of data.\n        The charts in <i>Basic</i> dashboard can then be configured."
+      }
+    ]
+  },
+  "Basic": {
+    "covertDatesToToday": true,
+    "reportDate": "2023-06-12",
+    "reportTitle": "Auto-generated Dashboard",
+    "maxValues": 30,
+    "files": [
+      "https://raw.githubusercontent.com/abhijitmajumdar2020/MAAS/main/datafiles/incidents.csv"
+    ],
+    "columnNames": [
+      "ID",
+      "CREATE DATE",
+      "STATUS",
+      "PRIORITY",
+      "GEOGRAPHY",
+      "CLOSE DATE",
+      "AGE",
+      "Description"
+    ],
+    "columnTypes": [
+      "String",
+      "Date",
+      "String",
+      "String",
+      "String",
+      "String",
+      "Number",
+      "String"
+    ],
+    "callouts": [
+      { "chartNumber": "1", "value": "max" },
+      { "chartNumber": "2", "value": "max" },
+      { "chartNumber": "3", "value": "max" },
+      { "chartNumber": "4", "value": "max" },
+      { "chartNumber": "5", "value": "max" },
+      { "chartNumber": "6", "value": "max" },
+      { "chartNumber": "7", "value": "max" },
+      { "chartNumber": "8", "value": "max" }
+    ],
+    "chartProperties": [
+      {
+        "chartType": "Note",
+        "chartSize": "Small",
+        "message": "The input has the following columns (value in bracket indicates type inferred):\n1. ID (String)\n2. CREATE DATE (Date)\n3. STATUS (String)\n4. PRIORITY (String)\n5. GEOGRAPHY (String)\n6. CLOSE DATE (String)\n7. AGE (Number)\n8. Description (String)"
+      },
+      {
+        "chartSize": "Small",
+        "countType": "Count",
+        "chartType": "Bar",
+        "x_column": "ID",
+        "x_dataType": "String"
+      },
+      {
+        "chartSize": "Small",
+        "x_column": "CREATE DATE",
+        "x_dataType": "Date",
+        "x_dateFormat": "MMM",
+        "countType": "Count",
+        "chartType": "Bar"
+      },
+      {
+        "chartSize": "Small",
+        "countType": "Count",
+        "chartType": "Bar",
+        "x_column": "STATUS",
+        "x_dataType": "String"
+      },
+      {
+        "chartSize": "Small",
+        "countType": "Count",
+        "chartType": "Bar",
+        "x_column": "PRIORITY",
+        "x_dataType": "String"
+      },
+      {
+        "chartSize": "Small",
+        "countType": "Count",
+        "chartType": "Bar",
+        "x_column": "GEOGRAPHY",
+        "x_dataType": "String"
+      },
+      {
+        "chartSize": "Small",
+        "countType": "Count",
+        "chartType": "Bar",
+        "x_column": "CLOSE DATE",
+        "x_dataType": "Date",
+        "x_dateFormat": "MMM"
+      },
+      {
+        "chartSize": "Small",
+        "countType": "Count",
+        "chartType": "Bar",
+        "x_column": "AGE",
+        "x_dataType": "Number",
+        "x_bin": "5"
+      },
+      {
+        "chartSize": "Small",
+        "countType": "Count",
+        "chartType": "Bar",
+        "x_column": "Description",
+        "x_dataType": "String"
+      },
+      {
+        "chartType": "Data Table",
+        "countType": "Count",
+        "chartSize": "Small",
+        "rowsToDisplay": 10
+      },
+      {
+        "chartType": "Data Description",
+        "countType": "Count",
+        "chartSize": "Small"
+      }
+    ]
+  },
+  "Modified Basic": {
+    "covertDatesToToday": true,
+    "reportDate": "2023-06-12",
+    "reportTitle": "Modified Auto-generated Dashboard",
+    "maxValues": 30,
+    "files": [
+      "https://raw.githubusercontent.com/abhijitmajumdar2020/MAAS/main/datafiles/incidents.csv"
+    ],
+    "columnNames": [
+      "ID",
+      "CREATE DATE",
+      "STATUS",
+      "PRIORITY",
+      "GEOGRAPHY",
+      "CLOSE DATE",
+      "AGE",
+      "Description"
+    ],
+    "columnTypes": [
+      "String",
+      "Date",
+      "String",
+      "String",
+      "String",
+      "String",
+      "Number",
+      "String"
+    ],
+    "callouts": [
+      { "chartNumber": "4", "value": "min" },
+      { "chartNumber": "5", "value": "max" },
+      { "chartNumber": "6", "value": "min" },
+      { "chartNumber": "8", "value": "max" }
+    ],
+    "chartProperties": [
+      {
+        "chartTitle": "INTRODUCTION",
+        "chartType": "Note",
+        "chartSize": "Small",
+        "message": "The is a modified version of the Basic Demo. In this version:\nThis INTRODUCTION is added to summarise the changes,\nTrend charts have been added.\nSome charts have been removed (e.g. one showing data on ID)\nFurther notes are added where changes are made."
+      },
+      {
+        "chartSize": "Small",
+        "chartType": "Trend",
+        "x_column": "CREATE DATE",
+        "trendStartDate": "2023-01-12",
+        "x_label": "Incident Creation"
+      },
+      {
+        "chartSize": "Small",
+        "chartType": "Trend OC",
+        "trendStartDate": "2023-01-12",
+        "openDateCol": "CREATE DATE",
+        "closeDateCol": "CLOSE DATE",
+        "x_label": "Open Incidents"
+      },
+      {
+        "chartTitle": "STATUS ORDER",
+        "chartType": "Note",
+        "chartSize": "Small",
+        "message": "The default chart showed the x-axis in default ascending order (Closed, In Test, New, WIP). Order values are added to display the status in more logical sequence."
+      },
+      {
+        "chartTitle": "COUNT BY STATUS",
+        "chartSize": "Small",
+        "countType": "Count",
+        "x_column": "STATUS",
+        "x_dataType": "String",
+        "x_order": "New, WIP, In Test, Closed",
+        "chartType": "Bar"
+      },
+      {
+        "chartTitle": "COUNT BY PRIORITY",
+        "chartSize": "Small",
+        "countType": "Count",
+        "chartType": "Bar",
+        "x_column": "PRIORITY",
+        "x_dataType": "String"
+      },
+      {
+        "chartTitle": "COUNT BY GEOGRAPHY",
+        "chartSize": "Small",
+        "countType": "Count",
+        "chartType": "Bar",
+        "x_column": "GEOGRAPHY",
+        "x_dataType": "String"
+      },
+      {
+        "chartTitle": "BIN",
+        "chartType": "Note",
+        "chartSize": "Small",
+        "message": "Bin values are added to the next chart which improves its readability."
+      },
+      {
+        "chartTitle": "COUNT BY AGE",
+        "chartSize": "Small",
+        "countType": "Count",
+        "chartType": "Bar",
+        "x_column": "AGE",
+        "x_dataType": "Number",
+        "x_bin": "1, 10, 20, 30, 40"
+      },
+      {
+        "chartTitle": "DATA TABLE",
+        "chartType": "Data Table",
+        "countType": "Count",
+        "chartSize": "Small",
+        "rowsToDisplay": 10
+      },
+      {
+        "chartTitle": "DATA DESCRIPTION",
+        "chartType": "Data Description",
+        "countType": "Count",
+        "chartSize": "Small"
+      }
+    ]
+  },
+  "Test Execution": {
+    "covertDatesToToday": true,
+    "reportDate": "2023-08-01",
+    "reportTitle": "Test Execution Dashboard",
+    "maxValues": 30,
+    "files": [
+      "https://raw.githubusercontent.com/abhijitmajumdar2020/MAAS/main/datafiles/testexecution.csv"
+    ],
+    "columnNames": [
+      "ID",
+      "Create Date",
+      "Execution Date",
+      "STATUS",
+      "PRIORITY",
+      "Responsibility",
+      "Description",
+      "Linked Defects"
+    ],
+    "columnTypes": [
+      "String",
+      "Date",
+      "Date",
+      "String",
+      "String",
+      "String",
+      "String",
+      "String"
+    ],
+    "callouts": [
+      { "chartNumber": "6", "value": "min" },
+      { "chartNumber": "7", "value": "max" },
+      { "chartNumber": "8", "value": "max" }
+    ],
+    "validations": [],
+    "chartProperties": [
+      {
+        "chartTitle": "NOTE ON TEST EXECUTION",
+        "chartType": "Note",
+        "countType": "Count",
+        "chartSize": "Small",
+        "message": "This specific dashboard is on Test Execution.\nThe next two charts show the trend for test creation and test execution. Both charts show a planned line which can be customised.  The plan shows that while the Test Creation was done ahead of plan, the Test Execution is behind.\nThe Test Execution trend chart also has forecast which shows that unless the pace of execution is increased the plan is likely to be missed.\nAt current pace the scope will complete about 6 weeks late."
+      },
+      {
+        "chartType": "Trend",
+        "countType": "Count",
+        "chartSize": "Medium",
+        "x_label": "Test Creation",
+        "plan": "{\"startDate\":\"2023-02-01\",\"endDate\":\"2023-06-27\",\"scopeFrom\":\"0\",\"scopeTo\":\"max\",\"points\":\"Line\", \"label\":\"Test Creation Plan\"}",
+        "x_column": "Create Date",
+        "trendStartDate": "2023-01-14",
+        "annotations": "2023-08-01, Report Date, mv"
+      },
+      {
+        "chartType": "Trend",
+        "countType": "Count",
+        "chartSize": "Medium",
+        "x_label": "Test Execution",
+        "plan": "{\"startDate\":\"2023-05-01\",\"endDate\":\"2023-09-01\",\"scopeFrom\":\"0\",\"scopeTo\":\"max\",\"points\":\"Sigmoid\", \"label\":\"Test Execution Plan\"}",
+        "x_column": "Execution Date",
+        "chartFilter": "action: include, where: [status, in, pass,fail]",
+        "chartFilterType": "Include",
+        "chartFilterCondition": "STATUS, in, pass fail",
+        "trendStartDate": "2023-01-14",
+        "forecast": "{\"lookBack\":\"14\",\"forecastTo\":\"max\",\"label\":\"Forecast (14 days)\"}",
+        "annotations": "2023-08-01, Report Date, th"
+      },
+      {
+        "chartTitle": "NOTE ON PLAN",
+        "chartType": "Note",
+        "countType": "Count",
+        "chartSize": "Small",
+        "message": "A planned line makes a chart actionable.\nThe plan line is easily configurable.\nNote that the plan is a straight line in Chart 2 while Chart 3 has a plan based on sigmoid function (which sounds fancy but often test execution follow this path: slow start due to team/ infratsucture build up, rapid middle and slow end where difficult defects are fixed)."
+      },
+      {
+        "chartTitle": "NOTE ON FORECAST",
+        "chartType": "Note",
+        "countType": "Count",
+        "chartSize": "Small",
+        "message": "In the next chart the forecast is changed to use executions from past week instead of two weeks. This shows that forecast is much nearer the plan than before. "
+      },
+      {
+        "chartType": "Trend",
+        "countType": "Count",
+        "chartSize": "Medium",
+        "x_label": "Test Execution",
+        "plan": "{\"startDate\":\"2023-05-01\",\"endDate\":\"2023-09-01\",\"scopeFrom\":\"0\",\"scopeTo\":\"max\",\"points\":\"Sigmoid\", \"label\":\"Test Execution Plan\"}",
+        "x_column": "Execution Date",
+        "chartFilter": "action: include, where: [status, in, pass,fail]",
+        "chartFilterType": "Include",
+        "chartFilterCondition": "STATUS, in, pass fail",
+        "trendStartDate": "2023-01-14",
+        "forecast": "{\"lookBack\":\"7\",\"forecastTo\":\"max\",\"label\":\"Forecast (7 days)\"}",
+        "annotations": "2023-08-01, Report Date, th"
+      },
+      {
+        "x_column": "Linked Defects",
+        "x_dataType": "List",
+        "x_separator": ",",
+        "chartTitle": "COUNT OF SCRIPTS BY LINKED DEFECTS",
+        "chartType": "Bar",
+        "countType": "Count",
+        "chartSize": "Small"
+      },
+      {
+        "x_column": "Linked Defects",
+        "x_dataType": "List Members",
+        "x_separator": ",",
+        "chartTitle": "COUNT OF DEFECTS IN LINKED DEFECTS",
+        "chartType": "Bar",
+        "countType": "Count",
+        "chartSize": "Small"
+      },
+      {
+        "countType": "Count",
+        "chartSize": "Small",
+        "chartType": "Bar",
+        "x_column": "STATUS",
+        "x_dataType": "String"
+      },
+      {
+        "countType": "Count",
+        "chartSize": "Small",
+        "chartType": "Bar",
+        "x_column": "PRIORITY",
+        "x_dataType": "String"
+      },
+      {
+        "countType": "Count",
+        "chartSize": "Small",
+        "chartType": "Bar",
+        "x_column": "Responsibility",
+        "x_dataType": "String"
+      },
+      {
+        "chartType": "Data Table",
+        "countType": "Count",
+        "chartSize": "Medium",
+        "rowsToDisplay": 10
+      },
+      {
+        "chartType": "Data Description",
+        "countType": "Count",
+        "chartSize": "Medium"
+      }
+    ]
+  },
+  "State Change": {
+    "covertDatesToToday": true,
+    "reportDate": "2023-08-01",
+    "reportTitle": "State Change Dashboard",
+    "maxValues": 30,
+    "files": [
+      "https://raw.githubusercontent.com/abhijitmajumdar2020/MAAS/main/datafiles/statuschange.csv"
+    ],
+    "columnNames": ["ID", "When", "From", "To", "Priority", "Responsibility"],
+    "columnTypes": ["String", "Date", "String", "String", "String", "String"],
+    "callouts": [
+      { "chartNumber": "1", "value": "max" },
+      { "chartNumber": "2", "value": "max" },
+      { "chartNumber": "3", "value": "max" },
+      { "chartNumber": "4", "value": "max" },
+      { "chartNumber": "5", "value": "max" }
+    ],
+    "chartProperties": [
+      {
+        "chartTitle": "NOTE ON STATE CHANGE",
+        "chartType": "Note",
+        "countType": "Count",
+        "chartSize": "Small",
+        "message": "This dashboad shows the data on \"state change\"\nChart 3 shows the number of transitions in status items (typically defects or incidents or stories).  Charts 4 and 5 show the data in total and average duration.\nThese charts are useful in identifying possible areas of improvements. It may be worth considering actions to reduce the average durations where they are high.\nThe last chart shows the data in a table."
+      },
+      {
+        "chartType": "State Change",
+        "countType": "Count",
+        "countLabels": "Min, Min-Mid, Mid, Mid-Max, Max",
+        "chartSize": "Medium",
+        "idCol": "ID",
+        "x_column": "To",
+        "x_labels": "ASSIGNED,FIXED,READY TO TEST,READY TO DEPLOY,CLOSED",
+        "y_labels": "NEW,ASSIGNED,FIXED,READY TO TEST,READY TO DEPLOY,CLOSED",
+        "y_column": "From",
+        "timestampCol": "When"
+      },
+      {
+        "chartType": "State Change",
+        "countType": "Sum",
+        "countLabels": "Min, Min-Mid, Mid, Mid-Max, Max",
+        "chartSize": "Medium",
+        "idCol": "ID",
+        "x_column": "To",
+        "y_column": "From",
+        "timestampCol": "When"
+      },
+      {
+        "chartType": "State Change",
+        "countType": "Average",
+        "countLabels": "Min, Min-Mid, Mid, Mid-Max, Max",
+        "chartSize": "Medium",
+        "idCol": "ID",
+        "x_column": "To",
+        "y_column": "From",
+        "timestampCol": "When"
+      },
+      {
+        "countType": "Count",
+        "chartSize": "Small",
+        "chartType": "Bar",
+        "x_column": "Priority",
+        "x_dataType": "String"
+      },
+      {
+        "countType": "Count",
+        "chartSize": "Small",
+        "chartType": "Bar",
+        "x_column": "Responsibility",
+        "x_dataType": "String"
+      },
+      {
+        "countType": "Count",
+        "chartSize": "Small",
+        "chartType": "Bar",
+        "x_column": "From",
+        "x_dataType": "String"
+      },
+      {
+        "countType": "Count",
+        "chartSize": "Small",
+        "chartType": "Bar",
+        "x_column": "To",
+        "x_dataType": "String"
+      },
+      {
+        "countType": "Count",
+        "chartSize": "Small",
+        "chartType": "Bar",
+        "x_column": "When",
+        "x_dataType": "Date",
+        "x_dateFormat": "DDD"
+      },
+      {
+        "chartType": "Data Table",
+        "countType": "Count",
+        "chartSize": "Medium",
+        "rowsToDisplay": 10
+      },
+      {
+        "chartType": "Data Description",
+        "countType": "Count",
+        "chartSize": "Medium"
+      }
+    ]
+  },
+  "Risk": {
+    "covertDatesToToday": true,
+    "reportDate": "2023-08-01",
+    "reportTitle": "Risk Dashboard",
+    "maxValues": 30,
+    "files": [
+      "https://raw.githubusercontent.com/abhijitmajumdar2020/MAAS/main/datafiles/risks.csv"
+    ],
+    "columnNames": [
+      "ID",
+      "CREATE DATE",
+      "STATUS",
+      "Type",
+      "GEOGRAPHY",
+      "CLOSE DATE",
+      "AGE",
+      "Description",
+      "Impact",
+      "Likelihood",
+      "Target Date"
+    ],
+    "columnTypes": [
+      "String",
+      "Date",
+      "String",
+      "String",
+      "String",
+      "String",
+      "Number",
+      "String",
+      "Number",
+      "Number",
+      "Date"
+    ],
+    "callouts": [
+      { "chartNumber": "1", "value": "max" },
+      { "chartNumber": "2", "value": "min" },
+      { "chartNumber": "4", "value": "min" },
+      { "chartNumber": "5", "value": "max" },
+      { "chartNumber": "6", "value": "min" },
+      { "chartNumber": "7", "value": "max" },
+      { "chartNumber": "8", "value": "max" }
+    ],
+    "chartProperties": [
+      {
+        "chartTitle": "INTRODUCTION",
+        "chartType": "Note",
+        "chartSize": "Small",
+        "message": "This dashboad shows charts data on risk.\nThe charts can be easily configured to present a 5x5 view of data."
+      },
+      {
+        "chartTitle": "RISK COUNT",
+        "chartSize": "Medium",
+        "countType": "Count",
+        "chartType": "Risk",
+        "y_column": "Impact",
+        "y_labels": "1,Very Low,2,Low,3,Medium, 4,High, 5,Very High",
+        "x_column": "Likelihood",
+        "x_labels": "1,Rare, 2,Unlikely, 3,Likely, 4,Very Likely, 5, Most Likely",
+        "countLabels": "VL,L,M,H,VH"
+      },
+      {
+        "chartTitle": "RISK (AV AGE)",
+        "chartSize": "Medium",
+        "countType": "Average",
+        "countLabels": "VL,L,M,H,VH",
+        "chartType": "Risk",
+        "colOver": "AGE",
+        "y_column": "Impact",
+        "y_labels": "1,Very Low, 2,Low,3, Medium, 4,High, 5,Very High",
+        "x_column": "Likelihood",
+        "x_labels": "1,Rare, 2,Unlikely, 3,Likely, 4,Very Likely, 5,Most Likely"
+      },
+      {
+        "chartSize": "Small",
+        "chartType": "Trend OC",
+        "trendStartDate": "2023-01-04",
+        "openDateCol": "CREATE DATE",
+        "closeDateCol": "CLOSE DATE",
+        "x_label": "Open Risks"
+      },
+      {
+        "chartTitle": "COUNT BY TARGET DATE",
+        "chartSize": "Small",
+        "countType": "Count",
+        "chartType": "Bar",
+        "x_column": "Target Date",
+        "x_dataType": "Date",
+        "x_dateFormat": "4W4"
+      },
+      {
+        "chartTitle": "COUNT BY STATUS",
+        "chartSize": "Small",
+        "countType": "Count",
+        "chartType": "Bar",
+        "x_column": "STATUS",
+        "x_dataType": "String"
+      },
+      {
+        "chartTitle": "COUNT BY TYPE",
+        "chartSize": "Small",
+        "countType": "Count",
+        "chartType": "Bar",
+        "x_column": "Type",
+        "x_dataType": "String"
+      },
+      {
+        "chartTitle": "COUNT BY GEOGRAPHY",
+        "chartSize": "Small",
+        "countType": "Count",
+        "chartType": "Bar",
+        "x_column": "GEOGRAPHY",
+        "x_dataType": "String"
+      },
+      {
+        "chartTitle": "BINNED COUNT BY AGE",
+        "chartSize": "Small",
+        "countType": "Count",
+        "chartType": "Bar",
+        "x_column": "AGE",
+        "x_dataType": "Number",
+        "x_bin": "5, 10, 20, 30, 40"
+      },
+      {
+        "chartTitle": "COUNT BY IMPACT",
+        "chartSize": "Small",
+        "countType": "Count",
+        "chartType": "Bar",
+        "x_column": "Impact",
+        "x_dataType": "Number"
+      },
+      {
+        "chartTitle": "COUNT BY LIKELIHOOD",
+        "chartSize": "Small",
+        "countType": "Count",
+        "chartType": "Bar",
+        "x_column": "Likelihood",
+        "x_dataType": "Number"
+      },
+      {
+        "chartTitle": "DATA TABLE",
+        "chartType": "Data Table",
+        "countType": "Count",
+        "chartSize": "Small",
+        "rowsToDisplay": 10
+      },
+      {
+        "chartTitle": "DATA DESCRIPTION",
+        "chartType": "Data Description",
+        "countType": "Count",
+        "chartSize": "Small"
+      }
+    ]
+  },
+  "Plan": {
+    "covertDatesToToday": true,
+    "reportDate": "2023-08-01",
+    "reportTitle": "Plan Dashboard",
+    "maxValues": 30,
+    "files": [
+      "https://raw.githubusercontent.com/abhijitmajumdar2020/MAAS/main/datafiles/plan.csv"
+    ],
+    "columnNames": [
+      "Level",
+      "Desc",
+      "Start",
+      "End",
+      "Critical",
+      "Actual start",
+      "Actual/estimated end",
+      "Responsibility",
+      "RAG"
+    ],
+    "columnTypes": [
+      "Number",
+      "String",
+      "Date",
+      "Date",
+      "String",
+      "Date",
+      "Date",
+      "String",
+      "String"
+    ],
+    "callouts": [
+      { "chartNumber": "3", "value": "max" },
+      { "chartNumber": "4", "value": "min" },
+      { "chartNumber": "5", "value": "max" },
+      { "chartNumber": "6", "value": "min" },
+      { "chartNumber": "7", "value": "max" },
+      { "chartNumber": "8", "value": "max" }
+    ],
+    "chartProperties": [
+      {
+        "chartTitle": "INTRODUCTION",
+        "chartType": "Note",
+        "countType": "Count",
+        "chartSize": "Small",
+        "message": "This dashboad shows the data on \"plan\"\nCharts 2 and 3 shows the plan.  Remaining charts show other attributes of the plan.  Click on these bar charts to see how the display for the plan changes.\nThese charts are useful in identifying possible areas of the plan that needs attention."
+      },
+      {
+        "chartTitle": "LEVEL 1 PLAN",
+        "chartSize": "Medium",
+        "chartFilter": "action: include, where: [level, eq, 1]",
+        "chartFilterType": "Include",
+        "chartFilterCondition": "Level, eq, 1",
+        "chartType": "Plan",
+        "descriptionCol": "Desc",
+        "startDateCol": "Start",
+        "endDateCol": "End",
+        "firstLabel": "Plan",
+        "secondLabel": "Actual",
+        "secondStartDateCol": "Actual start",
+        "secondEndDateCol": "Actual/estimated end",
+        "ragCol": "RAG",
+        "annotations": "2023-08-01, Report Date, th, 2023-06-10, R1, bh, 2023-10-06, R2, mh"
+      },
+      {
+        "chartTitle": "OVERALL PLAN",
+        "chartSize": "Medium",
+        "chartType": "Plan",
+        "descriptionCol": "Desc",
+        "startDateCol": "Start",
+        "endDateCol": "End",
+        "secondStartDateCol": "Actual start",
+        "secondEndDateCol": "Actual/estimated end",
+        "firstLabel": "Plan",
+        "secondLabel": "Actual",
+        "ragCol": "RAG",
+        "annotations": "2023-08-01, Report Date, th, 2023-06-10, R1, mh, 2023-10-06, R2, th"
+      },
+      {
+        "chartTitle": "COUNT BY LEVEL",
+        "chartSize": "Small",
+        "countType": "Count",
+        "chartType": "Bar",
+        "x_column": "Level",
+        "x_dataType": "Number"
+      },
+      {
+        "chartTitle": "COUNT BY CRITICAL",
+        "chartSize": "Small",
+        "countType": "Count",
+        "chartType": "Bar",
+        "x_column": "Critical",
+        "x_dataType": "String"
+      },
+      {
+        "chartTitle": "COUNT BY RESPONSIBILITY",
+        "chartSize": "Small",
+        "countType": "Count",
+        "chartType": "Bar",
+        "x_column": "Responsibility",
+        "x_dataType": "String"
+      },
+      {
+        "chartSize": "Small",
+        "chartTitle": "COUNT BY RESPONSIBILITY AND CRITICAL",
+        "chartType": "2X2",
+        "countType": "Count",
+        "countLabels": "Lo, Lo-M, M , M-Hi, Hi",
+        "x_column": "Responsibility",
+        "y_column": "Critical"
+      },
+      {
+        "chartTitle": "COUNT BY START",
+        "chartSize": "Small",
+        "countType": "Count",
+        "chartType": "Bar",
+        "x_column": "Start",
+        "x_dataType": "Date",
+        "x_dateFormat": "MMM"
+      },
+      {
+        "chartTitle": "COUNT BY END",
+        "chartSize": "Small",
+        "countType": "Count",
+        "chartType": "Bar",
+        "x_column": "End",
+        "x_dataType": "Date",
+        "x_dateFormat": "MMM"
+      },
+      {
+        "chartTitle": "COUNT BY ACTUAL START",
+        "chartSize": "Small",
+        "countType": "Count",
+        "chartType": "Bar",
+        "x_column": "Actual start",
+        "x_dataType": "Date",
+        "x_dateFormat": "MMM"
+      },
+      {
+        "chartTitle": "COUNT BY ACTUAL/ESTIMATED END",
+        "chartSize": "Small",
+        "countType": "Count",
+        "chartType": "Bar",
+        "x_column": "Actual/estimated end",
+        "x_dataType": "Date",
+        "x_dateFormat": "MMM"
+      },
+      {
+        "chartTitle": "COUNT BY RAG",
+        "chartSize": "Small",
+        "countType": "Count",
+        "chartType": "Bar",
+        "x_column": "RAG",
+        "x_dataType": "String",
+        "x_order": "B,G,A,R"
+      },
+      {
+        "chartTitle": "DATA TABLE",
+        "chartType": "Data Table",
+        "countType": "Count",
+        "chartSize": "Small",
+        "rowsToDisplay": 10
+      },
+      {
+        "chartTitle": "DATA DESCRIPTION",
+        "chartType": "Data Description",
+        "countType": "Count",
+        "chartSize": "Small"
+      }
+    ]
+  },
+  "File Error": {
+    "covertDatesToToday": true,
+    "reportDate": "2023-08-01",
+    "reportTitle": "Test Execution Dashboard",
+    "maxValues": 30,
+    "files": [
+      "file:///Users/abhijitmajumdar/Desktop/dummyFileToForceError/TestData/plan.csv"
+    ]
+  },
+  "Error Reporting": {
+    "covertDatesToToday": true,
+    "reportDate": "2023-08-01",
+    "reportTitle": "Error Reporting",
+    "maxValues": 30,
+    "files": [
+      "https://raw.githubusercontent.com/abhijitmajumdar2020/MAAS/main/datafiles/error.csv"
+    ],
+    "columnNames": [
+      "Level",
+      "Desc",
+      "Start",
+      "End",
+      "Critical",
+      "Actual start",
+      "Actual/estimated end",
+      "Responsibility",
+      "RAG",
+      "Age",
+      "Comment"
+    ],
+    "columnTypes": [
+      "Number",
+      "String",
+      "Date",
+      "Date",
+      "String",
+      "Date",
+      "Date",
+      "String",
+      "String",
+      "Number",
+      "String"
+    ],
+    "callouts": [
+      { "value": "max" },
+      { "chartNumber": "22", "value": "min" },
+      { "chartNumber": "3", "value": "max" },
+      { "chartNumber": "4", "value": "min" },
+      { "chartNumber": "5", "value": "max" },
+      { "chartNumber": "6", "value": "min" },
+      { "chartNumber": "7", "value": "max" },
+      { "chartNumber": "8", "value": "max" }
+    ],
+    "chartProperties": [
+      {
+        "chartTitle": "ERROR REPORTING",
+        "chartType": "Note",
+        "countType": "Count",
+        "chartSize": "Small",
+        "message": "This dashboad shows how errors are shown.\nCharts 2 and 3 shows the errors at the bottom of the chart. These errors are amber as the chart displayed are incorrect due to the errors."
+      },
+      {
+        "chartTitle": "LEVEL 1 PLAN",
+        "chartSize": "Medium",
+        "contIf": "action: include, column-name: level, op: eq, operand: 1",
+        "chartType": "Plan",
+        "descriptionCol": "Desc",
+        "startDateCol": "Start",
+        "endDateCol": "xEnd",
+        "secondStartDateCol": "Actual start",
+        "secondEndDateCol": "Actual/estimated end",
+        "firstLabel": "Plan",
+        "secondLabel": "Actual",
+        "ragCol": "RAG",
+        "annotations": "2023-08-01, Report Date, th, 2023-06-10, R1, bh, 2023-10-06, R2, mh"
+      },
+      {
+        "chartTitle": "OVERALL PLAN",
+        "chartSize": "Medium",
+        "chartType": "Plan",
+        "descriptionCol": "Desc",
+        "startDateCol": "Start",
+        "endDateCol": "End",
+        "secondStartDateCol": "Actual start",
+        "secondEndDateCol": "Actual/estimated end",
+        "firstLabel": "Plan",
+        "secondLabel": "Actual",
+        "ragCol": "RAG",
+        "annotations": "2023-08-01, Report Date, th, 2023-06-10, R1, bh, 2023-10-06, R2, mh"
+      },
+      {
+        "chartTitle": "COUNT BY LEVEL",
+        "chartSize": "Small",
+        "countType": "Count",
+        "chartType": "Bar",
+        "x_column": "Level",
+        "x_dataType": "Number"
+      },
+      {
+        "chartTitle": "COUNT BY CRITICAL",
+        "chartSize": "Small",
+        "countType": "Count",
+        "chartType": "Bar",
+        "x_column": "Critical",
+        "x_dataType": "String"
+      },
+      {
+        "chartTitle": "COUNT BY RESPONSIBILITY",
+        "chartSize": "Small",
+        "countType": "Count",
+        "chartType": "Bar",
+        "x_column": "Responsibility",
+        "x_dataType": "String"
+      },
+      {
+        "chartTitle": "ERROR REPORTING",
+        "chartType": "Note",
+        "countType": "Count",
+        "chartSize": "Small",
+        "message": "The next four charts show how charts are rendered and invalid data are separately shown. \nNAD means \"not a date\" and space is shown where there is no data "
+      },
+      {
+        "chartTitle": "COUNT BY START",
+        "chartSize": "Small",
+        "countType": "Count",
+        "chartType": "Bar",
+        "x_column": "Start",
+        "x_dataType": "Date",
+        "x_dateFormat": "MMM"
+      },
+      {
+        "chartTitle": "COUNT BY END",
+        "chartSize": "Small",
+        "countType": "Count",
+        "chartType": "Bar",
+        "x_column": "End",
+        "x_dataType": "Date",
+        "x_dateFormat": "MMM"
+      },
+      {
+        "chartTitle": "COUNT BY ACTUAL START",
+        "chartSize": "Small",
+        "countType": "Count",
+        "chartType": "Bar",
+        "x_column": "Actual start",
+        "x_dataType": "Date",
+        "x_dateFormat": "MMM"
+      },
+      {
+        "chartTitle": "COUNT BY ACTUAL/ESTIMATED END",
+        "chartSize": "Small",
+        "countType": "Count",
+        "chartType": "Bar",
+        "x_column": "Actual/estimated end",
+        "x_dataType": "Date",
+        "x_dateFormat": "MMM"
+      },
+      {
+        "chartTitle": "COUNT BY RAG",
+        "chartSize": "Small",
+        "countType": "Count",
+        "chartType": "Bar",
+        "x_column": "RAG",
+        "x_dataType": "String",
+        "x_order": "B,G,A,R"
+      },
+      {
+        "chartTitle": "ERROR REPORTING",
+        "chartType": "Note",
+        "countType": "Count",
+        "chartSize": "Small",
+        "message": "The next chart also shows how the chart is rendered with invalid data. \nNAN means \"not a number\"."
+      },
+      {
+        "chartTitle": "COUNT BY AGE",
+        "chartSize": "Small",
+        "countType": "Count",
+        "chartType": "Bar",
+        "x_column": "Age",
+        "x_dataType": "Number",
+        "x_bin": "5"
+      },
+      {
+        "chartTitle": "COUNT BY COMMENT",
+        "chartSize": "Small",
+        "countType": "Count",
+        "chartType": "Bar",
+        "x_column": "Comment",
+        "x_dataType": "String"
+      },
+      {
+        "chartTitle": "COUNT BY UNDEFINED",
+        "chartSize": "Small",
+        "countType": "Count",
+        "chartType": "Bar",
+        "x_column": "AgeXX",
+        "x_dataType": "Number"
+      },
+      {
+        "chartTitle": "DATA TABLE",
+        "chartType": "Data Table",
+        "countType": "Count",
+        "chartSize": "Small",
+        "rowsToDisplay": 10
+      },
+      {
+        "chartTitle": "DATA DESCRIPTION",
+        "chartType": "Data Description",
+        "countType": "Count",
+        "chartSize": "Small"
+      }
+    ]
+  }
+}
