@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Help for No-code-dashboard." />
+    <meta name="keywords" content="Metrics, Project, Program, Governance" />
+    <meta name="author" content="Abhijit Majumdar" />
+    <title>No-code-dashboard Help</title>
+    <!-- the props -->
+    <link rel="stylesheet" href="https://unpkg.com/open-props" />
+
+    <!-- optional imports that use the props -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/open-props/normalize.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/open-props/buttons.min.css"
+    />
+    <link rel="stylesheet" href="./css/main.css" />
+    <link rel="stylesheet" href="./css/brand.css" />
+  </head>
+  <style>
+    .ncd-help {
+      & code {
+        font-family: "Courier New", Courier, monospace;
+        background-color: var(--surface-1);
+        color: var(--text-1);
+      }
+      & p {
+        margin-bottom: 1rem;
+      }
+      & p,
+      li {
+        font-size: 1rem;
+      }
+    }
+  </style>
+  <body>
+    <main class="ncd-help">
+      <h1><b>No-code-dashboard Help</b></h1>
+      <details open>
+        <summary>What is No-code-dashboard App?</summary>
+        <p>
+          No-code-Dashboard App (NCD App) is an easily configurable app that
+          lets you speedily implement of a professional quality dashboard for
+          your projects without any fuss.
+        </p>
+        <p>
+          The App is based on years of experience of successfully building
+          dashboards to support many different projects.
+        </p>
+        <p>
+          The first dashboard is built in seconds by just loading data. The
+          dashboard can then be easily configured. The App does not any require
+          specialist skills, equipment or software other than an internet
+          connection and the App. It allows the data held in the collaborative
+          tools (such as Jira, DevOps, Service Now, HP/QC, and good old excel)
+          to be the single source of truth. All stakeholders from execs to PMs
+          to developers/testers use same data to make decisions.
+        </p>
+      </details>
+      <details>
+        <summary>How to use the App?</summary>
+
+        <p>
+          The main menu on the top of the screen shows the options available.
+        </p>
+        <p>In non demo mode the options are:</p>
+        <ul>
+          <li><b>TOC</b> shows a table-of-content</li>
+          <li>
+            <b>Load Data</b> allows you to load fresh data. When data is loaded
+            first time a config created automatically. You can modify these
+            configs as described in the following sections. The input data is
+            expected as a csv (comma separated value) file. The App expects the
+            date fields to be in DD-MMM-YYYY or YYYY-MM-DD format. This is to
+            avoid misinterpreting American and European date formats.
+          </li>
+          <li>
+            <b>Modify Layout</b> lets you update the chart title of the
+            <em>data as of date</em>. This is the <em>report date</em> which is
+            used in other charts (W4, Trend and Trend OC),
+          </li>
+          <li>
+            <b>Download Main Config</b> allows you to download the current
+            config. You can use the file later. For some reason the download is
+            not working consistently in all browsers. It download is
+            unsuccessful the config is copied to clipboard and the workaround is
+            to open a new text file, paste the config and save the file
+          </li>
+          <li>
+            <b>Upload Main Config</b> allows you to load (a previously saved)
+            config. In this way you save time when re-configuring charts when
+            data is refreshed.
+          </li>
+          <li><b>Print PDF</b> creates a PDF version of the dashboard.</li>
+          <li><b>Help</b> shows you this page</li>
+          <li><b>Feedback</b> lets you to send an email with your comments.</li>
+        </ul>
+        <p>
+          In demo mode a list of predefined options are shown between
+          <b>TOC</b> and <b>Print PDF</b>
+        </p>
+      </details>
+
+      <details>
+        <summary>What is a Chart menu?</summary>
+
+        <p>
+          On the top-right corner of every chart there is a
+          <em>hamburger menu</em>. When you click on this the App will offer
+          following options:
+        </p>
+        <ul>
+          <li>
+            <b>Filter Chart</b> shows all the values in the x-axis where you can
+            select the values that you want filtered: check to show and uncheck
+            to hide. Note this option is only shown for the charts that are
+            filterable.
+          </li>
+          <li>
+            <b>Config Chart</b> gives you the option to change the chart as you
+            see fit.This is described in detail in a separate section.
+          </li>
+          <li>
+            <b>Remove Chart</b> deletes the chart. The App asks for a
+            confirmation from you before deleting chart
+          </li>
+          <li>
+            <b>Clone Chart</b> lets you add a copy of the chart at the current
+            position. Once copied you can change the config.
+          </li>
+          <li><b>Close</b> closes the dialogue.</li>
+        </ul>
+      </details>
+
+      <details>
+        <summary>How to configure charts?</summary>
+        <p>
+          When new data is loaded the App creates a config automatically based
+          on inferred data types. These can be changed using
+          <b>Config chart</b>.
+        </p>
+        <p>
+          There are some common values for all charts; these are as follows:
+        </p>
+        <ul>
+          <li><b>Chart title</b> lets you change the title of a chart.",</li>
+          <li>
+            <b>Auto title</b> indicates if the title should be automatically set
+            by the App. It is recommended that you keep this checked while you
+            are configuring the charts. Once you are done, you can uncheck this
+            option and enter your value.",
+          </li>
+          <li>
+            <b>Chart size</b> can be small, medium or large. On larger screens,
+            such as PC or laptop, the three types will show appropriately. On a
+            smaller screen, such as mobile, all charts will show in one size.",
+          </li>
+          <li>
+            <b>Chart position</b> lets you re-position a chart. Select a new
+            position and the App move that particular chart to the desired
+            position.
+          </li>
+        </ul>
+        <p>
+          The other values are dependent on the chart type as described in the
+          next section.
+        </p>
+      </details>
+      <details>
+        <summary>How to configure charts using chart types?</summary>
+        <p>
+          The configuration items that are dependent on the chart type are as
+          follows:
+        </p>
+        <ul>
+          <li>
+            <b>2x2</b> shows the cross tabulated data for two columns. You can
+            select the x and y axes. There is an option of
+            <em>average/sum</em> and <em>count if</em> as described in the next
+            section.
+          </li>
+          ,
+          <li>
+            <b>Data Description</b> describes that input data, i.e. type of
+            data, counts, man and min values.
+          </li>
+          <li>
+            <b>Data Table</b> lists the rows of the input data. You can select
+            the number of rows to display.
+          </li>
+          <li>
+            <b>Date</b> is used when the x-axis has date values. Choose the data
+            table chart type date means the x-axis state at the column ID. You
+            can select the column to show in the x-axis. Different formats
+            available such as DD (day of the month), DDD (day of the week), MMM
+            (month), MMM-YY (specific month) and Wx (weeks from report date).
+            There is an option of <em>average/sum</em> and <em>count if</em> as
+            described in the next section.
+          </li>
+          <li>
+            <b>List Count</b> is useful when a column contains a list of values,
+            for example list of tags or list of linked defects to a test script.
+            You have to indicate a separator for the list, such as comma. The
+            separator defaults to a space if not provided. There is an option
+            <em>count if</em> as described in the next section.
+          </li>
+          <li>
+            <b>List Members</b> is useful when a column contains a list of
+            values as described above. The chart shows the count of tags in the
+            input. You can further define <em>count if</em> value as described
+            in the next section.
+          </li>
+          <li>
+            <b>Note</b> allows to specify a message in the dashboard. It is not
+            a chart but useful in embedding key messages in the dashboard. The
+            demos make use of these to describe the charts.
+          </li>
+          <li>
+            <b>Number</b> is used when the x-axis has numbers. There is an
+            option for youth enter <em>bin</em> to show chart by bin values. The
+            bin if entered must be a comma separated list of numbers in
+            ascending order. You can further define <em>count if</em> as
+            described in the next section.
+          </li>
+          <li>
+            <b>Plan</b> shows the data in a Gantt chart The inputs required are
+            column that has the description to show in the plan, cowman for
+            start date and column for the end date. Columns for start and end
+            dates must contain dates. You can further define
+            <em>count if</em> as described in the next section.
+          </li>
+          <li>
+            <b>Risk</b> shows the data in standard 5x5 risk matrix. You can
+            select the likelihood and impact columns. The App will expect the
+            values 1 to 5 in these columns. You can define the likelihood and
+            impact values as well. There are options of <em>average/sum</em> and
+            <em>count if</em> as described in the next section.
+          </li>
+          <li>
+            <b>State Change</b> is it a chart that shows data on transitions. It
+            expects that the data source is sorted in acceding order for each
+            item. You have to select the columns from where the App picks the
+            values: Time stamp shows the time of the transition while From and
+            To give the values at the point of transition. There is an option to
+            count the number of transition or calculate the total time of
+            transition or average time for transition. There is also an option
+            of <code>count if</code> as described in the next section.
+          </li>
+          <li>
+            <b>String</b> is a is used when the x-axis is neither Date or
+            Number. You can define an <em>order</em> that will make sure (a) the
+            x-axis will be ordered accordingly (b) the item will be shown on the
+            chart even if the value is zero. For instance, you want to show P1
+            even if zero then enter P1 in <em>order</em>. There are options of
+            <em>average/sum</em> and <em>count if</em> as described in the next
+            section.
+          </li>
+          <li>
+            <b>Trend</b> shows trend of values; for example, test execution
+            trend. You have to specify a date column. You can further define
+            <em>count if</em>, <em>plan</em> and <em>forecast</em> values as
+            described in the next section.
+          </li>
+          <li>
+            <b>Trend OC</b> is very similar to Trend except it calculated the
+            trend using <em>open</em> and <em>close</em> dates. You can further
+            define <em>count if</em>, <em>plan</em> and <em>forecast</em> values
+            as described in the next section.
+          </li>
+        </ul>
+      </details>
+      <details>
+        <summary>
+          How to set average/sum, chart filter, plan and forecast?
+        </summary>
+        <p>
+          Following parameters are set using string as an input. To aid your
+          input, a template is displayed when the input field is first clicked.
+          The templates are explained below (where _x_ is shown in the template,
+          a value must be provided).
+        </p>
+        <ul>
+          <li>
+            <b>Average/sum</b> where the App uses another column, called
+            <em>column over</em>, that contains numeric data. The App displays
+            the sum or average of the values form this second column.
+          </li>
+          <li>
+            <b>Chart filter</b> has the template
+            <code
+              >action: exclude|include, column-name: column, op: eq|neq,
+              operand: value|[array of values]</code
+            >
+            The template means either exclude or include records where the
+            <code>column-name</code> field contains any item in the array.
+          </li>
+          <li>
+            <b>Plan</b> has the template
+            <code
+              >start: date, end: date, scope-from number, scope-to: max|number,
+              points: line|sigmoid| [number array]</code
+            >
+            The app draws that from start to end going form scope-from to scope
+            to using the points. The point _arraynum_ a numeric ascending array
+            with max value of 1. Examples: [0, 1] draws a straight line. [0, .2,
+            1] draws the plan using three values, scope-from at the first point,
+            scope-to as the last point and .2 times (scope-to minus scope-from)
+            in the middle.
+          </li>
+          <li>
+            <b>Forecast</b> has two templates. For Chart Type as Trend the
+            template is
+            <code>look-back: number, forecast-to: max|date|number</code>
+            The <code>look-back</code> indicates the number of days previous to
+            the report date used to calculate forecast,
+            <code>forecast-to</code> indicates the end point of the forecast;
+            <code>max</code> means date till the maximum value is reached,
+            <code>date</code> indicates the end date for the forecast,
+            <code>number</code> means a date that is .
+          </li>
+          <li>
+            <b>Forecast for Trend OC</b> has the template is
+            <code>look-back: number, forecast-to: max|date|number</code>
+            The meaning of most parameters are as above except open and close
+            that indicate how the forecast is modified.",
+          </li>
+        </ul>
+      </details>
+      <details>
+        <summary>What are the demos?</summary>
+        <p>
+          The demos are based on years of experience of successfully delivering
+          many types of projects, some $100m in size. The principles learnt from
+          this experience is embedded in the demos thereby significantly
+          improving the value of these demo dashboards to you.
+        </p>
+      </details>
+    </main>
+    <br />
+    <footer>
+      <p>No-code-dashboard (Version Aug-2024)</p>
+      <p>Copyright &#169; June-2024 Abhijit Majumdar</p>
+      <p>
+        Powered by
+        <a href="https://www.w3schools.com" target="_blank">HTML5, CSS3, JS,</a>
+        <a href="https://www.papaparse.com" target="_blank">papaparse, </a>
+        <a href="https://observablehq.com/plot/" target="_blank"
+          >Observable Plot,</a
+        >
+        <a href="https://open-props.style" target="_blank">Open Prop,</a>
+        <a> and a lot of elbow grease</a>
+      </p>
+    </footer>
+  </body>
+</html>

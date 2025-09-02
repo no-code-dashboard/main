@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>No-code-dashboard</title>
+    <!-- <meta name="No-code-dashboard" content="Dashboard from data in file" /> -->
+    <meta
+      name="description"
+      content="A web app that creates a dashboard automatically. 
+    The dashboard can be easily edited via simple UI."
+    />
+    <meta name="keywords" content="Metrics, Project, Program, Governance" />
+    <meta name="author" content="Abhijit Majumdar" />
+
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- icon, png created using https://favicon.io/ and favicon.svg -->
+    <link rel="icon" href="ncd.svg" sizes="any" type="image/svg+xml" />
+    <!-- <link rel="apple-touch-icon" href="./images/apple-touch-icon.png" /> -->
+    <link rel="manifest" href="./images/site.webmanifest" />
+
+    <!-- the props -->
+    <link rel="stylesheet" href="https://unpkg.com/open-props" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/open-props/normalize.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/open-props/buttons.min.css"
+    />
+    <!-- <link
+      rel="stylesheet"
+      href="node_modules/modern-normalize/modern-normalize.css"
+    /> -->
+
+    <link rel="stylesheet" href="./css/brand.css" />
+    <link rel="stylesheet" href="./css/main.css" />
+
+    <script src="./js/index.js" type="module" charset="utf-8" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.5.3/papaparse.min.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/papaparse/papaparse.min.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/d3@7" defer></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6"
+      defer
+    ></script>
+  </head>
+
+  <body>
+    <!-- <date-input optio ns="A,B,C" value="2024-12-12"></date-input> -->
+    <input type="file" id="file" style="display: none" />
+    <nav id="top-nav">
+      <!-- <img src="./images/apple-touch-icon.png" alt="Logo: no code dashboard" /> -->
+      <button id="show-toc" style="display: none" class="menu">TOC</button>
+      <span id="not-preset">
+        <button id="load-data" class="menu">Load Data</button>
+        <button id="configure-dashboard" style="display: none" ,class="menu">
+          Configure Dashboard
+        </button>
+        <button id="download-config" style="display: none" class="menu">
+          Download Config
+        </button>
+        <button id="upload-config" style="display: none" class="menu">
+          Upload Config
+        </button>
+      </span>
+      <span id="preset"></span>
+      <span id="common">
+        <button id="smoke-test" class="menu">Smoke Test</button>
+        <button id="print" style="display: none" class="menu">Print</button>
+        <button id="help" class="menu">Show Help</button>
+        <button id="feedback" class="menu">Give Feedback</button>
+      </span>
+      <div id="dropdown-toc" style="display: none"></div>
+    </nav>
+    <br />
+    <div id="loader-wrapper">
+      <progress style="width: 100%; visibility: hidden"></progress>
+      <!-- <section>
+        <h1>&nbsp;</h1>
+      </section> -->
+      <section style="display: none">
+        <div class="callOut-container" id="call-out-wrapper-loader">
+          <div class="call-out">
+            <button id="top"></button>
+            <br />
+            <button id="bottom"></button>
+          </div>
+          <div class="call-out"></div>
+          <div class="call-out"></div>
+        </div>
+      </section>
+      <section style="display: none">
+        <div class="chart-container" id="wrapper-loader">
+          <div class="surface-1 chart">
+            <h4>
+              <span></span>
+              <button tabindex="0">&#8942;</button>
+            </h4>
+            <div id="chart"></div>
+            <div class="tags"></div>
+            <div class="chart-footer"></div>
+          </div>
+          <div class="surface-1 chart">
+            <span></span>
+            <button>&#8942;</button>
+            <div class="chart-footer"></div>
+          </div>
+          <div class="surface-1 chart">
+            <button>&#8942;</button>
+            <div class="chart-footer"></div>
+          </div>
+        </div>
+      </section>
+    </div>
+    <main>
+      <section>
+        <div id="report-titles">
+          <h1 id="main-title"></h1>
+          <h2 id="sub-title"></h2>
+        </div>
+        <div class="page-break"></div>
+        <div class="only-print">
+          <h2>Table of Content</h2>
+          <br />
+          <div id="toc"></div>
+        </div>
+      </section>
+      <br />
+      <section>
+        <div class="callOut-container" id="call-out-wrapper"></div>
+      </section>
+      <section>
+        <div class="chart-container" id="wrapper"></div>
+      </section>
+      <section>
+        <div id="data-source" class="tags"></div>
+        <div id="log" class="tags"></div>
+      </section>
+      <!-- jackson-stopp 6/april/  -->
+      <section>
+        <footer>
+          <hr style="margin: 0.5rem" />
+          <img src="ncd.svg" width="100px" alt="Logo: no code dashboard" />
+          <p>&copy; Abhijit Majumdar (2020-2025)</p>
+          <p>
+            Powered by
+            <a href="https://www.w3schools.com" target="_blank"
+              >HTML5, CSS3, JS,</a
+            >
+            <a href="https://www.papaparse.com" target="_blank">Papaparse, </a>
+            <a href="https://observablehq.com/plot/" target="_blank"
+              >Observable Plot,</a
+            >
+            <a href="https://open-props.style" target="_blank">Open Prop,</a>
+            <span> and a lot of elbow grease</span>
+          </p>
+        </footer>
+        <!-- <button id="go-to-top" class="menu">&#x21e7;</button> -->
+        <!-- &#x2191; -->
+        <!-- &#x21e7; -->
+      </section>
+    </main>
+  </body>
+</html>
