@@ -30,7 +30,7 @@ import { smokeTest } from "./modules/smoke-test.js";
 import { registerComponents } from "./modules/web-comp.js";
 
 window.addEventListener("load", (event) => {
-  console.log({SECRRET)
+  console.log({SECRRET});
   registerComponents();
   addMenuListeners();
   const url = new URL(window.location.toLocaleString());
