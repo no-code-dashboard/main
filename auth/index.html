@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Passkey Authentication</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Oxygen, Ubuntu, Cantarell, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+
+      .container {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        padding: 40px;
+        width: 100%;
+        max-width: 450px;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      .icon {
+        width: 64px;
+        height: 64px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+      }
+
+      .icon svg {
+        width: 32px;
+        height: 32px;
+        stroke: white;
+        fill: none;
+        stroke-width: 2;
+      }
+
+      h1 {
+        color: #1a202c;
+        font-size: 28px;
+        margin-bottom: 8px;
+      }
+
+      .subtitle {
+        color: #718096;
+        font-size: 14px;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      label {
+        display: block;
+        color: #2d3748;
+        font-weight: 500;
+        margin-bottom: 8px;
+        font-size: 14px;
+      }
+
+      input {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 16px;
+        transition: all 0.3s;
+      }
+
+      input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      }
+
+      .button-group {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+
+      button {
+        padding: 14px 20px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+
+      button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      button:active {
+        transform: translateY(0);
+      }
+
+      .btn-register {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
+
+      .btn-login {
+        background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        color: white;
+      }
+
+      .btn-logout {
+        background: #718096;
+        color: white;
+        grid-column: 1 / -1;
+      }
+
+      .status {
+        padding: 16px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: none;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+
+      .status.show {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+      }
+
+      .status svg {
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+        margin-top: 2px;
+      }
+
+      .status.success {
+        background: #f0fdf4;
+        border: 2px solid #86efac;
+        color: #166534;
+      }
+
+      .status.success svg {
+        stroke: #166534;
+      }
+
+      .status.error {
+        background: #fef2f2;
+        border: 2px solid #fca5a5;
+        color: #991b1b;
+      }
+
+      .status.error svg {
+        stroke: #991b1b;
+      }
+
+      .status.info {
+        background: #eff6ff;
+        border: 2px solid #93c5fd;
+        color: #1e40af;
+      }
+
+      .status.info svg {
+        stroke: #1e40af;
+      }
+
+      .authenticated-view {
+        display: none;
+      }
+
+      .authenticated-view.show {
+        display: block;
+      }
+
+      .auth-form {
+        display: block;
+      }
+
+      .auth-form.hide {
+        display: none;
+      }
+
+      .info-box {
+        margin-top: 30px;
+        padding-top: 24px;
+        border-top: 2px solid #e2e8f0;
+      }
+
+      .info-box h3 {
+        color: #2d3748;
+        font-size: 14px;
+        margin-bottom: 12px;
+      }
+
+      .info-box ul {
+        list-style: none;
+        color: #718096;
+        font-size: 12px;
+        line-height: 1.8;
+      }
+
+      .info-box li::before {
+        content: "• ";
+        color: #667eea;
+        font-weight: bold;
+        margin-right: 8px;
+      }
+
+      .user-badge {
+        background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+        border: 2px solid #86efac;
+        color: #166534;
+        padding: 16px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-weight: 600;
+      }
+
+      .user-badge svg {
+        stroke: #166534;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <div class="icon">
+          <svg viewBox="0 0 24 24">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+        </div>
+        <h1>Passkey Authentication</h1>
+        <p class="subtitle">Secure, passwordless login using WebAuthn</p>
+      </div>
+
+      <div class="authenticated-view" id="authenticatedView">
+        <div class="user-badge">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke-width="2"
+          >
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+          <span>Authenticated as <span id="currentUser"></span></span>
+        </div>
+        <div class="button-group">
+          <button class="btn-logout" id="logoutBtn">Logout</button>
+        </div>
+      </div>
+
+      <div class="auth-form" id="authForm">
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input
+            type="text"
+            id="username"
+            placeholder="Enter your username"
+            autocomplete="username webauthn"
+          />
+        </div>
+
+        <div class="button-group">
+          <button class="btn-register" id="registerBtn">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="8.5" cy="7" r="4"></circle>
+              <line x1="20" y1="8" x2="20" y2="14"></line>
+              <line x1="23" y1="11" x2="17" y2="11"></line>
+            </svg>
+            Register
+          </button>
+          <button class="btn-login" id="loginBtn">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+              <polyline points="10 17 15 12 10 7"></polyline>
+              <line x1="15" y1="12" x2="3" y2="12"></line>
+            </svg>
+            Login
+          </button>
+        </div>
+
+        <div class="status" id="status">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+          <span id="statusText"></span>
+        </div>
+      </div>
+
+      <div class="info-box">
+        <h3>How it works:</h3>
+        <ul>
+          <li>Register creates a passkey using biometrics/PIN</li>
+          <li>Login authenticates using your device</li>
+          <li>No passwords needed - more secure!</li>
+          <li>Uses WebAuthn standard</li>
+        </ul>
+      </div>
+    </div>
+    <script src="./auth.js" type="module"></script>
+  </body>
+</html>
