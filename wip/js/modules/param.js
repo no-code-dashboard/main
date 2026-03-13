@@ -1,12 +1,13 @@
 // import { resolveObjectURL } from "node:buffer";
 import { _, getCounts, saveCounts } from "./util.js";
-import { chartTypes } from "./chart-types.js";
+import { chartTypes } from "./chart-types/chart-types.js";
 
 export { Param };
 const Param = (function () {
   "use strict";
   // const self = {} // public object - returned at end of module
   let config = {};
+  const configs = {};
 
   function getCountOf(type) {
     if (!type) return 0;
@@ -16,29 +17,26 @@ const Param = (function () {
         ? config.chartProperties.length
         : 0
       : type === "callout"
-      ? config.callouts
-        ? config.callouts.length
-        : 0
-      : 0;
+        ? config.callouts
+          ? config.callouts.length
+          : 0
+        : 0;
   }
   function getChartProps(index, getDefaults) {
-    if (!config.chartProperties[index]) {
-      //to do remove Logger
-      // Logger.log(`Invalid call to getChartProps; index= ${index}`, "error");
-      return {};
-    }
-    const properties = { ...config.chartProperties[index] };
-    //JSON.parse(JSON.stringify(config.chartProperties[index]));
-    const { chartType } = properties;
-    const defaults = chartTypes[chartType].chartDefaults(properties);
-    properties.chartTitleWithIndex =
+    if (!config.chartProperties[index]) return {};
+
+    const chartProps = { ...config.chartProperties[index] };
+
+    const { chartType } = chartProps;
+    const defaults = chartTypes[chartType].presets(chartProps);
+    chartProps.chartTitleWithIndex =
       (Number(index) + 1).toString() +
       ". " +
-      (properties.chartTitle ? properties.chartTitle : defaults.chartTitle);
+      (chartProps.chartTitle ? chartProps.chartTitle : defaults.chartTitle);
     if (getDefaults) {
-      for (const d in defaults) if (!properties[d]) properties[d] = defaults[d];
+      for (const d in defaults) if (!chartProps[d]) chartProps[d] = defaults[d];
     }
-    return properties;
+    return chartProps;
   }
   function arrayMove(arr, from, to) {
     if (from === to) return;
@@ -53,57 +51,41 @@ const Param = (function () {
     return a.filter((v) => v !== undefined);
   }
   function setChartProps({ index, properties }) {
-    const newValues = { ...properties };
+    // const newValues = { ...chartProps };
     let isUpdated = false;
-    const chartProp = config.chartProperties[index];
-    const valuesToUpdate = { ...newValues };
+    const chartProps = config.chartProperties[index];
+    // const valuesToUpdate = { ...newValues };
 
-    // for (const key in newValues) {
-    //   const value = newValues[key];
-    //   if (!value) continue;
-    //   if (typeof value === "string" && value.trim() === "") continue;
-    //   //ignore keys starting with two or more underscores
-    //   if (key.startsWith("__")) continue;
-    //   //keys with one underscore are json
-    //   if (key.startsWith("_")) {
-    //     const obj = _.parse(value);
-    //     if (_.isNoValueObject(obj)) continue;
-    //   }
-    //   valuesToUpdate[key] = value;
-    // }
-    // console.log({ newValues, valuesToUpdate });
-    //toCleanObject(newValues, "set"); //unFlatten ? _unFlatten(newValues) : newValues;
-
-    for (const [key, value] of Object.entries(valuesToUpdate)) {
-      //if (chartProp[key] == undefined) continue
-      if (chartProp[key] !== value) {
-        chartProp[key] = value;
+    for (const [key, value] of Object.entries(properties)) {
+      //if (chartProps[key] == undefined) continue
+      if (chartProps[key] !== value) {
+        chartProps[key] = value;
         isUpdated = true;
       }
     }
-    if (chartProp.position) delete chartProp.position;
-    //to do rename __position
+    if (chartProps.position) delete chartProps.position;
+    //to do rename position
 
-    for (const key of Object.keys(chartProp)) {
-      if (valuesToUpdate[key] == undefined) delete chartProp[key];
+    for (const key of Object.keys(chartProps)) {
+      if (properties[key] === undefined) delete chartProps[key];
     }
 
-    const position = Number(newValues.position) - 1;
+    const position = Number(properties.position) - 1;
 
     const chartProperties = config.chartProperties;
     const newPositions = arrayMove(
       chartProperties.map((_, i) => i),
       index,
-      position
+      position,
     );
     if (newPositions) {
       // console.log(index, newPositions);
-      //move the charts
-      const newChartProperties = newPositions.map((i) =>
-        JSON.stringify(chartProperties[i])
+      //move the chart
+      const newchartsXXX = newPositions.map((i) =>
+        JSON.stringify(chartProperties[i]),
       );
       chartProperties.forEach(
-        (_, i) => (chartProperties[i] = JSON.parse(newChartProperties[i]))
+        (_, i) => (chartProperties[i] = JSON.parse(newchartsXXX[i])),
       );
       //move callouts
       const callouts = config.callouts;
@@ -113,7 +95,7 @@ const Param = (function () {
         });
       isUpdated = true;
     }
-    if (isUpdated) console.log({ newValues, saved: chartProperties[index] });
+
     return isUpdated;
   }
   function removeParam(type, index) {
@@ -121,8 +103,8 @@ const Param = (function () {
     return type === "chart"
       ? removeChart(index)
       : type === "callout"
-      ? removeCallOut(index)
-      : false;
+        ? removeCallOut(index)
+        : false;
   }
   function removeChart(index) {
     if (!config.chartProperties) return false;
@@ -160,9 +142,9 @@ const Param = (function () {
     return true;
   }
 
-  function getAutoTitle(chartProp) {
+  function getAutoTitle(chartProps) {
     return "delete";
-    if (!chartProp) return "";
+    if (!chartProps) return "";
     const {
       chartType,
       countType,
@@ -174,7 +156,7 @@ const Param = (function () {
       y_column,
       y_label,
       y_labels,
-    } = chartProp;
+    } = chartProps;
     const x = _.pick1stNonBlank(x_label, x_column);
     const y = _.pick1stNonBlank(y_label, y_column);
     if (!chartType) return "";
@@ -208,77 +190,7 @@ const Param = (function () {
 
     return `undefined: ${chartType}`.toUpperCase();
   }
-  //////////////////////////////////////////////////////////// callout functions
-  // function getCallOut(id) {
-  //     //move to c
-  //     const { countType, chartType, bin, order } = config.chartProperties[id]
-  //     // console.log(id, chartType)
-  //     if (
-  //         [
-  //             "Note",
-  //             "Data Table",
-  //             "Data Description",
-  //             "Trend",
-  //             "List Count",
-  //             "List Members",
-  //         ].includes(chartType)
-  //     )
-  //         return {
-  //             topMessage: "No call outs",
-  //             value: "NA",
-  //             bottomMessage: "NA",
-  //         }
-  //     const allCounts = getCounts()
-  //     const oneCount = allCounts.counts[key]
-  //     if (chartType == "Trend") console.log(oneCount)
-  //     const categories = Object.keys(oneCount)
 
-  //     let category = categories[0]
-  //     if (!oneCount[category])
-  //         return {
-  //             topMessage: "No call outs",
-  //             value: "NA",
-  //             bottomMessage: "NA",
-  //         }
-  //     let value = oneCount[category].filteredCount
-
-  //     function getMinMax(callValue) {
-  //         categories.forEach((cat) => {
-  //             const categoryValue = oneCount[cat].filteredCount
-  //             if (
-  //                 (callValue == "min" && value > categoryValue) ||
-  //                 (callValue == "max" && value < categoryValue)
-  //             ) {
-  //                 value = categoryValue
-  //                 category = cat
-  //             }
-  //         })
-  //     }
-
-  //     const { callValue, callCategory } = {
-  //         callValue: "max",
-  //         callCategory: "P1",
-  //     }
-
-  //     if (callValue == "category") {
-  //         category = callCategory
-  //         if (!oneCount[category])
-  //             return {
-  //                 topMessage: "No call outs",
-  //                 value: "NA",
-  //                 bottomMessage: "NA",
-  //             }
-  //         value = oneCount[category].filteredCount
-  //     } else getMinMax(callValue)
-
-  //     const topMessage =
-  //         callValue == "min" ? "Minimum value" : "Maximum value"
-  //     return {
-  //         value,
-  //         topMessage,
-  //         bottomMessage: category,
-  //     }
-  // }
   function removeCallOut(index) {
     if (!config.callouts) return false;
     if (index === undefined) return false;
@@ -290,8 +202,8 @@ const Param = (function () {
   function getCallOutProps(index) {
     return config.callouts[index];
   }
-  function setCallOutProps({ index, properties }) {
-    const newValue = { ...properties };
+  function setCallOutProps({ index, calloutProps }) {
+    const newValue = { ...calloutProps };
     if (!config.callouts) config.callouts = [];
     const cleanedNewValue = _.cleanObject(newValue);
 
@@ -312,7 +224,7 @@ const Param = (function () {
     const newPositions = arrayMove(
       callouts.map((_, i) => i),
       Number(index),
-      position
+      position,
     );
     if (newPositions) {
       const newCallouts = newPositions.map((i) => JSON.stringify(callouts[i]));
@@ -320,14 +232,14 @@ const Param = (function () {
     }
     return true;
   }
-  function autoCreateConfig(file, dataDescription, action) {
+  function autoCreateConfig(file, dataDescription) {
     createDefaultConfig();
-    createDefaultChartProperties();
+    createDefaultchartsXXX();
     createDefaultCallouts();
 
-    function autoType(chartProp) {
+    function autoType(chartProps) {
       const { dateCount, numberCount, stringCount } =
-        dataDescription[chartProp];
+        dataDescription[chartProps];
       if (dateCount > 0 && numberCount == 0 && stringCount == 0) return "Date";
       if (numberCount > 0 && dateCount == 0 && stringCount == 0)
         return "Number";
@@ -336,12 +248,12 @@ const Param = (function () {
     function createDefaultConfig() {
       const d = new Date();
       config.reportDate = d.toISOString().substring(0, 10);
-      config.reportTitle = "Auto-genearted Dashboard";
+      config.reportTitle = "Auto-generated Dashboard";
       config.maxValues = "30";
       config.files = [file];
       config.preview = 2000;
     }
-    function createDefaultChartProperties() {
+    function createDefaultchartsXXX() {
       config.columnNames = [];
       config.columnTypes = [];
       config.callouts = []; //use in future
@@ -349,17 +261,17 @@ const Param = (function () {
       const chartProperties = config.chartProperties;
       for (const colName in dataDescription) {
         const chartType = autoType(colName);
-        const chartProp = {
+        const chartProps = {
           chartSize: "Small",
           countType: "Count",
           chartType: "Bar",
           x_dataType: chartType,
           x_column: colName,
         };
-        if (chartProp.x_dataType === "Date") chartProp.x_dateFormat = "MMM";
-        if (chartProp.x_dataType === "Number") chartProp.x_bin = "5";
+        if (chartProps.x_dataType === "Date") chartProps.x_dateFormat = "MMM";
+        if (chartProps.x_dataType === "Number") chartProps.x_bin = "5";
 
-        chartProperties.push(chartProp);
+        chartProperties.push(chartProps);
       }
       chartProperties.forEach((v) => {
         config.columnNames.push(v.x_column);
@@ -382,7 +294,7 @@ const Param = (function () {
         config.columnNames.reduce(
           (list, column, i) =>
             `${list}\n${i + 1}. ` + `${column} (${config.columnTypes[i]})`,
-          ""
+          "",
         );
       chartProperties.unshift({
         chartType: "Note",
@@ -403,13 +315,84 @@ const Param = (function () {
   function getConfig() {
     return config;
   }
-  function setConfig({ newConfig, file, dataDescription, replace }) {
-    if (!newConfig) {
-      autoCreateConfig(file, dataDescription);
+  // if (type === "config-replace") return replaceConfig(newValues);
+  function replaceConfig({ newConfig }) {
+    if (!newConfig) return false;
+    config = structuredClone(newConfig);
+    return true;
+
+    function deepCopy(val) {
+      // 1. Handle null or non-object types (primitives)
+      if (val === null || typeof val !== "object") {
+        return val;
+      }
+
+      // 2. Handle Arrays
+      if (Array.isArray(val)) {
+        // Use spread to create a new array and map each element through deepCopy
+        return [...val].map((item) => deepCopy(item));
+      }
+
+      // 3. Handle Objects
+      const result = {};
+      for (const key in val) {
+        if (val.hasOwnProperty(key)) {
+          // Recursively call deepCopy for every property
+          result[key] = deepCopy(val[key]);
+        }
+      }
+      return result;
+    }
+  }
+  // if (type === "config-file") return setConfigFile(newValues);
+  function setConfigFile({ file }) {
+    if (!file) return false;
+    config.file = [file];
+  }
+
+  function setConfig(options) {
+    const { newConfig } = options;
+
+    if (newConfig) {
+      Object.assign(config, newConfig);
       return true;
     }
+    let isUpdated = false;
+    for (const key in options)
+      if (key === "file") {
+        config.file = [file];
+      } else if (config[key] !== options[key]) {
+        config[key] = options[key];
+        isUpdated = true;
+      }
+    function isEqual(one, two) {
+      const typeOne = typeof one;
+      if (typeOne !== typeof two) return false;
+      if (typeOne === "string" || typeOne === "number") return one === two;
+      if (typeOne === "object") {
+        onestr = JSON.stringify(one);
+        twoStr = JSON.stringify(two);
+        return oneStr === twoStr;
+      }
+      return false;
+    }
+    function set(one, two) {
+      let isUpdated = false;
+      const typeOne = typeof one;
+      // if (typeOne  !== typeof two) return false
+      if (typeOne === "string" || typeOne === "number") one = two;
+      return true;
+      if (typeOne === "object") {
+        onestr = JSON.stringify(one);
+        twoStr = JSON.stringify(two);
+        return oneStr === twoStr;
+      }
+      return false;
+    }
+    return isUpdated;
+
     if (replace) {
-      config = JSON.parse(JSON.stringify(newConfig));
+      Object.assign(config, newConfig);
       return true;
     }
     if (!newConfig && !dataDescription) {
@@ -424,22 +407,23 @@ const Param = (function () {
     if (type === "chart-count") return getCountOf("chart");
     if (type === "callout-count") return getCountOf("callout");
     if (type === "chart-properties") return getChartProps(index, getDefaults);
-    if (type === "callout-properties")
-      return getCallOutProps(index, getDefaults);
+    if (type === "callouts") return getCallOutProps(index, getDefaults);
     if (type === "config") return getConfig();
   }
-  function setParam(type, newValues, index) {
+  function setParam(type, newValues) {
     if (type === "chart-properties") return setChartProps(newValues);
-    if (type === "callout-properties") return setCallOutProps(newValues);
+    if (type === "callouts") return setCallOutProps(newValues);
     if (type === "config") return setConfig(newValues);
+    if (type === "config-replace") return replaceConfig(newValues);
+    if (type === "config-file") return setConfigFile(newValues);
   }
+
   return {
     removeParam,
     cloneParam,
     getParam,
     setParam,
-    // getAutoTitle, //getParam("auto-title")
-    // getParamAuto,
+    autoCreateConfig,
   };
 })();
 
@@ -456,7 +440,7 @@ function toCleanObject(obj) {
   }
   for (const key in obj) {
     const value = obj[key];
-    if (!value) continue
+    if (!value) continue;
     if (!key.includes(seperator)) {
       cleanedObject[key] = value;
       continue;
@@ -469,48 +453,3 @@ function toCleanObject(obj) {
   }
   return cleanedObject;
 }
-
-// function parse(key) {
-//   const prefix = getPrefix(key);
-//   try {
-//     const x = JSON.parse(obj[key]);
-//     for (key in x) {
-//       x[prefix + key] = x[key];
-//       delete x[key];
-//     }
-//     return x;
-//   } catch (error) {
-//     return {};
-//   }
-// }
-// function isValidPrefix(key) {
-//   // return validPrefixes.includes(key);
-//   if (!key.includes(seperator)) return false;
-//   if (key.split(seperator)[1]) return false;
-//   return true;
-// }
-// function stringify(key) {
-//   const prefix = key.split(seperator)[0] + seperator;
-//   if (prefixexDone.includes[prefix]) return;
-//   prefixexDone.push(prefix);
-//   const x = {};
-//   for (const k in obj)
-//     if (k.startsWith(prefix)) {
-//       const newKey = k.split(seperator)[1];
-//       x[newKey] = obj[k];
-//     }
-//   try {
-//     return JSON.stringify(x);
-//   } catch (error) {
-//     return { key: prefix, value: "JSON.stringify error" };
-//   }
-// }
-// function hasPrefix(key) {
-//   const [prefix, suffix] = key.split(seperator);
-//   if (!suffix) return false;
-//   // console.log({key, suffix, is:isValidPrefix(prefix)})
-//   return isValidPrefix(prefix + seperator);
-// }
-// function getPrefix(key) {
-//   return key.split(seperator)[0] + seperator;
-// }

@@ -11,7 +11,7 @@ export {
   destroyAllCharts, //removeCharts
   amimateChart,
 };
-
+const plotStyle = "width:100%;height:100%;font-family:inherit;";
 function drawChart(chartId, data, clickCallback) {
   const key = getKey(chartId);
   const { chartType } = Param.getParam("chart-properties", key);
@@ -24,7 +24,7 @@ function drawChart(chartId, data, clickCallback) {
 
   if (chartType == "Plan") return createPlanChart(key, data, clickCallback);
 
-  if (chartType == "Banner") return createBannerChart(key, data, clickCallback);
+  // if (chartType == "Banner") return createBannerChart(key, data, clickCallback);
 
   if (_.isTrend(chartType)) return createTrendChart(key, data, clickCallback);
 
@@ -87,7 +87,7 @@ function render(
   next,
   bounceType,
   id,
-  clickCallback
+  clickCallback,
 ) {
   const el = next(index, scales, values, dimensions, context);
   // bounce(el, bounceType, scales); //bounce(el, "height", scales)
@@ -106,18 +106,16 @@ function render(
 
 function createBarChart(key, { data }, clickCallback) {
   const id = getChartId(key);
-  const { countType, x_dataType, chartType } = Param.getParam(
-    "chart-properties",
-    key
-  );
+  const { countType } = Param.getParam("chart-properties", key);
   const div = _.clearHTML("#" + id);
+
   const x = "x",
     y = "v",
     yLabel = countType;
   const barY = {
     x,
     y,
-    fill: _.getCSSVar("--color-brand"),
+    className: "bars",
     title: (d) => `${d[x]}: ${d[y]}`,
     // href: "XXX",
     render: (i, s, v, d, c, n) =>
@@ -133,9 +131,7 @@ function createBarChart(key, { data }, clickCallback) {
   };
 
   const plot = Plot.plot({
-    // grid: true,
-    style: "width:100%;height:100%;font-family:inherit;font-size:1.2rem",
-    // style: "width:100%;height:100%;font-family:inherit", // style: "font-family:inherit",
+    style: plotStyle + "font-size:1.2rem",
     marginLeft: 50,
     x: { axis: "bottom", label: null, domain: data.map((v) => v.x) },
     y: { label: yLabel, tickFormat: "~s", ticks: 4 },
@@ -156,9 +152,16 @@ function createHeatMapChart(key, chartData, clickCallback) {
     _.getCSSVar("--color-amber-red"),
     _.getCSSVar("--color-red"),
   ];
+  const RAG_CONTRAST_COLORS_X = [
+    _.getCSSVar("--color-green-contast"),
+    _.getCSSVar("--color-green-amber-contast"),
+    _.getCSSVar("--color-amber-contast"),
+    _.getCSSVar("--color-amber-red-contast"),
+    _.getCSSVar("--color-red-contast"),
+  ];
   const RAG_CONTRAST_COLORS = ["black", "black", "black", "white", "white"];
   const id = getChartId(key);
-  const chartProp = Param.getParam("chart-properties", key);
+  const chartProps = Param.getParam("chart-properties", key);
   const {
     domain: { countDomain, xDomain, yDomain },
     data,
@@ -172,7 +175,7 @@ function createHeatMapChart(key, chartData, clickCallback) {
     x_labels,
     y_label,
     y_labels,
-  } = chartProp;
+  } = chartProps;
 
   function colorRange(domain) {
     const length = domain.length;
@@ -204,6 +207,7 @@ function createHeatMapChart(key, chartData, clickCallback) {
     if (i === -1) return "red";
     return fillFontColors.fontColor[i];
   }
+
   const plot = Plot.plot({
     padding: 0, //padding between cells
     height: 450,
@@ -212,8 +216,7 @@ function createHeatMapChart(key, chartData, clickCallback) {
     marginTop: 40,
     marginLeft: 60,
     color,
-    style: "width:100%;height:100%;font-family:inherit;font-size:.75rem",
-    // style: "width:100%;height:100%;font-family:inherit", // style: "font-family:inherit",
+    style: plotStyle + "font-size:.75rem",
     x: { domain: xDomain },
     y: { domain: yDomain },
     marks: [
@@ -300,39 +303,28 @@ function createNoteChart(key) {
   }
 }
 
-function createBannerChart(key, data, clickCallback) {
-  const id = getChartId(key);
-  const chartDiv = _.clearHTML("#" + id);
-  const container = _.select("#chart-container-" + key);
-
-  const { tag, chartTitle } = Param.getParam("chart-properties", key);
-
-  const e = _.createElements({ [tag]: { text: chartTitle } });
-  // console.log({key, e, chartDiv})
-  chartDiv.append(e);
-  console.log({ key, e, chartDiv, chartTitle });
-  {
-    // remove non banner elements
-    _.select("span", container).textContent = "";
-    const footer = _.select(".chart-footer", container);
-    footer.remove();
-  }
-}
-
 function createCallout(key, callout) {
   const e = _.select(`#callout-${key}`);
   if (!e) return;
-  const topE = _.select("#top", e);
-  const bottomE = _.select("#bottom", e);
-  const { top, bottom } = callout;
-  topE.textContent = top;
-  bottomE.textContent = bottom;
-  // const svg = donutChart(Math.trunc(100*Math.random())/100)
-  // topE.append(svg)
+
+  const { value, message } = callout;
+
+  _.select("#value", e).title = value;
+  _.select("#value", e).textContent = value.toLocaleString(undefined, {
+    notation: "compact",
+  });
+  // _.select("#value", e).textContent = new Intl.NumberFormat(undefined, {
+  //   notation: "compact",
+  // }).format(value);
+
+  // _.select("#value", e).textContent = value.toLocaleString();
+  // _.select("#value", e).textContent = new Intl.NumberFormat().format(value);
+
+  _.select("#message", e).textContent = message;
 }
 function createTableChart(key, { data, labels }) {
   const id = getChartId(key);
-  // const chartProp = Param.getParam("chart-properties",key)
+  // const chartProps = Param.getParam("chart-properties",key)
   const oneConfig = Param.getParam("chart-properties", key);
   const chartDiv = _.clearHTML("#" + id);
 
@@ -400,7 +392,7 @@ function createPlanChart(key, { data }, clickCallback) {
   const id = getChartId(key);
   const { annotations, firstLabel, secondLabel } = Param.getParam(
     "chart-properties",
-    key
+    key,
   );
   const oneConfig = Param.getParam("chart-properties", key);
 
@@ -437,7 +429,8 @@ function createPlanChart(key, { data }, clickCallback) {
   });
   let domain = [firstLabel],
     range = [_.getCSSVar("--color-brand")];
-  if (hasRag && hasSecondDate) {
+  if (hasRag) {
+    //&& hasSecondDate) {
     domain = [
       firstLabel,
       secondLabel + "(B)",
@@ -446,31 +439,31 @@ function createPlanChart(key, { data }, clickCallback) {
       secondLabel + "(R)",
     ];
     range = [
-      _.getCSSVar("--color-brand"),
-      _.getCSSVar("--color-blue"),
-      _.getCSSVar("--color-green"),
-      _.getCSSVar("--color-amber"),
-      _.getCSSVar("--color-red"),
+      _.getCSSVar("--color-brand"), //fill-brans
+      _.getCSSVar("--color-blue"), //fill-blue
+      _.getCSSVar("--color-green"), //fill-green
+      _.getCSSVar("--color-amber"), //fill-amber
+      _.getCSSVar("--color-red"), //fill-red
     ];
   }
   if (!hasRag && hasSecondDate) {
     domain = [firstLabel, secondLabel];
-    range = [_.getCSSVar("--color-brand"), _.getCSSVar("--color-90-90")];
+    range = [_.getCSSVar("--color-brand"), _.getCSSVar("--color-plus-90")];
   }
-  if (hasRag && !hasSecondDate) {
-    domain = [
-      firstLabel + "(B)",
-      firstLabel + "(G)",
-      firstLabel + "(A)",
-      firstLabel + "(R)",
-    ];
-    range = [
-      _.getCSSVar("--color-blue"),
-      _.getCSSVar("--color-green"),
-      _.getCSSVar("--color-amber"),
-      _.getCSSVar("--color-red"),
-    ];
-  }
+  // if (hasRag && !hasSecondDate) {
+  //   domain = [
+  //     firstLabel + "(B)",
+  //     firstLabel + "(G)",
+  //     firstLabel + "(A)",
+  //     firstLabel + "(R)",
+  //   ];
+  //   range = [
+  //     _.getCSSVar("--color-blue"),
+  //     _.getCSSVar("--color-green"),
+  //     _.getCSSVar("--color-amber"),
+  //     _.getCSSVar("--color-red"),
+  //   ];
+  // }
 
   const dateFormat = (d) => {
     return d3.timeFormat("%d %b")(d); // d.toDateString().substring(4, 10)
@@ -491,8 +484,7 @@ function createPlanChart(key, { data }, clickCallback) {
   const p = Plot.plot({
     // height: _.getCSSVar("--is-print") === "true" ? 600 : screen.height * 0.7,
     marginLeft: 5,
-    style: "width:100%;height:100%;font-family:inherit;font-size:.75rem",
-    // style: "width:100%; height: 100 %; ", //"width: 100%; height: 100 %; font: inherit; ",
+    style: plotStyle + "font-size:.75rem",
     x: {
       axis: "top",
       grid: true,
@@ -543,7 +535,7 @@ function createPlanChart(key, { data }, clickCallback) {
         dx: 5,
       }),
       Plot.dot(plotData, {
-        x: (d) => (d.milestone ? d.start ?? d.secondStartDate : null),
+        x: (d) => (d.milestone ? (d.start ?? d.secondStartDate) : null),
         r: (d) => (d.milestone ? 1 : 0),
         y: "row",
         fill: "rag",
@@ -574,7 +566,7 @@ function createTrendChart(key, { domain, data }, clickCallback) {
   const { reportDate } = Param.getParam("config");
   const { annotations, x_label, x_column } = Param.getParam(
     "chart-properties",
-    key
+    key,
   );
   const xLabel = _.pick1stNonBlank(x_label, x_column);
   const annotationArray = getAnnotations(annotations);
@@ -599,8 +591,8 @@ function createTrendChart(key, { domain, data }, clickCallback) {
     // type: xLabel,
   }));
   const timelineColor = _.getCSSVar("--color-brand");
-  const planColor = _.getCSSVar("--color-120-120");
-  const forecastColor = _.getCSSVar("--color-120-240");
+  const planColor = _.getCSSVar("--color-plus-120");
+  const forecastColor = _.getCSSVar("--color-plus-240");
 
   const range = [timelineColor];
   if (domain.plan) range.push(planColor);
@@ -613,13 +605,19 @@ function createTrendChart(key, { domain, data }, clickCallback) {
   };
 
   const maxPlotValue = plotData.reduce((max, v) => (v.v > max ? v.v : max), 0);
+  const line = (data, { strokeDasharray, strokeWidth, marker }) =>
+    Plot.line(data, {
+      x: (d) => d.x,
+      y: (d) => d.v,
+      strokeWidth,
+      strokeDasharray,
+      stroke: (d) => d.type,
+      marker: marker,
+    });
   const p = Plot.plot({
-    // height: _.getCSSVar("--is-print") === "true" ? 600 : screen.height * 0.7,
-    // marginLeft: 5,
-    // style: "width:100%; height: 100 %; ", //"width: 100%; height: 100 %; font: inherit; ",
     x: { axis: "bottom", label: null /* grid: true */ },
     y: { axis: "left" /* grid: true */ },
-    style: "width:100%;height:100%;font-family:inherit;font-size:.75rem",
+    style: plotStyle + "font-size:.75rem",
     color,
     marks: [
       Plot.ruleX(annotationArray, {
@@ -636,33 +634,41 @@ function createTrendChart(key, { domain, data }, clickCallback) {
         rotate: (d) => d.rotate,
         fontStyle: "italic",
       }),
-      Plot.line(
-        plotData.filter((d) => d.type === "Timeline"),
-        {
-          x: (d) => d.x,
-          y: (d) => d.v,
+      // Plot.line(
+      //   plotData.filter((d) => d.type === "Timeline"),
+      //   {
+      //     x: (d) => d.x,
+      //     y: (d) => d.v,
 
-          strokeWidth: (d) => (d.type === "Timeline" ? 3 : 1),
-          // TODD Fix strokeDasharray
-          // strokeDasharray: 3, //works
-          // strokeDasharray: (d) => (d.type === "Timeline" ? 1 : 3), //does not work
-          stroke: (d) => d.type,
-          // marker: (d) => d.type !== "Timeline", //does not work
-          // tip: (d) => `${d.x}: ${d.v}`,
-          // tip: "xy",
-        }
+      //     strokeWidth: (d) => (d.type === "Timeline" ? 3 : 1),
+      //     // TODD Fix strokeDasharray
+      //     // strokeDasharray: 3, //works
+      //     // strokeDasharray: (d) => (d.type === "Timeline" ? 1 : 3), //does not work
+      //     stroke: (d) => d.type,
+      //     // marker: (d) => d.type !== "Timeline", //does not work
+      //     // tip: (d) => `${d.x}: ${d.v}`,
+      //     // tip: "xy",
+      //   },
+      // ),
+      line(
+        plotData.filter((d) => d.type === "Timeline"),
+        { marker: true },
       ),
-      Plot.line(
+      line(
         plotData.filter((d) => d.type !== "Timeline"),
-        {
-          x: (d) => d.x,
-          y: (d) => d.v,
-          strokeWidth: 1,
-          // strokeDasharray: 3, //works
-          stroke: (d) => d.type,
-          marker: true,
-        }
+        {},
       ),
+      // Plot.line(
+      //   plotData, //.filter((d) => d.type !== "Timeline"),
+      //   {
+      //     x: (d) => d.x,
+      //     y: (d) => d.v,
+      //     strokeWidth: (d) => (d.type === "Timeline" ? 3 : 1),
+      //     // strokeDasharray: 3, //works
+      //     stroke: (d) => d.type,
+      //     marker: true,
+      //   },
+      // ),
       Plot.crosshair(plotData, {
         x: (d) => d.x,
         y: (d) => d.v,
@@ -677,7 +683,7 @@ function createTrendChart(key, { domain, data }, clickCallback) {
           textAnchor: "center",
           dy: -10,
           // })
-        })
+        }),
       ),
     ],
   });
@@ -689,9 +695,9 @@ function createTrendChart(key, { domain, data }, clickCallback) {
 }
 
 function destroyAllCharts() {
-  _.clearHTML("#wrapper");
   _.clearHTML("#toc");
-  _.clearHTML("#callout-wrapper");
+  _.clearHTML(".callout-container")
+  _.clearHTML(".chart-container")
 }
 ///////////////////////////////////////////
 // d3.linearRegression
@@ -709,7 +715,6 @@ function destroyAllCharts() {
 function linearRegression(data) {
   // Calculate mean of x and y values
   const n = data.length;
-  // console.log(n)
   let sumX = 0,
     sumY = 0;
 
@@ -730,10 +735,10 @@ function linearRegression(data) {
   }
   const slope = Math.round((100 * numerator) / denominator) / 100;
   const intercept = Math.round(100 * (meanY - slope * meanX)) / 100;
-  return { slope, intercept };
+  return [slope, intercept];
 }
 function testLr(
-  data = [246, 248, 250, 251, 252, 253, 253, 255, 256, 258, 258, 260, 262, 387]
+  data = [246, 248, 250, 251, 252, 253, 253, 255, 256, 258, 258, 260, 262, 387],
 ) {
   return linearRegression(data);
 }
@@ -749,7 +754,7 @@ function donutChart(value, options) {
   const offsetAngle = Math.PI * (2 - topValueToDisplay);
   const data = [
     { name: showMax ? "x" : "y", value: topValueToDisplay },
-    { name: showMax ? "y" : "x", value: 1 - topValueToDisplay }
+    { name: showMax ? "y" : "x", value: 1 - topValueToDisplay },
   ];
   const width = 200;
   const height = Math.min(width, 200);
@@ -779,8 +784,8 @@ function donutChart(value, options) {
       pie(data).map((d) => ({
         ...d,
         startAngle: d.startAngle + offsetAngle,
-        endAngle: d.endAngle + offsetAngle
-      }))
+        endAngle: d.endAngle + offsetAngle,
+      })),
     )
     .join("path")
     .attr("fill", (d) => (d.data.name == "x" ? color : "grey"))
@@ -791,7 +796,7 @@ function donutChart(value, options) {
   const text = isValidValue
     ? options?.display
       ? options.display
-      : d3.format("~%")(isValidValue?value:"xx")
+      : d3.format("~%")(isValidValue ? value : "xx")
     : "Invalid";
   svg
     .append("g")
@@ -840,8 +845,8 @@ function amimateChart(chartSelector) {
     chartType === "Bar" || _.is2X2(chartType)
       ? "y"
       : chartType === "Plan"
-      ? "x"
-      : undefined;
+        ? "x"
+        : undefined;
 
   if (!xy) return;
 

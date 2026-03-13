@@ -213,14 +213,14 @@ const _ = (function () {
     selector,
     callback,
     options,
-    parent = document
+    parent = document,
   ) {
     parent.addEventListener(
       type,
       (e) => {
         if (e.target.matches(selector)) callback(e);
       },
-      options
+      options,
     );
   }
 
@@ -343,7 +343,7 @@ const _ = (function () {
               ? obj[k]
               : {}
             : []),
-        res
+        res,
       );
       return res;
     }, {});
@@ -450,11 +450,11 @@ const _ = (function () {
     return tokens;
   }
   function isEmptyObject(obj) {
-    return Object.keys(obj).length === 0;
+    return obj ? Object.keys(obj).length === 0 : true;
   }
   function isNoValueObject(obj) {
     const values = Object.values(obj).map((v) =>
-      typeof v === "string" ? v.trim() : "x"
+      typeof v === "string" ? v.trim() : "x",
     );
     return values.join("") === "";
   }
@@ -472,7 +472,7 @@ const _ = (function () {
         acc +
         v +
         (i === arr.length - 2 ? last : i === arr.length - 1 ? "" : main),
-      ""
+      "",
     );
   }
   function isInteger(x) {
@@ -486,13 +486,13 @@ const _ = (function () {
 
     const isTupleOrdered = (a, b) => (isAscending ? a >= b : b >= a);
     const isOrdered = arr.every(
-      (v, i) => i === 0 || isTupleOrdered(v, arr[i - 1])
+      (v, i) => i === 0 || isTupleOrdered(v, arr[i - 1]),
     );
     return isOrdered;
   }
   function pick1stNonBlank(...args) {
     const x = args.find(
-      (arg) => arg && typeof arg === "string" && arg.trim() !== ""
+      (arg) => arg && typeof arg === "string" && arg.trim() !== "",
     );
     return x ? x.trim() : "";
   }
@@ -517,6 +517,12 @@ const _ = (function () {
     });
     return output;
   }
+  function escapeHTML(str) {
+    if (typeof str !== "string") return str
+    const p = document.createElement("p");
+    p.textContent = str;
+    return p.innerHTML;
+  }
   function isUndefinedString(v) {
     if (v === undefined) return true;
     if (typeof v !== "string") return true;
@@ -533,9 +539,9 @@ const _ = (function () {
 
   function parse(str) {
     try {
-      return JSON.parse(str);
-    } catch (e) {
-      return { error: "parse failed" };
+      return [JSON.parse(str), null];
+    } catch (error) {
+      return [null, error];
     }
   }
   async function isValidFile(url) {
@@ -561,7 +567,19 @@ const _ = (function () {
   function isPresent(str) {
     return str && typeof str === "string" && str.trim() !== "";
   }
+  // function tc(func) {
+  //   try {
+  //     const result = func();
+  //     return { result };
+  //   } catch (error) {
+  //     return { error };
+  //   }
+  // }
+  function capitaliseFirstLetter(str) {
+    return str[0].toUpperCase() + str.substring(1);
+  }
   return {
+    capitaliseFirstLetter,
     formatDate,
     isValidDate,
     dateTimeDiff,
@@ -592,6 +610,7 @@ const _ = (function () {
     isArray,
     pick1stNonBlank,
     cleanObject,
+    escapeHTML,
     isUndefinedString,
     toSentence,
     stringify,
@@ -632,10 +651,10 @@ function getKey(id) {
 function clearCounts() {
   saveCounts({});
 }
-function toSentence(name) {
+function toSentence(str) {
   //camel case to sentence
-  if (!name) return "Undefined";
-  const nameParts = name.split(/(?=[A-Z])/);
-  let label = nameParts.join(" ").toLowerCase();
+  if (!str) return "Undefined";
+  const parts = str.split(/(?=[A-Z])/);
+  let label = parts.join(" ").toLowerCase();
   return label[0].toUpperCase() + label.substring(1);
 }

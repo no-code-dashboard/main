@@ -1,15 +1,15 @@
 "use strict";
-import { _ } from "./util.js";
-import { getPresetKeys, getPresetConfig } from "./preset.js";
-import { Dialog } from "./dialog.js";
+import { _, getCounts } from "./util.js";
+import { getPresetConfig, validateConfigs } from "./preset.js";
+import { Dialog } from "./dialog/dialog.js";
 import { Param } from "./param.js";
-// import { configChart } from "./dialoguse.js";
+import { configChart } from "./dialog/chart-callout-.js";
 
 export { smokeTest };
 
 let testType = ["charts", "configs"]; //"configs", "charts" , "callouts", "quick"
 let duration = testType.includes("quick") ? 300 : 700;
-async function smokeTest(loadPresetFile, scrollToChart, configChart) {
+async function smokeTest(loadConfigFile, loadPresetFile, scrollToChart) {
   const startSmoke = new Date();
   console.clear();
   const elements = [{ tag: "h2", label: "Smoke test results" }, { tag: "hr" }];
@@ -19,8 +19,8 @@ async function smokeTest(loadPresetFile, scrollToChart, configChart) {
   record();
   record(
     `Smoke test done(testtype = ${testType.join(", ")}): ${elapsedTime(
-      startSmoke
-    )} s`
+      startSmoke,
+    )} s`,
   );
   elements.push({ tag: "hr" }, { tag: "button", label: "Close" });
   Dialog.make(elements, { callback, classes: "dialog" }).show();
@@ -30,15 +30,19 @@ async function smokeTest(loadPresetFile, scrollToChart, configChart) {
   }
 
   async function testCharts() {
-    const { keys } = await getPresetKeys("demo");
+    const configs = await loadConfigFile(`../jsons/demo.json`, true);
+    const [keys, configErr] = validateConfigs(configs);
+    if (configErr) {
+      Dialog.alert("Smoke test aborted: " + configErr);
+      return;
+    }
     const main = document.querySelector("main");
-    // const savesStyle = body.style
-    // body.style.scrollBehavior = "smooth"
+
     for (const key of keys) {
       const startLap = new Date();
       const presetType = key;
       await loadPresetFile(presetType);
-      await scrollToEndAndBack(_.select("nav"), _.select("footer")); //_.select("body"));
+      await scrollToEndAndBack(_.select("nav"), _.select("footer"));
       // await _.sleep(duration);
       const numberOfCharts = Param.getParam("chart-count");
       if (false && numberOfCharts) {
@@ -64,7 +68,7 @@ async function smokeTest(loadPresetFile, scrollToChart, configChart) {
       if (!chartProperties) return -1;
       const chartCount = chartProperties.length;
       const firstBarChart = chartProperties.findIndex(
-        (v) => v.chartType === "Bar"
+        (v) => v.chartType === "Bar",
       );
 
       if (firstBarChart === -1) return -1;
@@ -85,7 +89,7 @@ async function smokeTest(loadPresetFile, scrollToChart, configChart) {
   }
   async function testConfigDialogs() {
     if (!testType.includes("configs")) return;
-    const numberOfCharts = Param.getParam("chart-count");
+    const numberOfCharts = 1; //Param.getParam("chart-count");
     for (let j = 0; j < numberOfCharts; j++) {
       const startLap = new Date();
       // scrollToChart(j);
@@ -96,12 +100,32 @@ async function smokeTest(loadPresetFile, scrollToChart, configChart) {
       // console.log(dialog,dialog.open)
       const form = _.select("form", dialog);
       // const end = _.selectAll("button", dialog)
-      await scrollToEndAndBack(form, form);
+
+      const types = [
+        "Bar",
+        "Plan",
+        "Note",
+        "Risk",
+        "2X2",
+        "State Change",
+        "Data Table",
+        "Trend",
+        "Trend OC",
+        "Data Description",
+      ];
+
+      for (const type of types) {
+        Dialog.test("set", "chartType", type);
+        Dialog.test("open");
+
+        // Now the loop will properly pause here until this finishes
+        await scrollToEndAndBack(form, form);
+      }
 
       // console.log(dialog.offsetHeight)
       // dialog.scrollBy({ top: 100000, behavior: "smooth" });
       // dialog.scrollTop = dialog.scrollHeight;
-      // await _.sleep(duration);
+      await _.sleep(duration);
       Dialog.close();
       record(`Config for chart ${j} done: ${elapsedTime(startLap)} s`);
     }
@@ -128,7 +152,7 @@ async function scrollToEndAndBack(start, end) {
   start.scrollIntoView({ block: "start", behavior: "smooth" });
   await _.sleep(duration);
 }
-import { chartTypes } from "./chart-types.js";
+import { chartTypes } from "./chart-types/chart-types.js";
 function validateObjects() {
   const invalids = {};
   for (const ct in chartTypes) {
@@ -137,7 +161,7 @@ function validateObjects() {
       "validateChart",
       "chartPlaceholders",
       "chartOverlay",
-      "chartDefaults",
+      "presets",
     ];
     list.forEach((l) => {
       if (!ct[l]) invalids[ct] = l;
@@ -148,3 +172,4 @@ function validateObjects() {
 window.__dialogData = () => Dialog.data();
 window.__config = () => Param.getParam("config");
 window.__OK = () => validateObjects();
+window.__allCounts = () => getCounts();

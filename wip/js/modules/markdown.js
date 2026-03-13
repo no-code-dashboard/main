@@ -1,18 +1,18 @@
-export {markdownToHtml}
+"use strict";
+
+export { markdownToHtml };
 /**
  * Main function to convert the limited Markdown text to HTML.
  * Supports: Bold, Italics, Links, Unordered Lists (*, -), Ordered Lists (N.)
  * @param {string} markdown - The raw markdown input string.
  * @returns {string} - The resulting HTML string.
  */
-function markdownToHtml(markdown) {
+function xxxmarkdownToHtml(markdown) {
   const lines = markdown.split("\n");
   let output = [];
-  const xxxelements = { div: { class: "markdown" } };
-  const xOutput = [];
   let inUnorderedList = false;
   let inOrderedList = false;
-
+  let inTable = false;
   function push(tag) {
     output.push(tag);
     if (tag.startsWith("</")) {
@@ -29,6 +29,10 @@ function markdownToHtml(markdown) {
     if (inOrderedList) {
       push("</ol>");
       inOrderedList = false;
+    }
+    if (inTable) {
+      push("</table>");
+      inTable = false;
     }
   }
 
@@ -61,6 +65,37 @@ function markdownToHtml(markdown) {
       continue; // Done with this line
     }
 
+    if (trimmedLine.startsWith("|") && trimmedLine.endsWith("|")) {
+      const tds = trimmedLine
+        .substring(1, trimmedLine.length - 1)
+        .split("|")
+        .map((v) => v.trim(v));
+
+      let tdtag = "td";
+      if (!inTable) {
+        push("<table>");
+        inTable = true;
+        tdtag = "th";
+      }
+
+      let row = `<tr>`;
+      tds.forEach((td) => {
+        const [style, text] = getStyle();
+        row += `<${tdtag} ${style}>${processInline(text)}</${tdtag}>`;
+        function getStyle() {
+          if (tdtag !== "th") return ["", td];
+          const trailingHyphens = td.match(/-*$/)[0].length;
+          if (trailingHyphens <= 0) return ["", td];
+          return [
+            `style="width:${trailingHyphens * 10}%"`,
+            td.replace(/-*$/, ""),
+          ];
+        }
+      });
+      row += `</tr>`;
+      push(row);
+      continue;
+    }
     // 3. Check for Ordered List Item
     // Regex: Matches digits followed by a dot and a space (e.g., "1. ")
     const olMatch = trimmedLine.match(/^(\d+\.\s)(.*)/);
@@ -86,7 +121,7 @@ function markdownToHtml(markdown) {
 
     // Process inline elements and wrap in <p> tag
     const paragraph = processInline(trimmedLine);
-    push(`<p>${paragraph}</p>`); 
+    push(`<p>${paragraph}</p>`);
     //create {p:{text: paragraph}} or {p:paragraph}
   }
 
@@ -98,19 +133,26 @@ function markdownToHtml(markdown) {
 
   function processInline(text) {
     const rules = [
+      //h1, h2, h3
+      [/^###\s*(.*)/gm, `<h3>$1</h3>`],
+      [/^##\s*(.*)/gm, `<h2>$1</h2>`],
+      [/^#\s*(.*)/gm, `<h1>$1</h1>`],
+
       //bold, italics and paragragh rules
       [/\*\*\s?([^\n]+)\*\*/g, "<b>$1</b>"],
       [/\*\s?([^\n]+)\*/g, "<i>$1</i>"],
       [/__([^_]+)__/g, "<b>$1</b>"],
       [/_([^_`]+)_/g, "<i>$1</i>"],
-      // [/([^\n]+\n?)/g, "<p>$1</p>"],
 
       //links
       [/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>'],
 
       //Lists
       [/([^\n]+)(\+)([^\n]+)/g, "<ul><li>$3</li></ul>"],
-      [/([^\n]+)(\*)([^\n]+)/g, "<ul><li>$3</li></ul>"],
+      // [/([^\n]+)(\*)([^\n]+)/g, "<ul><li>$3</li></ul>"],
+      [/^\-\s/g, "<ul><li>$3</li></ul>"],
+      //code
+      [/`([^`]+)`/g, "<code>$1</code>"],
 
       //Image
       // [
@@ -119,94 +161,16 @@ function markdownToHtml(markdown) {
       // ],
     ];
     let innerHTML = text;
+
     rules.forEach(
       ([rule, template]) => (innerHTML = innerHTML.replace(rule, template))
     );
     return innerHTML;
-
-    // 1. Links: [text](url) -> <a href="url">text</a>
-    // Note: Links must be processed first to prevent bold/italic markers inside the link text/url from being processed.
-    let html = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
-
-    // 2. Bold: **text** or __text__ -> <strong>text</strong>
-    // Using non-greedy and ensuring no space around the content for typical markdown flavor
-    html = html.replace(/\*\*([^\s].*?[^\s])\*\*/g, "<strong>$1</strong>");
-    html = html.replace(/__([^\s].*?[^\s])__/g, "<strong>$1</strong>");
-    // Handle cases where bold markers might be at the start/end of a line without surrounding space (if necessary, though the regex above should handle most cases)
-    html = html.replace(/\*\*([^\*]+?)\*\*/g, "<strong>$1</strong>");
-    html = html.replace(/__([^_]+?)__/g, "<strong>$1</strong>");
-
-    // 3. Italics: *text* or _text_ -> <em>text</em>
-    // Using non-greedy and ensuring no space around the content
-    html = html.replace(/\*([^\s][^\*]*?[^\s])\*/g, "<em>$1</em>");
-    html = html.replace(/_([^\s][^_]*?[^\s])_/g, "<em>$1</em>");
-    // Handle remaining cases
-    html = html.replace(/\*([^\*]+?)\*/g, "<em>$1</em>");
-    html = html.replace(/_([^_]+?)_/g, "<em>$1</em>");
-
-    // let htmlx = text + "\n";
-    // rules.forEach(
-    //   ([rule, template]) => (htmlx = htmlx.replace(rule, template))
-    // );
-    // console.log({htmlx:htmlx.split("\n"),html})
-
-    return html;
   }
 }
-/**
- * Simple Markdown Parser with Details/Summary support for '##' headings.
- * @param {string} markdownText The raw markdown string to parse.
- * @returns {string} The HTML representation of the markdown.
- */
-function parseLimitedMarkdown(markdownText) {
-    let html = markdownText;
-
-    // --- 1. DETAILS/SUMMARY LOGIC (Handles '##' and content until the next '##') ---
-
-    // Split the text by '##' to separate the detail sections.
-    const sections = html.split(/^##\s*(.*)$/gm);
-    let detailsHtml = '';
-
-    // The first element might be text before the first '##', which we process normally.
-    let remainingText = sections[0] || '';
-
-    // Iterate through the captured content and titles (the split creates title/content pairs)
-    for (let i = 1; i < sections.length; i += 2) {
-        const title = sections[i].trim();
-        const content = sections[i + 1] || '';
-
-        // Add the collapsible structure
-        detailsHtml += `\n<details>\n<summary>${title}</summary>\n${content}\n</details>\n`;
-    }
-
-    // Combine the initial text with the generated details/summary blocks
-    html = remainingText + detailsHtml;
-
-
-    // --- 2. REMAINING REGULAR EXPRESSION TRANSFORMATIONS ---
-
-    // A. HEADERS (Other levels: # H1, ### H3, etc.)
-    // We only process lines starting with #, ###, ####, #####, ###### now.
-    html = html.replace(/^(\#|\#{3,6})\s*(.*)$/gm, (match, hashes, content) => {
-        const level = hashes.length;
-        return `<h${level}>${content.trim()}</h${level}>`;
-    });
-
-    // B. LINKS: [Text](url)
-    html = html.replace(/\[([^]+?)\]\(([^)]+?)\)/g, '<a href="$2">$1</a>');
-
-    // C. BOLD: **text** or __text__
-    html = html.replace(/(\*\*|__)(.*?)\1/g, '<strong>$2</strong>');
-
-    // D. ITALICS: *text* or _text_
-    html = html.replace(/(\*|_)(.*?)\1/g, '<em>$2</em>');
-
-    // E. LISTS (Unordered: * or - at the start of a line)
-    // Step 1: Convert each list item line to an <li> tag.
-    html = html.replace(/^[\*\-]\s+(.*)$/gm, '<li>$1</li>');
-
-    // Step 2: Wrap all consecutive <li> items with <ul> tags.
-    html = html.replace(/(<li>.*?<\/li>(\s*<li>.*?<\/li>)*)/gs, '<ul>\n$1\n</ul>');
-
-    return html;
+import { marked } from "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js";
+// document.getElementById('content').innerHTML =
+//   marked.parse('# Marked in the browser\n\nRendered by **marked**.');
+function markdownToHtml(line) {
+  return marked.parse(line);
 }
