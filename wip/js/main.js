@@ -13,7 +13,11 @@ import {
   clearCounts,
 } from "./modules/util.js";
 
-import { getPresetKeys, getPresetConfig } from "./modules/preset.js";
+import {
+  getPresetConfig,
+  validateConfigs,
+  validateConfig,
+} from "./modules/preset.js";
 import { Logger } from "./modules/logger.js";
 import {
   drawChart,
@@ -22,20 +26,15 @@ import {
   amimateChart,
 } from "./modules/chart.js";
 import {
-  showLayoutDialog,
   showChartMenus,
-  configChart, //do we need this?
   showCalloutMenu,
-  showLoadFileDialog,
-} from "./modules/dialog-use.js";
-import { Dialog } from "./modules/dialog.js";
-// import { readFile } from "./modules/readwrite.js";
-
+} from "./modules/dialog/chart-callout-.js";
+import { showLoadFileDialog } from "./modules/dialog/loadfile.js";
+import { showLayoutDialog } from "./modules/dialog/dashborad-layout.js";
+import { Dialog } from "./modules/dialog/dialog.js";
 import { smokeTest } from "./modules/smoke-test.js";
-import { registerComponents } from "./modules/web-comp.js";
 
 window.addEventListener("load", (event) => {
-  registerComponents();
   addMenuListeners();
   const url = new URL(window.location.toLocaleString());
   const search = url.search;
@@ -44,36 +43,23 @@ window.addEventListener("load", (event) => {
     return;
   }
   const preset = search.replace("?", "").trim();
-  createPresetMenus(preset);
-  async function createPresetMenus(preset) {
-    const presetDiv = _.select("#top-nav #preset");
-    const notPresetDiv = _.select("#top-nav #not-preset");
-    const tocClone = _.selectAll("button", notPresetDiv)[0];
-
-    const { keys, error } = await getPresetKeys(preset);
-
-    if (error) {
-      Dialog.alert(error);
-      return;
-    }
-    keys.forEach((label, i) => {
-      const clone = tocClone.cloneNode(true);
-      clone.textContent = label;
-      clone.id = "preset-" + i;
-      clone.addEventListener("click", () => loadPresetFile(label));
-      presetDiv.appendChild(clone);
-    });
-    notPresetDiv.style.display = "none";
-    adjustMenusDisplay(["show-toc", "print"], "");
-    _.selectAll("#top-nav #preset .menu")[0].click();
-  }
+  const presets = {
+    demo: `./jsons/demo.json`,
+  };
+  if (preset in presets) loadConfigFile(presets[preset]);
+  else loadConfigFile(preset);
 });
 window.addEventListener("click", (e) => {
   const id = e.target.id;
-  // console.log(e.target.parentElement)
   if (id && id.startsWith("chart-")) {
     selectDiv("#" + id);
   }
+});
+window.addEventListener("error", (event) => {
+  const message = `Unhandled error. ${event.type}: ${event.message}`;
+  console.trace(message);
+  showErrorInDash(message);
+  Dialog.close();
 });
 function addMenuListeners() {
   const menus = _.selectAll(".menu");
@@ -87,35 +73,13 @@ function adjustMenusDisplay(ids = [], display = "") {
   ids.forEach((id) => (_.select("#" + id).style.display = display));
 }
 
-// window.addEventListener("scroll", (e) => {
-//   const goToTop = _.select("#go-to-top");
-//   const docEl = document.documentElement;
-//   const pos = docEl.scrollTop;
-//   const lastScrollTop = getItem("scroll-top") ?? pos;
-//   setItem("scroll-top", pos);
-//   if (lastScrollTop < pos) {
-//     goToTop.style.display = "none";
-//     return;
-//   }
-//   const h = docEl.scrollHeight - docEl.clientHeight;
-//   const scrollValue = Math.round((pos * 100) / h);
-
-//   if (scrollValue < 20) goToTop.style.display = "none";
-//   else {
-//     goToTop.style.display = "grid";
-//     goToTop.setAttribute("data-value", scrollValue);
-//   }
-
-//   // console.log(scrollValue)
-// });
-
 function setLoader(action) {
-  const progress = _.select("#loader-wrapper progress");
+  const progress = _.select("#loader-wrapper");
   progress.style.visibility = action === "show-progress" ? "visible" : "hidden";
   const show = action === "show" || action === "show-progress";
   const main = _.select("main");
-  main.style.visibility = show ? "hidden" : "visible";
-
+  // main.style.visibility = show ? "hidden" : "visible";
+  main.style.display = show ? "none" : "block";
   const loader = _.select("#loader-wrapper");
   loader.style.display = show ? "block" : "none";
 }
@@ -128,83 +92,34 @@ function readyDashboard() {
   _.select("h2", reportTitles).textContent = "";
   clearCounts();
   destroyAllCharts();
-  // _.sleep(1000);
 }
 
 async function loadPresetFile(presetType) {
-  setLoader("show-progress");
-  hideDropdown();
-  readyDashboard();
-  const cause = "handled error";
-  try {
-    if (!presetType) throw new Error(`presetType absent`, { cause });
-    highlightPresetMenu(presetType);
-    const { config, error } = getPresetConfig(presetType);
-    if (error) throw new Error(error, { cause });
-    const { files } = config;
-    if (!(await _.isValidFile(files[0])))
-      throw new Error(`Invalid file: ${files[0]}`, { cause });
-    Param.setParam("config", { newConfig: config, replace: true });
-    updateDataSource([files[0]]);
-    await countNow();
-  } catch (error) {
-    if (error.cause !== cause) console.error("unexpected", error);
-    Logger.logValues(error.message, "error");
-    Logger.showLogs();
-    setLoader("hide");
+  if (!presetType) {
+    showErrorInDash(`presetType missing`);
+    return;
   }
+  highlightPresetMenu(presetType);
+  const [config, error] = getPresetConfig(presetType);
+  if (error) {
+    showErrorInDash(error);
+    return;
+  }
+  loadAConfig(config, true);
 }
 
-async function loadNewData(blob, filename) {
-  Logger.clearLogs();
-  const config = Param.getParam("config");
-  const action = _.isEmptyObject(config)
-    ? "Reset Config"
-    : await actionOnConfig();
-  if (action === "Abort Load") return;
-  setLoader("show-progress");
-  readyDashboard();
-  if (action === "Reset Config") {
-    const dataDescription = await Counter.getCountsFromFile(
-      _.stringify({ blob })
-    );
-    console.log(dataDescription);
-    Param.setParam("config", { file: blob, dataDescription });
-  }
-  if (action === "Keep Config") Param.setParam("config", { file: blob });
-  updateDataSource([blob], [filename]);
-  await countNow();
-
-  adjustMenusDisplay(["show-toc", "print"], "");
-  setLoader("hide");
-  async function actionOnConfig() {
-    //to do get first row and compare
-    const areHeadersSame = false;
-    if (areHeadersSame) return "Keep Config";
-    return await Dialog.alert(`Config present`, [
-      "Keep Config",
-      "Reset Config",
-      "Abort Load",
-    ]);
-    return action;
-  }
-}
 async function showInitialChoice({ url, loadNewData }) {
   //to do get first row and compare
   const response = await Dialog.alert(
     ``,
-    ["Load data", "Show demo", "Cancel"],
-    "Select to proceed"
+    ["Load file", "Show demo", "Cancel"],
+    "Select to proceed",
   );
   if (response == "Show demo") {
     window.open("index.html?demo", "_self");
   }
-  if (response == "Load data") {
-    showLoadFileDialog({
-      header: "Load data file",
-      extention: ".csv",
-      loadFunction: loadNewData,
-    });
+  if (response == "Load file") {
+    loadFile();
   }
   return;
 }
@@ -226,9 +141,6 @@ function createTag(text, colorClass, tooltip) {
     span: { class: colorClass, text, "data-title": tooltip },
   });
 }
-
-// const hasFilter = (chartId) => {
-// }
 
 function showFilters() {
   const allCounts = getCounts();
@@ -285,13 +197,13 @@ function showCharts() {
   for (const key in allCounts.callouts) {
     const div = _.createElements(
       `<div class="callout" id="callout-${key}">
-        <div id="top"></div>
-        <div class="line"></div>
-        <button id="bottom"></button>
-      </div>`
+        <div id="value"></div>
+        <hr style="margin:0.5rem">
+        <button id="message"></button>
+      </div>`,
     );
 
-    const button = _.select("#bottom", div);
+    const button = _.select("#message", div);
     button.addEventListener("click", () => {
       selectDiv(`#callout-${key}`);
       showCalloutMenu(key, reCreateCharts, scrollToChart);
@@ -305,7 +217,7 @@ function showCharts() {
     const { chartType, chartTitleWithIndex, chartSize } = Param.getParam(
       "chart-properties",
       key,
-      true
+      true,
     );
     const spanClass = "" + chartSize.toLowerCase();
 
@@ -380,12 +292,11 @@ async function chartResetFilter(chartId) {
 }
 
 function menu(action) {
-
   if (action === "show-toc") {
     toggleDropdown();
     return;
   }
-  
+
   hideDropdown();
   if (action === "print") {
     //adjust toc for print
@@ -394,48 +305,35 @@ function menu(action) {
     return;
   }
 
-  if (action === "load-data") {
-    showLoadFileDialog({
-      header: "Load data file",
-      extention: ".csv",
-      loadFunction: loadNewData,
-    });
+  if (action === "load-file") {
+    loadFile();
     return;
   }
-  if (action == "upload-config") {
-    function loadConfig(file) {
-      fetch(file)
-        .then((response) => {
-          if (!response.ok) {
-            Dialog.alert("Network response was not ok");
-          }
-          return response.json();
-        })
-        .then((data) => {
-          // 'data' is the JavaScript object from the JSON file
-          console.log(data);
-          Param.setParam("config", { config: data, replace: true });
-          // You can now use the data to update your page
-          // For example: document.getElementById('my-element').textContent = data.message;
-        })
-        .catch((error) => {
-          Dialog.alert("There was a problem with the fetch operation:", error);
-        });
-    }
-    showLoadFileDialog({
-      header: "Load config file",
-      extention: ".json",
-      loadFunction: loadConfig,
-    });
-    return;
-  }
-  if (action == "download-config") {
+  if (action == "save-config") {
+    //todo check this
     const config = Param.getParam("config");
-    const json = JSON.stringify(config, null, 2);
+    const downloadAt = Date();
+    const json = JSON.stringify({ [downloadAt]: config }, null, 2);
     if (json == "{}") return;
     navigator.clipboard.writeText(json);
     downloadFile(json, "config.json");
     return;
+    function downloadFile(data, name, type = "application/json") {
+      const blob = new Blob([data], { type });
+      const href = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+
+      Object.assign(a, {
+        href,
+        style: "display: none",
+        download: name,
+      });
+      document.body.appendChild(a);
+
+      a.click();
+      window.URL.revokeObjectURL(href);
+      a.remove();
+    }
   }
   if (action == "configure-dashboard") return showLayoutDialog(reCreateCharts);
 
@@ -444,13 +342,11 @@ function menu(action) {
   }
 
   if (action === "smoke-test") {
-    smokeTest(loadPresetFile, scrollToChart, configChart);
+    smokeTest(loadConfigFile, loadPresetFile, scrollToChart);
     return;
   }
 
-  const error = `"${action}" not implemented`;
-  // console.error(error)
-  Dialog.alert(error);
+  showErrorInDash(`"${action}" not implemented`);
 }
 
 function updateDataSource(sources, names) {
@@ -493,15 +389,11 @@ function toggleDropdown() {
   // toc.classList.toggle("only-print");
 }
 function highlightPresetMenu(label) {
-  //     const presetAList = document
-  //         .querySelector("#top-nav")
-  //         .querySelector("#preset")
-  //         .querySelectorAll("a")
-  //     for (let i = 0; i < presetAList.length; i++) {
-  //         const a = presetAList[i]
-  //         a.classList.remove("focus")
-  //         if (a.textContent === label) a.classList.add("focus")
-  //     }
+  // const presetButtons = _.selectAll("#preset button");
+  // presetButtons.forEach((button) => {
+  //   button.blur();
+  //   if (button.textContent === label) button.focus();
+  // });
 }
 
 async function reCreateCharts(key, removeFilter = false) {
@@ -515,7 +407,6 @@ async function reCreateCharts(key, removeFilter = false) {
 
 function scrollToChart(key) {
   if (!key) return;
-  console.log(key);
   const chart = _.select(`#${getChartContainer(key)}`);
   if (!chart) return;
   chart.scrollIntoView(false);
@@ -531,18 +422,66 @@ function selectDiv(selector) {
   const div = _.select(selector);
   if (!div) return;
   amimateChart(selector, "bar");
-  console.log(selector);
   div.classList.add("selected", "flash-border");
   _.sleep(1500).then(() => {
     div.classList.remove("flash-border");
   });
 }
+
+/////////////////
+function loadFile() {
+  showLoadFileDialog({
+    header: "Load file",
+    loadData: loadNewData,
+    loadConfigFile,
+  });
+}
+async function loadNewData(blob, filename) {
+  /**
+  Data present?	Action
+  No	          Load data and create config
+  Yes	          Ask if data be loaded
+  */
+  Logger.clearLogs();
+  const config = Param.getParam("config");
+  const action = _.isEmptyObject(config)
+    ? "Reset Config"
+    : await actionOnConfig();
+  if (action === "Abort Load") return;
+  setLoader("show-progress");
+  readyDashboard();
+  if (action === "Reset Config") {
+    const dataDescription = await Counter.getCountsFromFile(
+      _.stringify({ blob }),
+    );
+    Param.autoCreateConfig(blob, dataDescription);
+  }
+  if (action === "Keep Config") Param.setParam("config-file", { file: blob });
+  updateDataSource([blob], [filename]);
+  await countNow();
+
+  adjustMenusDisplay(
+    ["show-toc", "configure-dashboard", "save-config", "print"],
+    "",
+  );
+  setLoader("hide");
+  async function actionOnConfig() {
+    //to do get first row and compare
+    const areHeadersSame = false;
+    if (areHeadersSame) return "Keep Config";
+    return await Dialog.alert(`Config present`, [
+      "Keep Config",
+      "Reset Config",
+      "Abort Load",
+    ]);
+    return action;
+  }
+}
 /* 
 mvp
 bug - table showing more that 10 (done: was a bug for new files)
 bug - config bar not updating current values (done)
-
-fix tag: table and tag: objcet - to do button highlights
+fix tag: table and tag: objcet - to do button highlights (done)
 
 fix callout
 add donut to call out
@@ -550,3 +489,136 @@ read 2000 record limit on new file
 change language for the demo, help text
 
 */
+
+async function loadConfigFile(fileOrUrl, isSmokeTest = false) {
+  if (!fileOrUrl) {
+    showErrorInDash(`No input file provided`);
+    return;
+  }
+
+  const filename = _.stringify(fileOrUrl);
+
+  const [text, fileReadErr] =
+    fileOrUrl instanceof File
+      ? await readFile(fileOrUrl)
+      : typeof fileOrUrl === "string"
+        ? await readUrl(fileOrUrl)
+        : [null, `Invalid file type. File: ${filename}`];
+
+  if (fileReadErr) {
+    showErrorInDash(
+      `Cannot read file. File: ${filename}; error: ${fileReadErr}`,
+    );
+    return;
+  }
+
+  const [configs, invalidJsonErr] = _.parse(text);
+
+  if (invalidJsonErr) {
+    showErrorInDash(
+      `File is not JSON. File: ${filename}; error: ${invalidJsonErr}`,
+    );
+    return;
+  }
+  if (isSmokeTest) return configs;
+  else loadConfigs(configs);
+
+  async function readFile(file) {
+    try {
+      const text = await file.text();
+      return [text, null];
+    } catch (error) {
+      return [null, error];
+    }
+  }
+  async function readUrl(url) {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        return [null, `HTTP error! status: ${response.status}`];
+      }
+      const text = await response.text();
+      return [text, null];
+    } catch (error) {
+      return [null, error];
+    }
+  }
+}
+async function loadConfigs(configs) {
+  setLoader("show-progress");
+  hideDropdown();
+  readyDashboard();
+
+  const [keys, error] = validateConfigs(configs);
+
+  if (error) {
+    showErrorInDash(error);
+    return;
+  }
+
+  if (keys.length === 1) {
+    loadAConfig(configs[keys[0]]);
+    return;
+  }
+  const presetDiv = _.select("#top-nav #preset");
+  const notPresetDiv = _.select("#top-nav #not-preset");
+  const tocClone = _.selectAll("button", notPresetDiv)[0];
+
+  keys.forEach((label, i) => {
+    const clone = tocClone.cloneNode(true);
+    clone.textContent = label;
+    clone.id = "preset-" + i;
+    clone.addEventListener("click", () => loadPresetFile(label));
+    presetDiv.appendChild(clone);
+  });
+  notPresetDiv.style.display = "none";
+  adjustMenusDisplay(["show-toc", "print"], "");
+  _.selectAll("#top-nav #preset .menu")[0].click();
+}
+
+async function loadAConfig(config, isPreset = false) {
+  setLoader("show-progress");
+  hideDropdown();
+  readyDashboard();
+
+  const [, invalidConfigErr] = validateConfig(config);
+
+  if (invalidConfigErr) {
+    showErrorInDash(invalidConfigErr);
+    return;
+  }
+  const { files } = config;
+  const isValidFile = files && (await _.isValidFile(files[0]));
+
+  if (isPreset && !isValidFile) {
+    showErrorInDash(`Invalid file: ${files[0]}`);
+    return;
+  }
+  Param.setParam("config-replace", { newConfig: config });
+  if (!isValidFile) return;
+  updateDataSource([files[0]]);
+  if (!isPreset)
+    adjustMenusDisplay(
+      ["show-toc", "configure-dashboard", "save-config", "print"],
+      "",
+    );
+  await countNow();
+}
+function showErrorInDash(msg, type = "error") {
+  Logger.logValues(msg, type);
+  Logger.showLogs();
+  setLoader("hide");
+}
+
+//////////quick test area
+// import X from "../xxxx/van-1.6.0.js";
+// const { p } = X.tags;
+// console.log(typeof p);
+
+// function tryCatch(value, errsToCatch) {
+//   try {
+//     return [value, null];
+//   } catch (error) {
+//     return [null, error];
+//   }
+// }
