@@ -6,28 +6,78 @@
 */
 
 :where(html) {
-  --brand-font-family: "Trebuchet MS", system-ui, -apple-system, Segoe UI,
-    Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif;
-
-  --color-brand: #0939aaff;
-  --color-blue: #0d0df2ff;
-  --color-red: #f20d0dff;
-  --color-amber: #f2a10dff;
-  --color-green: #0ac20aff;
-  --color-90-90: #aa098aff;
-  --color-90-180: #aa7a09ff;
-  --color-90-270: #09aa2aff;
-  --color-120-120: #aa0939ff;
-  --color-120-240: #39aa09ff;
-
-  --brand: var(--color-brand);
-
-  --color-green-amber: color-mix(
-    in lch,
-    var(--color-green),
-    var(--color-amber)
-  );
-  --color-amber-red: color-mix(in lch, var(--color-amber), var(--color-red));
-
+  --brand-font-family:
+    "Trebuchet MS", system-elements, -apple-system, Segoe UI, Roboto, Ubuntu,
+    Cantarell, Noto Sans, sans-serif;
+  /* --color-brand: light-dark( hsl(240, 88%, 39%), hsl(240, 52%, 30%)); */
+  --color-brand: hsl(240, 88%, 39%);
   --chart-footer: "No-code-dashboard";
+
+  /* fill colors */
+  --color-blue: hsl(from var(--color-brand) 240 s l);
+  --color-red: hsl(from var(--color-brand) 0 s l);
+  --color-amber: hsl(from var(--color-brand) 45 s l);
+  --color-amber-red: hsl(from var(--color-brand) 22.5 s l);
+  --color-green: hsl(from var(--color-brand) 120 s l);
+  --color-green-amber: hsl(from var(--color-brand) 82.5 s l);
+  --color-plus-90: hsl(from var(--color-brand) calc(h + 90) s l);
+  --color-plus-180: hsl(from var(--color-brand) calc(h + 180) s l);
+  --color-plus-270: hsl(from var(--color-brand) calc(h + 270) s l);
+  --color-plus-120: hsl(from var(--color-brand) calc(h + 120) s l);
+  --color-plus-240: hsl(from var(--color-brand) calc(h + 240) s l);
+
+  /* text colors */
+  --color-blue-contast: oklch(from var(--color-blue) calc(l + 0.8) c h);
+  --color-red-contast: oklch(from var(--color-red) calc(l + 0.8) c h);
+  --color-amber-contast: oklch(from var(--color-amber) calc(l + 0.8) c h);
+  --color-amber-red-contast: oklch(
+    from var(--color-amber-red) calc(l + 0.8) c h
+  );
+  --color-green-contast: oklch(from var(--color-green) calc(l + 0.8) c h);
+  --color-green-amber-contast: oklch(
+    from var(--color-green-amber) calc(l + 0.8) c h
+  );
+  /* --color-red-contast: white; */
 }
+
+/* :root {
+
+  color: light-dark(rgb(186, 201, 235),rgb(243, 188, 157));
+  --color-brand: light-dark(#0939aaff,rgb(170, 68, 9));
+  --text-heading: light-dark(#000, #fff);
+  --text-body: light-dark(#212121, #efefef);
+  --surface: light-dark(#efefef, #212121);
+} */
+
+/* :root {
+  --bg-dark: oklch(0.1 0.1 264);
+  --bg: oklch(0.15 0.1 264);
+  --bg-light: oklch(0.2 0.1 264);
+  --text: oklch(0.96 0.1 264);
+  --text-muted: oklch(0.76 0.1 264);
+  --highlight: oklch(0.5 0.2 264);
+  --border: oklch(0.4 0.2 264);
+  --border-muted: oklch(0.3 0.2 264);
+  --primary: oklch(0.76 0.2 264);
+  --secondary: oklch(0.76 0.2 84);
+  --danger: oklch(0.7 0.2 30);
+  --warning: oklch(0.7 0.2 100);
+  --success: oklch(0.7 0.2 160);
+  --info: oklch(0.7 0.2 260);
+}
+body.light {
+  --bg-dark: oklch(0.92 0.1 264);
+  --bg: oklch(0.96 0.1 264);
+  --bg-light: oklch(1 0.1 264);
+  --text: oklch(0.15 0.2 264);
+  --text-muted: oklch(0.4 0.2 264);
+  --highlight: oklch(1 0.2 264);
+  --border: oklch(0.6 0.2 264);
+  --border-muted: oklch(0.7 0.2 264);
+  --primary: oklch(0.4 0.2 264);
+  --secondary: oklch(0.4 0.2 84);
+  --danger: oklch(0.5 0.2 30);
+  --warning: oklch(0.5 0.2 100);
+  --success: oklch(0.5 0.2 160);
+  --info: oklch(0.5 0.2 260);
+} */

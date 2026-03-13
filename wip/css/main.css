@@ -1,8 +1,13 @@
-/* html {
-    color-scheme: only light;
-} */
-* {
+html {
+  /* color-scheme: dark; */
   font-family: var(--brand-font-family);
+}
+body[data-theme="light"] {
+  color-scheme: light;
+}
+/* if user picks a dark theme */
+body[data-theme="dark"] {
+  color-scheme: dark;
 }
 
 body {
@@ -26,16 +31,12 @@ body {
   font-size: revert;
   max-inline-size: revert;
 }
-h1 {
+/* h1 {
   font-size: 2.5rem;
 }
 h2 {
   font-size: 1.5rem;
-}
-.line {
-  margin: 0.5rem;
-  border-top: 1px solid var(--text-1);
-}
+} */
 #loader {
   /* position: fixed;
   align-content: center;
@@ -214,11 +215,11 @@ section {
   min-height: 10rem;
   /* border-radius: 50%; */
   font-size: 1rem;
-  #top {
+  #value {
     font-size: 2rem;
     font-weight: bold;
   }
-  #bottom {
+  #message {
     align-items: baseline;
   }
 }
@@ -347,9 +348,9 @@ section {
 }
 .tag-error {
   border: none;
-  /* border: solid var(--color-red); */
   background-color: var(--color-red);
   color: white;
+  color: var(--color-red-contast);
 }
 .chart-footer {
   & .tag-warning {
@@ -382,4 +383,15 @@ section {
 .only-print {
   visibility: hidden;
   display: none;
+}
+
+/* charts svg */
+
+.bars {
+  fill: var(--color-brand);
+}
+.f-red {
+  fill: var(--color-red);
+  background-color: var(--color-red);
+  color: white
 }
