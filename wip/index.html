@@ -44,17 +44,16 @@
       rel="stylesheet"
       href="https://unpkg.com/open-props/buttons.min.css"
     />
+    <!-- pico -->
     <!-- <link
       rel="stylesheet"
-      href="node_modules/modern-normalize/modern-normalize.css"
+      href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.fluid.classless.min.css"
     /> -->
-
     <link rel="stylesheet" href="./css/brand.css" />
     <link rel="stylesheet" href="./css/main.css" />
     <link rel="stylesheet" href="./css/dialog.css" />
     <link rel="stylesheet" href="./css/animation.css" />
     <link rel="stylesheet" href="./css/markdown.css" />
-
     <link rel="stylesheet" href="./css/print.css" />
 
     <script src="./js/main.js" type="module" charset="utf-8" defer></script>
@@ -66,16 +65,11 @@
     <nav id="top-nav">
       <button id="show-toc" style="display: none" class="menu">Content</button>
       <span id="not-preset">
-        <button id="load-data" class="menu">Load Data</button>
-        <button id="configure-dashboard" style="display: none" ,class="menu">
-          Configure Dashboard
+        <button id="load-file" class="menu">Load file</button>
+        <button id="configure-dashboard" style="display: none" class="menu">
+          Configure dashboard
         </button>
-        <button id="download-config" style="display: none" class="menu">
-          Download Config
-        </button>
-        <button id="upload-config" style="display: none" class="menu">
-          Upload Config
-        </button>
+        <button id="save-config" style="display: none" class="menu">Save config</button>
       </span>
       <span id="preset"></span>
       <span id="common">
@@ -84,8 +78,9 @@
       <div id="dropdown-toc" style="display: none"></div>
     </nav>
     <br />
-    <div id="loader-wrapper">
-      <progress style="width: 100%; visibility: hidden"></progress>
+    <div id="loader-wrapper" style="visibility:hidden">
+      <h1>Building dashboard...</h1>
+      <progress style="width: 100%"></progress>
     </div>
     <main>
       <section>
@@ -108,38 +103,13 @@
         <div id="log" class="tags"></div>
       </section>
       <section>
-        <footer>
-          <hr style="margin: 0.5rem" />
-          <a href="index.html">
-            <img src="ncd.svg" width="50px" alt="no code dashboard" />
-          </a>
-          <p>&copy; 2025</p>
-          <p>
-            Powered by
-            <a href="https://www.w3schools.com" target="_blank"
-              >HTML5, CSS3, JS,</a
-            >
-            <a href="https://www.papaparse.com" target="_blank">Papaparse, </a>
-            <a href="https://observablehq.com/plot/" target="_blank"
-              >Observable Plot,</a
-            >
-            <a href="https://open-props.style" target="_blank">Open Prop,</a>
-            <span> and a lot of elbow grease</span>
-          </p>
-          <p>
-            See: <a href="index.html?demo" target="_blank">demo</a>,
-            <a href="help.html" target="_blank">help</a>
-          </p>
-          <p>
-            <a
-              href="mailto:abhijit.majumdar@no-code-dashboard.com?&subject=Feedback on no-code-dashboard"
-              target="_blank"
-              >Send your feedback</a
-            >
-          </p>
-        </footer>
+        <footer></footer>
       </section>
       <button class="menu" id="smoke-test">Smoke test</button>
     </main>
   </body>
+  <script type="module">
+    import { addFooter } from "./js/modules/footer.js";
+    addFooter();
+  </script>
 </html>
