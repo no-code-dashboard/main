@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>No-code-dashboard Help</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.fluid.classless.min.css"
+    />
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css"> -->
+    <link rel="stylesheet" href="../css/brand.css" />
+  </head>
+  <style>
+    /* override water.css */
+    :where(html) {
+      font-family: var(--brand-font-family);
+      margin: 2.5rem;
+      background-color: hsl(from var(--color-brand) h s l / 0.05);
+    }
+    table {
+      table-layout: auto;
+      border-collapse: collapse;
+    }
+    th,
+    td {
+      border: 1px solid;
+      padding: 0.5rem;
+      font-size: 1rem;
+    }
+    p,
+    li,
+    th,
+    td {
+      font-size: 1.05rem;
+      line-height: 1.5;
+    }
+    code {
+      background-color: hsl(from var(--color-brand) h s l / 0.2);
+      font-family: monospace, monospace;
+    }
+    img {
+      width:50%;
+      min-width: 300px;
+    }
+  </style>
+  <body>
+    <div id="content"></div>
+    <footer></footer>
+  </body>
+  <script type="module">
+    import { addFooter } from "../js/modules/footer.js";
+    addFooter();
+
+    import { markdownToHtml } from "../js/modules/markdown.js";
+
+    fetch("./help.md")
+      .then((response) => response.text())
+      .then((text) => {
+        // console.log(text)
+        var content = markdownToHtml(text); //marked.parse(result);
+        document.querySelector("#content").innerHTML = content;
+      });
+  </script>
+</html>
