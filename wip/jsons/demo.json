@@ -315,7 +315,7 @@
         "countType": "Count",
         "chartSize": "Medium",
         "x_label": "Test Creation",
-        "plan": "{\"startDate\":\"2023-02-01\",\"endDate\":\"2023-06-27\",\"scopeFrom\":\"0\",\"scopeTo\":\"max\",\"points\":\"line\", \"label\":\"Test Creation Plan\"}",
+        "plan": "2023-02-01,2023-06-27,0,max,line,Test Creation Plan",
         "x_column": "Create Date",
         "trendStartDate": "2023-01-14",
         "annotations": "2023-08-01, Report Date, mv"
@@ -325,11 +325,12 @@
         "countType": "Count",
         "chartSize": "Medium",
         "x_label": "Test Execution",
-        "plan": "{\"startDate\":\"2023-05-01\",\"endDate\":\"2023-09-01\",\"scopeFrom\":\"0\",\"scopeTo\":\"max\",\"points\":\"sigmoid\", \"label\":\"Test Execution Plan\"}",
+        "plan": "2023-05-01,2023-09-01,0,max,sigmoid,Test Execution Plan",
         "x_column": "Execution Date",
         "chartFilter": "and,STATUS, in, pass fail",
         "trendStartDate": "2023-01-14",
-        "forecast": "{\"lookBack\":\"14\",\"forecastTo\":\"max\",\"label\":\"Forecast (14 days)\"}",
+        "_forecast": "{\"lookBack\":\"14\",\"forecastTo\":\"max\",\"label\":\"Forecast (14 days)\"}",
+        "forecast": "14,max,Forecast (14 days)",
         "annotations": "2023-08-01, Report Date, th"
       },
       {
@@ -351,11 +352,12 @@
         "countType": "Count",
         "chartSize": "Medium",
         "x_label": "Test Execution",
-        "plan": "{\"startDate\":\"2023-05-01\",\"endDate\":\"2023-09-01\",\"scopeFrom\":\"0\",\"scopeTo\":\"max\",\"points\":\"sigmoid\", \"label\":\"Test Execution Plan\"}",
+        "plan": "2023-05-01,2023-09-01,0,max,sigmoid,Test Execution Plan",
         "x_column": "Execution Date",
         "chartFilter": "and,STATUS, in, pass fail",
         "trendStartDate": "2023-01-14",
-        "forecast": "{\"lookBack\":\"7\",\"forecastTo\":\"max\",\"label\":\"Forecast (7 days)\"}",
+        "_forecast": "{\"lookBack\":\"7\",\"forecastTo\":\"max\",\"label\":\"Forecast (7 days)\"}",
+        "forecast": "7,max,Forecast (7 days)",
         "annotations": "2023-08-01, Report Date, th"
       },
       {
