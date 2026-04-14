@@ -13,6 +13,7 @@ const bar = {
       ...AxisUi.elements({ config, prefix: "x_", legend: "Horizontal axis" }),
       ...ChartFilterUi.elements({ config }),
       ...CountTypeUi.elements({ config }),
+      { tag: "date-input", label: "New date", list:"a,b"},
     ];
   },
   validateChart: (chartPtops) => {

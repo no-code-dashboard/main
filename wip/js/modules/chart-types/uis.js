@@ -3,8 +3,8 @@ import { _ } from "../util.js";
 
 export { AnnotationUi, PlanUi, ChartFilterUi, ForecastUi, CountTypeUi, AxisUi };
 
-const SHOW = { attrs: ["class", "hide", "remove"], applyToWrapper: true };
-const HIDE = { attrs: ["class", "hide", "add"], applyToWrapper: true };
+const SHOW = { attrs: ["class", "hide", "remove"], applyTo: "wrapper" };
+const HIDE = { attrs: ["class", "hide", "add"], applyTo: "wrapper" };
 const ENABLE = ["disabled", false];
 const DISABLE = ["disabled", true];
 
@@ -53,58 +53,46 @@ class PlanUi {
     const { plan } = values;
     if (!_.isPresent(plan)) return [errors, warnings, attributes];
 
-    const [planObj, error] = _.parse(plan);
-    if (error) {
-      errors.push({ plan: error });
-      return [errors, warnings, attributes];
-    }
-
-    let planHasError = false;
     const labelPlaceholder = "Plan";
-    const { startDate, endDate, scopeFrom, scopeTo, points, label } = planObj;
+    const [startDate, endDate, scopeFrom, scopeTo, points, label] = plan
+      .split(",")
+      .map((v) => v.trim());
+    const errs = [];
     if (startDate || endDate || scopeFrom || scopeTo || points) {
-      const prefix = "plan-";
-      const err = (e) => {
-        const [key, value] = Object.entries(e)[0];
-        errors.push({ [prefix + key]: value });
-        planHasError = true;
-      };
-
-      if (!_.isValidDate(startDate))
-        err({ startDate: "Start date must be date" });
+      if (!_.isValidDate(startDate)) errs.push("Start date must be date");
 
       if (_.isValidDate(endDate)) {
         const isEndGtStart =
           _.isValidDate(endDate) &&
           _.isValidDate(startDate) &&
           endDate > startDate;
-        if (!isEndGtStart) err({ endDate: "End date must be > start date" });
-      } else err({ endDate: "End date must be date" });
+        if (!isEndGtStart) errs.push("End date must be > start");
+      } else errs.push("End date must be date");
 
       if (isNaN(scopeFrom) || Number(scopeFrom) < 0)
-        err({ scopeFrom: "Scope from must be a number >= 0" });
+        errs.push("Scope from must be a number >= 0");
 
       const isValidScopeTo =
         scopeTo && (scopeTo.toLowerCase() === "max" || Number(scopeTo) > 0);
-      if (!isValidScopeTo) err({ scopeTo: `Scope to must be max or a number` });
+      if (!isValidScopeTo) errs.push(`Scope to must be max or a number`);
 
       const isValidPoints =
         points &&
         (isPreset(points) ||
-          _.getArray(points, { format: "number" }).length >= 2);
+          _.getArray(points, { delim: " ", format: "number" }).length >= 2);
       if (!isValidPoints)
-        err({
-          points: `Points to must be "line" or "sigmoid" or an array of min 2 numbers`,
-        });
+        errs.push(
+          `Points to must be "line", "sigmoid" or an array of min 2 numbers`,
+        );
     }
-
+    if (errs.length > 0) errors.push({ plan: errs.join(", ") });
     return [errors, warnings, attributes, planValues()];
 
     function planValues() {
-      if (planHasError) return;
+      if (errors.length > 0) return;
       const planPoints = isPreset(points)
         ? presetPlans[points.toLowerCase()]
-        : _.getArray(points, { format: "number" });
+        : _.getArray(points, { delim: " ", format: "number" });
 
       return {
         startDate,
@@ -143,48 +131,30 @@ class ForecastUi {
       },
     ];
   }
-  static validate(values /*, errors, attributes*/) {
+  static validate(values) {
     const [errors, warnings, attributes] = [[], [], []];
     const { forecast } = values;
-    if (!_.isPresent(forecast)) return { errors, attributes };
-    const [forecastObj, error] = _.parse(forecast);
+    if (!_.isPresent(forecast)) return { errors, warnings, attributes };
 
-    if (error) {
-      errors.push({ forecast: error });
-      return [errors, warnings, attributes];
-    }
-
-    const prefix = "forecast-";
-
-    const { lookBack, forecastTo, label } = forecastObj;
+    const [lookBack, forecastTo, label] = forecast
+      .split(",")
+      .map((v) => v.trim());
     let labelPlaceholder = "Forecast";
-    let forecastHesError = false;
+    const errs = [];
     if (lookBack || forecastTo || label) {
-      const err = (e) => {
-        const [key, value] = Object.entries(e)[0];
-        errors.push({ [prefix + key]: value });
-        forecastHesError = true;
-      };
       const isValidLookBack = _.isInteger(lookBack) && Number(lookBack) > 0;
-
       if (isValidLookBack) labelPlaceholder += ` (${Number(lookBack)} days)`;
-      else err({ lookBack: "Look back must be a integer > 0" });
+      else errs.push("Look back must be a integer > 0");
+
       const isValidForecastTo =
         forecastTo.toLowerCase() === "max" || _.isValidDate(forecastTo);
-      if (!isValidForecastTo)
-        err({ forecastTo: `Forecast to must be "max" or date` });
-
-      attributes.push({
-        name: prefix + "label",
-        attrs: ["placeholder", labelPlaceholder],
-      });
+      if (!isValidForecastTo) errs.push(`Forecast to must be "max" or date`);
     }
-
+    if (errs.length > 0) errors.push({ forecast: errs.join(", ") });
     return [errors, warnings, attributes, forecastValues()];
 
     function forecastValues() {
-      if (forecastHesError) return;
-
+      if (errs.length > 0) return;
       return {
         lookBack,
         forecastTo:
@@ -198,7 +168,6 @@ class ForecastUi {
 }
 class ChartFilterUi {
   static elements({ config }) {
-    // "action: exclude|include, where: [column, eq|neq, val|[v1,v2], and|or ...]",
     const columns = config.columnNames;
 
     return [
@@ -212,6 +181,7 @@ class ChartFilterUi {
             options: ["and", "or"],
             label: "Relational op",
             name: "logicalOp",
+            default: "and",
           },
           {
             tag: "select",
@@ -224,6 +194,7 @@ class ChartFilterUi {
             options: ["eq", "neq", "in", "nin"],
             label: "Logical op",
             name: "compareOp",
+            default: "in",
           },
           { tag: "text", label: "RHS", name: "value" },
         ],
@@ -234,20 +205,17 @@ class ChartFilterUi {
     const [errors, warnings, attributes] = [[], [], []];
 
     const { chartFilter } = values;
-    const errBefore = errors.length;
-    if (values["chartFilter--"]) {
-      // const logicalOp = values["chartFilter-logicalOp"];
-      // const column = values["chartFilter-column"];
-      // const compareOp = values["chartFilter-compareOp"];
-      const value = values["chartFilter-value"];
+    // if (values["chartFilter--"]) {
+    //   // const logicalOp = values["chartFilter-logicalOp"];
+    //   // const column = values["chartFilter-column"];
+    //   // const compareOp = values["chartFilter-compareOp"];
+    //   const value = values["chartFilter-value"];
 
-      if (!_.isPresent(value))
-        errors.push({ "chartFilter-value": "Value required" });
-    }
+    //   if (!_.isPresent(value))
+    //     errors.push({ "chartFilter-value": "Value required" });
+    // }
     // return { errors, attributes, chartFilter: fiterValues() };
-    const conditions = _.toRows(chartFilter, 4)
-      .map((row, i) => ({ row, i }))
-      .filter((v) => v.row.join("").trim() !== "");
+    const conditions = _.toRows(chartFilter, 4).map((row, i) => ({ row, i }));
 
     if (conditions.length === 0) return [errors, warnings, attributes];
 
@@ -257,28 +225,30 @@ class ChartFilterUi {
     //   errors.push({ "chartFilter-cell-0-0": `Condition required` });
     // else
     conditions.forEach((quad, j) => {
-      const { row, i } = quad;
-      // const prefix = "chartFilter-cell-" + i + "-";
-      const [andOr, column, op, values] = row;
-
+      const { row } = quad;
+      const [relationalOp, lhs, LogicalOp, rhs] = row;
+      let isRowNumShown = false;
       function setError(message) {
-        errorMessage.push(message + ` in row ${j + 1}`);
+        errorMessage.push((isRowNumShown ? "" : `Row ${j + 1}: `) + message);
+        isRowNumShown = true;
       }
 
-      if (!_.isPresent(column)) setError(`Column required`);
+      if (!_.isPresent(relationalOp)) setError(`Relational op required`);
 
-      if (!_.isPresent(op)) setError(`Op required`);
+      if (!_.isPresent(lhs)) setError(`LHS required`);
 
-      if (!_.isPresent(values)) setError(`Values required`);
+      if (!_.isPresent(LogicalOp)) setError(`Logical op required`);
 
-      if (i > 0 && _.isPresent(andOr)) setError(`And/or required`);
+      if (!_.isPresent(rhs)) setError(`RHS required`);
     });
+
+    if (errorMessage.length > 0)
+      errors.push({ chartFilter: errorMessage.join(", ") });
 
     return [errors, warnings, attributes, fiterValues()];
 
     function fiterValues() {
-      return;
-      if (errors.length > errBefore) return;
+      if (errors.length > 0) return;
       // if (!_.isPresent(chartFilterType)) return;
       // if (chartFilterType.toLowerCase() === "none") return;
       const where = conditions.map((quad) => {
@@ -304,51 +274,43 @@ class AnnotationUi {
         label: "Annotations",
         name: "annotations",
         elements: [
-          { tag: "date", label: "Date", name: "date" },
+          {
+            tag: "date",
+            label: "Date",
+            name: "date",
+          },
           { tag: "text", label: "Label", name: "label" },
           {
             tag: "select",
             options: AnnotationUi.positions,
             label: "Position",
             name: "position",
+            default: AnnotationUi.positions[0],
           },
         ],
       },
     ];
   }
-  static validate(values /*, errors, attributes*/) {
+  static validate(values) {
     const { annotations } = values;
     const [errors, warnings, attributes] = [[], [], []];
-    if (values["annotations--"]) {
-      const annoationsDate = values["annotations-date"];
-      const annoationsLabel = values["annotations-label"];
-      const annoationsPosition = values["annotations-position"];
-
-      if (!_.isValidDate(annoationsDate))
-        errors.push({ "annotations-date": "Invalid date" });
-
-      if (!_.isPresent(annoationsLabel))
-        errors.push({ "annotations-label": "Label required" });
-
-      if (!AnnotationUi.positions.includes(annoationsPosition))
-        setError("Invalid position");
-    }
 
     if (!_.isPresent(annotations)) return [errors, warnings, attributes];
+    const annotationArray = _.toRows(annotations, 3).map((row, i) => ({
+      row,
+      i,
+    }));
 
-    const annotationArray = _.toRows(annotations, 3)
-      .map((row, i) => ({ row, i }))
-      .filter((v) => v.row.join("").trim() !== "");
     if (annotationArray.length === 0) return [errors, warnings, attributes];
 
     const errorMessage = [];
     annotationArray.forEach((triplet, j) => {
-      // console.log(triplet);
       const { row, i } = triplet;
       const [date, label, position] = row;
-
+      let isRowNumShown = false;
       function setError(message) {
-        errorMessage.push(message + ` in row ${j + 1}`);
+        errorMessage.push((isRowNumShown ? "" : `Row ${j + 1}: `) + message);
+        isRowNumShown = true;
       }
 
       if (!_.isValidDate(date)) setError("Invalid date");
@@ -416,7 +378,9 @@ class CountTypeUi {
       ? "count"
       : colOver
         ? (countType === "Sum" ? "summed" : "average") + " " + colOver
-        : countType.toLowerCase();
+        : countType
+          ? countType.toLowerCase()
+          : "count";
   }
 }
 class AxisUi {
