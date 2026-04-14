@@ -35,32 +35,18 @@ const _ = (function () {
    * @param {string} format any combination of dd mm mmm yy and yyyy
    * @returns {string} formatted date
    */
-  function formatDate(date, format) {
-    if (!isValidDate(date)) {
-      console.log(date);
-      return DISPLAY_INVALID_DATE;
-    }
+  function formatDate(date, format = "YYYY-MM-DD") {
+    if (!isValidDate(date)) return DISPLAY_INVALID_DATE;
+    
     const dateWithHyphen = date.replace(/\//g, "-").toUpperCase().trim();
     const newDate = new Date(dateWithHyphen);
     const date_DDD_MMM_DD_YYYY = newDate.toDateString();
-    const dateParts = date_DDD_MMM_DD_YYYY.split(" ");
+    const [DDD, MMM, DD, YYYY] = date_DDD_MMM_DD_YYYY.split(" ");
 
-    const DDD = dateParts[0];
     if (DDD == "Invalid") return DISPLAY_INVALID_DATE;
-    if (!format) return true;
-    const MMM = dateParts[1];
     const monthNumber = newDate.getMonth() + 1;
     const MM = (monthNumber < 10 ? "0" : "") + monthNumber.toString();
-    const DD = dateParts[2];
-    const YYYY = dateParts[3];
     const YY = YYYY.substring(2, 4);
-
-    // let formattedDate = format.replace("DDD", DDD)
-    // formattedDate = formattedDate.replace("DD", DD)
-    // formattedDate = formattedDate.replace("MMM", MMM)
-    // formattedDate = formattedDate.replace("MM", MM)
-    // formattedDate = formattedDate.replace("YYYY", YYYY)
-    // formattedDate = formattedDate.replace("YY", YY)
 
     const formattedDate = format
       .replace("DDD", DDD)
@@ -77,57 +63,55 @@ const _ = (function () {
    * @param {string} date - valid formats are dd-mmm-yy, yyyy-mm-dd
    * @returns {boolean}
    */
+
   function isValidDate(date) {
-    function isDateOK(DD, MM, YYYY) {
-      if (YYYY < 2000) return false;
-      if (MM > 12) return false;
-      const days = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-      if (MM != 2) return DD <= days[MM - 1];
-      if (DD <= 28) return true;
-      const isLeapYear = YYYY % 100 == 0 ? YYYY % 400 == 0 : YYYY % 4 == 0;
-      if (isLeapYear && DD == 29) return true;
-      return false;
-    }
-
     if (typeof date !== "string") return false;
-    const dateWithHyphen = date.replace(/\//g, "-").toUpperCase().trim();
+    function isDateOK(d, m, y) {
+      if (y < 2000 || m < 1 || m > 12 || d < 1) return false;
 
-    const YYYY_MM_DD = /[0-9]{4}-[0-9]{2}-[0-9]{2}/g;
-    if (dateWithHyphen.search(YYYY_MM_DD) == 0) {
-      if (date.length != 10) return false;
-      const dateParts = date.split("-");
-      const YYYY = Number(dateParts[0]);
-      const MM = Number(dateParts[1]);
-      const DD = Number(dateParts[2]);
-      return isDateOK(DD, MM, YYYY);
+      // Standard days in months (Feb as 28)
+      const daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+      // Adjust for Leap Year
+      if ((y % 4 === 0 && y % 100 !== 0) || y % 400 === 0) {
+        daysInMonth[1] = 29;
+      }
+      
+      return d <= daysInMonth[m - 1];
     }
 
-    const DD_MMM_YY = /[0-9]{2}-[A-Z]{3}-[0-9]{2}/gi;
-    if (dateWithHyphen.search(DD_MMM_YY) == 0) {
-      if (date.length != 9) return false;
-      const dateParts = dateWithHyphen.split("-");
-      const YYYY = 20 + Number(dateParts[3]);
-      const MMM = dateParts[1];
-      const DD = Number(dateParts[0]);
-      const MM = MONTHS.findIndex((v) => v.toUpperCase() == MMM) + 1;
-      if (MM == 0) return false;
-      return isDateOK(DD, MM, YYYY);
+    const cleanDate = date.replace(/\//g, "-").toUpperCase().trim();
+
+    let dd, mm, yyyy;
+
+    const monthNum = (mmm) =>
+      1 + MONTHS.findIndex((v) => v.toUpperCase() === mmm); //indexOf(m) + 1;
+
+    // Pattern 1: YYYY-MM-DD
+    if (/^\d{4}-\d{2}-\d{2}$/.test(cleanDate)) {
+      [yyyy, mm, dd] = cleanDate.split("-").map(Number);
     }
-    const DD_MMM_YYYY = /[0-9]{2}-[A-Z]{3}-[0-9]{4}/gi;
-    if (dateWithHyphen.search(DD_MMM_YYYY) == 0) {
-      if (date.length != 11) return false;
-      const dateParts = dateWithHyphen.split("-");
-      const YYYY = Number(dateParts[3]);
-      const MMM = dateParts[1];
-      const DD = Number(dateParts[0]);
-      const MM = MONTHS.findIndex((v) => v.toUpperCase() == MMM) + 1;
-      if (MM == 0) return false;
-      return isDateOK(DD, MM, YYYY);
+    // Pattern 2: DD-MMM-YY (e.g., 15-MAY-25)
+    else if (/^\d{2}-[A-Z]{3}-\d{2}$/.test(cleanDate)) {
+      const [d, m, y] = cleanDate.split("-");
+      dd = Number(d);
+      mm = monthNum(m);
+      yyyy = 2000 + Number(y);
     }
-    return false;
+    // Pattern 3: DD-MMM-YYYY (e.g., 15-MAY-2025)
+    else if (/^\d{2}-[A-Z]{3}-\d{4}$/.test(cleanDate)) {
+      const [d, m, y] = cleanDate.split("-");
+      dd = Number(d);
+      mm = monthNum(m);
+      yyyy = Number(y);
+    } else {
+      return false; // No patterns matched
+    }
+
+    return mm > 0 && isDateOK(dd, mm, yyyy);
   }
 
-  function dateTimeDiff(dateTimeStart, dateTimeEnd, format = "Days") {
+  function oldDateTimeDiff(dateTimeStart, dateTimeEnd, format = "Days") {
     function workdays(startDate, endDate) {
       let workdays = 0;
       let currentDate = new Date(startDate);
@@ -154,12 +138,66 @@ const _ = (function () {
     if (formatUC == "WEEKS") return days / 7;
   }
 
+  // const WORKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+
+  function dateTimeDiff(dateTimeStart, dateTimeEnd, format = "Days") {
+    const start = new Date(dateTimeStart);
+    const end = new Date(dateTimeEnd);
+    const diffMs = end - start;
+    const diffDays = diffMs / (1000 * 60 * 60 * 24);
+    const formatUC = format.toUpperCase().trim();
+
+    switch (formatUC) {
+      case "MILLISECONDS":
+        return diffMs;
+      case "WEEKS":
+        return diffDays / 7;
+      case "DAYS":
+        return Math.ceil(diffDays);
+      case "WORKDAYS":
+        return calculateWorkdays(start, end);
+      default:
+        return diffDays;
+    }
+  }
+
+  function calculateWorkdays(start, end) {
+    if (start > end) return 0;
+
+    let startDate = new Date(start);
+    let endDate = new Date(end);
+
+    // 1. Move start to the next day to match your "diff" logic
+    startDate.setDate(startDate.getDate() + 1);
+
+    let count = 0;
+
+    // 2. Calculate full weeks between dates
+    const totalDays =
+      Math.floor((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+    const fullWeeks = Math.floor(totalDays / 7);
+    count += fullWeeks * WORKDAYS.length;
+
+    // 3. Move the pointer forward by the full weeks processed
+    startDate.setDate(startDate.getDate() + fullWeeks * 7);
+
+    // 4. Loop only through the remaining "leftover" days (0-6 days max)
+    while (startDate <= endDate) {
+      const day = startDate.getDay();
+      if (day !== 0 && day !== 6) count++;
+      startDate.setDate(startDate.getDate() + 1);
+    }
+
+    return count;
+  }
+
   function addDays(dateTimeStart, days) {
-    if (isNaN(days) || days === 0) return dateTimeStart;
+    if (isNaN(days) || Number(days) === 0) return dateTimeStart;
 
     const start = new Date(dateTimeStart);
-    const daysInMS = 24 * 60 * 60 * 1000 * Number(days);
-    start.setTime(start.getTime() + daysInMS);
+    // const daysInMS = 24 * 60 * 60 * 1000 * Number(days);
+    // start.setTime(start.getTime() + daysInMS);
+    start.setDate(start.getDate() + Number(days));
 
     return start.toISOString().substring(0, 10);
   }
@@ -518,7 +556,7 @@ const _ = (function () {
     return output;
   }
   function escapeHTML(str) {
-    if (typeof str !== "string") return str
+    if (typeof str !== "string") return str;
     const p = document.createElement("p");
     p.textContent = str;
     return p.innerHTML;
@@ -565,7 +603,7 @@ const _ = (function () {
     return arr;
   }
   function isPresent(str) {
-    return str && typeof str === "string" && str.trim() !== "";
+    return typeof str === "string" && str.trim().length > 0;
   }
   // function tc(func) {
   //   try {
