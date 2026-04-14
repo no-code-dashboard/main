@@ -114,6 +114,8 @@
   & details:has(.error) > summary {
     color: var(--color-red);
   }
+
+  
 }
 
 label:has(+ *:disabled) {
