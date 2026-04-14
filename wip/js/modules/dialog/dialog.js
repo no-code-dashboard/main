@@ -1,5 +1,4 @@
 "use strict";
-import { dataTypes } from "../data-types.js";
 import { _ } from "../util.js";
 
 export { Dialog };
@@ -39,25 +38,41 @@ function isSpecial(tag) {
   ];
   return specials.includes(tag);
 }
-// function isSupportedTag(tag) {
-//   const tags = [
-//     "text",
-//     "date",
-//     "date-select",
-//     "select",
-//     "radio",
-//     "checkbox",
-//     "fieldset",
-//     "details",
-//     "table",
-//     "object",
-//   ];
-//   return tags.includes(tag);
-// }
 function isInput(tag) {
   return ["text", "date", "number", "range"].includes(tag);
 }
 
+function updateInputElement(input, param) {
+  setElementAttributes(input, param);
+  const { tag, name, value, list } = param;
+  input.type = tag;
+  input.value = value ?? "";
+  if (tag === "text" && Array.isArray(list)) {
+    const id = getId(name) + "-datalist";
+    input.setAttribute("list", id);
+    const datalist = _.createElements({ datalist: { id } });
+    datalist.innerHTML = list
+      .map((v) => `<option value="${v}"></option>`)
+      .join("");
+    input.append(datalist);
+  }
+  return input;
+}
+function updateSelectElement(select, param) {
+  setElementAttributes(select, param);
+  const { options, value } = param;
+  options.forEach((option) => {
+    const optionEl = _.createElements({
+      option: {
+        text: option,
+        value: option,
+        selected: (value ?? "") === option ? "selected" : false,
+      },
+    });
+    select.append(optionEl);
+  });
+  return select;
+}
 let dialog, alertButtonPressed;
 
 let hasErrors = false;
@@ -112,20 +127,22 @@ const HTMLs = {
         <legend>${legend}</legend>
       </fieldset>`,
   details: (legend) =>
-    `<xfieldset>
-      <details>
+    `<details>
         <summary>${legend}</summary>
         <div id="detail-wrapper"></div>
-      </details>
-    </xfieldset>`,
+      </details>`,
   error: (messages) => `<p class="error-message">${messages}</p>`,
 };
 function getElement(name, type = "name") {
-  return type === "name"
-    ? _.select(`[name = ${name}]`, dialog)
-    : type === "id"
-      ? _.select(`#${name}`, dialog)
-      : null;
+  const selector =
+    type === "name"
+      ? `[name = ${name}]`
+      : type === "id"
+        ? `#${name}`
+        : undefined;
+
+  if (!selector) return null;
+  return _.select(selector, dialog);
 }
 function getWrapper(name) {
   // return _.select(`[id = ${name}-wrapper]`);
@@ -140,7 +157,7 @@ function setElementsAttrs(specifiers) {
   for (const spec of specs) {
     const isName = spec.name || spec.names;
 
-    const { names, name, ids, id, attrs, applyToWrapper } = spec;
+    const { names, name, ids, id, attrs, applyTo, row, col } = spec;
 
     console.assert(Array.isArray(attrs), `"attrs" not array`);
     const [attr, value, action] = attrs;
@@ -153,10 +170,12 @@ function setElementsAttrs(specifiers) {
 
     for (const s of selectors) {
       const e = !isName
-        ? getElement(s, "id") //_.select("#" + s, dialog)
-        : applyToWrapper
+        ? getElement(s, "id")
+        : applyTo === "wrapper"
           ? getWrapper(s)
-          : getElement(s);
+          : applyTo === "cell"
+            ? TableUi.getCell(s, row, col)
+            : getElement(s);
       if (!e) continue;
       if (attr === "text") {
         e.textContent = value;
@@ -200,25 +219,11 @@ function createButton(param) {
 }
 
 function createSelect(param) {
-  const { tag, options, name, label, value } = {
-    options: ["No options"],
-    ...param,
-  };
+  const { tag, name, label } = param;
   const html = HTMLs[tag](label, name);
   const div = _.createElements(html);
   const select = _.select("select", div);
-  options.forEach((option) => {
-    const optionEl = _.createElements({
-      option: {
-        text: option,
-        value: option,
-        selected: (value ?? "") === option ? "selected" : false,
-      },
-    });
-
-    select.append(optionEl);
-  });
-  setElementAttributes(select, param);
+  updateSelectElement(select, param);
   return div;
 }
 function createRadio(param) {
@@ -247,22 +252,11 @@ function createRadio(param) {
   return wrapper;
 }
 function createInput(param) {
-  const { tag, name, label, value, list } = param;
+  const { tag, name, label } = param;
   const html = HTMLs["input"](label, tag, name);
   const div = _.createElements(html);
   const input = _.select("input", div);
-  if (tag === "text" && Array.isArray(list)) {
-    const id = getId(name) + "-datalist";
-    input.setAttribute("list", id); 
-    const datalist = _.createElements({ datalist: { id } });
-    datalist.innerHTML = list
-      .map((v) => `<option value="${v}"></option>`)
-      .join("");
-    input.after(datalist);
-  }
-
-  input.value = value ?? "";
-  setElementAttributes(input, param);
+  updateInputElement(input, param);
   return div;
 }
 function createTextArea(param) {
@@ -326,9 +320,9 @@ function createElement(param) {
     if (id) overlayDiv.id = id;
     return overlayDiv;
   }
-  if (tag === "object") return ObjectUi.make(param);
+  if (tag === "object") return TableUi.make(param, dialog); //ObjectUi.make(param);
 
-  if (tag === "table") return TableUi.make(param);
+  if (tag === "table") return TableUi.make(param, dialog);
 
   if (tag === "date-select") {
     return DateSelectUi.make(param);
@@ -399,7 +393,6 @@ function disableOnError() {
   const disableOnErrorElements = _.selectAll(".disable-on-error", dialog);
   if (hasErrors) disable(disableOnErrorElements);
   else enable(disableOnErrorElements);
-  TableUi.setAllTableButtons();
 }
 // A110Jul2023#audi
 
@@ -447,17 +440,17 @@ function markErrors(errors) {
 }
 function error(errorMessages, name) {
   if (!dialog) return;
+
   if (!errorMessages) {
     const errors = _.selectAll(".error", dialog);
     for (const error of errors) {
       error.classList.remove("error");
     }
-    const errorMessages = _.selectAll(".error-message", dialog);
-    for (const msg of errorMessages) msg.remove();
+    const errs = _.selectAll(".error-message", dialog);
+    for (const msg of errs) msg.remove();
 
     hasErrors = false;
     disableOnError();
-    //internalCallbacks.setAllTableButtons();
     return this;
   }
   hasErrors = true;
@@ -506,6 +499,8 @@ function make(
   elements,
   { callback, width = "medium", classes = "", legend = "" },
 ) {
+  if (!customElements.get("date-input"))
+    customElements.define("date-input", DateUi);
   if (dialog) close();
   // if (!dialogId) {
   dialog = _.createElements(HTMLs["dialog"](legend));
@@ -516,10 +511,6 @@ function make(
   if (typeof callback === "function") {
     dialog.addEventListener("change", (e) => {
       const target = e.target;
-      // console.log({ target });
-      // const f = getDataCallback(target);
-      // if (f) f(target);
-
       callback({ type: "change", target });
     });
 
@@ -559,30 +550,27 @@ function data(removeInternals = false) {
   if (!dialog) return;
   const data = {};
   const elementsWithNames = _.selectAll("[name]", dialog);
-  for (const namedEl of elementsWithNames) {
-    const key = namedEl.getAttribute("name");
-
+  for (const el of elementsWithNames) {
+    const key = el.getAttribute("name");
     data[key] =
-      namedEl.type === "checkbox"
-        ? namedEl.checked
-        : namedEl.type === "radio"
-          ? (data[key] ?? (namedEl.checked ? namedEl.value : undefined))
-          : namedEl.dataset.type === "table" //tagName === "TABLE"
-            ? TableUi.getData(namedEl, key) //getTableData(namedEl, key)
-            : namedEl.dataset.type === "object"
-              ? ObjectUi.getData(namedEl, key) //getObjectData(namedEl, key)
-              : namedEl.value
-                ? String(namedEl.value).trim()
-                : "";
+      el.type === "checkbox"
+        ? el.checked
+        : el.type === "radio"
+          ? (data[key] ?? (el.checked ? el.value : undefined))
+          : ["table", "object"].includes(el.dataset.type) // === "table"
+            ? TableUi.getData(key)
+            : // : el.dataset.type === "object"
+              //   ? ObjectUi.getData(el, key) //getObjectData(key)
+              el.value
+              ? String(el.value).trim()
+              : "";
   }
-
-  return /*const x =*/ Object.fromEntries(
+  //to do remove removeInternals
+  return Object.fromEntries(
     Object.entries(data)
       .filter(([key]) => (removeInternals ? true : !key.includes("-")))
       .map(([key, value]) => [key, _.escapeHTML(value)]),
   );
-  // console.log({ data, x });
-  // return x;
 }
 
 function alert(message, buttons, legend) {
@@ -637,249 +625,202 @@ function triggerEvent(eventType) {
   const event = new Event(eventType);
   dialog.dispatchEvent(event);
 }
-class TableUi {
-  static make(param) {
-    const { name, label, elements, value } = param;
+const id = Symbol("id");
+export class TableUi {
+  static make(param, parent) {
+    const { elements, value } = param;
+    const names = elements.map((e) => e.name);
+    const isTable = param.tag === "table";
+    const str = value
+      ? value.split(",").map((s) => s.trim())
+      : isTable
+        ? []
+        : names.map((_, i) => elements[i].default ?? "");
 
-    const headers = elements.map((u) => u.label);
-    const tableColumns = headers.length;
-    const html = `<details id="${name}-outer-wrapper">
-          <summary>${label}</summary>
-          <div id="${name}-wrapper"> 
-            <table id="${name}" name="${name}" data-type="table" data-inputs="">
-              <thead></thead>
-              <tbody></tbody>
-            </table>
-          </div>
-          <input type="checkbox" id="${name}--" name="${name}--" datax-callback="tableui-showHideEditPanel">
-          <label for="${name}--">Check to show edit panel</label>
-          <div id="input-group" style="display:none">
-            <div id="inputs">
-            </div>
-            <button id="add" title="Add row">&plus;</button>
-            <button id="modify" title="Modify selected row" disabledx>&check;</button>
-            <button id="remove" title="Remove selected row" disabledx>&minus;</button>
-          </div>
-        </details>`;
-    const wrapper = _.createElements(html);
-    const table = _.select("table", wrapper);
+    let data = [];
 
-    const tr = _.createElements("tr");
-    ["", ...headers].forEach((header) => {
-      const th = _.createElements({ th: { text: header } });
-      tr.append(th);
-    });
-    // console.log({ name, data, heads });
-    const thead = _.select("thead", table);
-    thead.append(tr);
-    if (value) {
-      const data = _.getArray(value);
-
-      let rowNumber = 0;
-      const tbody = _.select("tbody", table);
-      for (let i = 0; i < data.length; i += tableColumns) {
-        const rowdata = [];
-        for (let j = 0; j < headers.length; j++) {
-          rowdata.push(data[i + j]);
+    for (let i = 0; i < str.length; i += names.length) {
+      let obj = { [id]: i + 1 };
+      names.forEach((key, index) => {
+        if (str[i + index] !== undefined) {
+          obj[key] = str[i + index];
         }
-        const tr = createTableRow(rowdata);
-        tbody.append(tr);
-        rowNumber++;
-      }
+      });
+      data.push(obj);
     }
-    const inputs = _.select(`#inputs`, wrapper);
+    let nextId = data.length;
 
-    for (const u of elements) {
-      const inputName = `${name}-${u.name}`; //underscore
-      const { tag } = u;
-      const input = isInput(tag)
-        ? createInput({ ...u, name: inputName, value: "" })
-        : createSelect({ ...u, name: inputName });
-      inputs.append(input);
-    }
-    //checkbox
-    const checkbox = _.select(`#${name}--`, wrapper);
-    checkbox.addEventListener("change", () => {
-      const inputGroup = _.select("#input-group", wrapper);
-      inputGroup.style.display = checkbox.checked ? "block" : "none";
-      triggerEvent("change");
-    });
-    //buttons
-    {
-      const inputArray = _.selectAll("input, select", inputs);
+    const wrapper = createTable(param);
+    if (isTable)
+      _.select("#add-btn", wrapper).addEventListener("click", addRow);
+
+    render();
+    return wrapper;
+
+    function render() {
+      let rows = data.map((r) => r);
       const tbody = _.select("tbody", wrapper);
+      tbody.innerHTML = "";
+      if (rows.length === 0) tbody.innerHTML = `<tr><td>No data</td></tr>`;
 
-      // inputArray.filter((input) => input.classList.contains("error")).lenght >
-      // 0;
-      // const selectedRow = _.selectAll("tr", tbody).filter((row) => {
-      //   const input = _.select("input", row);
-      //   return input && input.checked;
-      // })[0];
-      // console.log();
-      const addButton = _.select("button#add", wrapper);
-      addButton.addEventListener("click", () => {
-        const hasError = _.select(".error", wrapper);
-        if (hasError) return;
-        const rowData = inputArray.map((input) => input.value);
-        const tr = createTableRow(rowData);
-        tbody.append(tr);
-        triggerEvent("change");
-      });
-
-      const modifyButton = _.select("button#modify", wrapper);
-      modifyButton.addEventListener("click", () => {
-        const hasError = _.select(".error", wrapper);
-        const selectedRow = _.selectAll("tr", tbody).filter((row) => {
-          const input = _.select("input", row);
-          return input && input.checked;
-        })[0];
-        if (hasError) return;
-        if (!selectedRow) return;
-        const tds = _.selectAll("td", selectedRow);
-        tds.forEach((td, i) => {
-          if (i > 0) td.textContent = inputArray[i - 1].value;
+      rows.forEach((row) => {
+        const tr = _.createElements("tr");
+        names.forEach((col) => {
+          const td = _.createElements("td");
+          td.textContent = row[col];
+          td.addEventListener("click", () =>
+            startEdit(td, row[id], col, row[col]),
+          );
+          tr.appendChild(td);
         });
-      });
 
-      const removeButton = _.select("button#remove", wrapper);
-      removeButton.addEventListener("click", () => {
-        const selectedRow = _.selectAll("tr", tbody).filter((row) => {
-          const input = _.select("input", row);
-          return input && input.checked;
-        })[0];
-        if (!selectedRow) return;
-        selectedRow.remove();
-        triggerEvent("change");
+        if (isTable) {
+          const delTd = _.createElements("td");
+          const delBtn = _.createElements("button");
+          // delBtn.className = "del-btn";
+          delBtn.textContent = "×";
+          delBtn.title = "Delete row";
+          delBtn.addEventListener("click", () => {
+            data = data.filter((r) => r[id] !== row[id]);
+            render();
+            if (parent) parent.dispatchEvent(new Event("change"));
+          });
+          delTd.appendChild(delBtn);
+          tr.appendChild(delTd);
+        }
+        tbody.appendChild(tr);
       });
     }
 
-    return wrapper;
+    function startEdit(td, index, col, value) {
+      if (td.childElementCount > 0) return;
+      const prev = td.innerHTML;
+      td.innerHTML = "";
+      const spec = {
+        ...param.elements.find((e) => e.name === col),
+        value: prev,
+        td,
+      };
+      const input = createInput(spec, td);
+      td.appendChild(input);
+      input.focus();
 
-    function createTableRow(cellValues) {
-      const tr = _.createElements("tr");
-      const radioCell = _.createElements({
-        td: { input: { type: "radio", name: `${name}-select` } },
-      });
-      tr.append(radioCell);
-      cellValues.forEach((value) => {
-        const td = _.createElements({ td: { text: String(value) } });
-        td.setAttribute("class", `${name}-cell`); //need class?
-        tr.append(td);
-      });
-
-      radioCell.addEventListener("change", () => {
-        const inputArray = _.selectAll("input, select", inputs);
-        cellValues.forEach((v, i) => {
-          inputArray[i].value = v;
-        });
-      });
-      return tr;
-    }
-  }
-  static setAllTableButtons() {
-    const tables = _.selectAll(`[data-type="table"]`, dialog);
-
-    tables.forEach((table) => {
-      const name = table.getAttribute("name");
-      setTableButtons(name);
-    });
-    function setTableButtons(name) {
-      if (!name) return;
-      const wrapper = _.select(`#${name}-outer-wrapper`, dialog);
-      const checkbox = _.select(`#${name}--`, wrapper);
-      if (!checkbox.checked) return;
-
-      const addButton = _.select(`button#add`, wrapper);
-      const modifyButton = _.select(`button#modify`, wrapper);
-      const removeButton = _.select(`button#remove`, wrapper);
-
-      disable([addButton, modifyButton, removeButton]);
-
-      const selectedRow = _.selectAll("tr", wrapper).filter((row) => {
-        const input = _.select("input", row);
-        return input && input.checked;
-      })[0];
-      const hasError = _.select(".error", wrapper);
-
-      if (selectedRow) {
-        enable(removeButton);
-        if (hasError) return;
-        enable([addButton, modifyButton]);
-        return;
+      function commit() {
+        const val = input.value.trim(); //|| value;
+        data = data.map((r) => (r[id] === index ? { ...r, [col]: val } : r));
+        render();
+        if (parent) parent.dispatchEvent(new Event("change"));
       }
-      if (hasError) return;
-      enable(addButton);
+      function cancel() {
+        td.innerHTML = prev;
+      }
+
+      input.addEventListener("blur", commit);
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          input.blur();
+        }
+        if (e.key === "Escape") {
+          input.removeEventListener("blur", commit);
+          cancel();
+        }
+      });
     }
-  }
-  static getData(table, name) {
-    //const cells = _.selectAll(`td`, table)
-    const cells = _.selectAll(`[class="${name}-cell"`, table).map(
-      (cell) => cell.textContent,
-    );
-    return cells.join(",");
-  }
-}
-class ObjectUi {
-  static make(param) {
-    const { elements, value, name, label } = param;
-    const html = `
-      <details>
+
+    function addRow() {
+      data.push({
+        [id]: ++nextId,
+        ...Object.fromEntries(
+          names.map((r, i) => [r, param.elements[i].default ?? ""]),
+        ),
+      });
+      render();
+      if (parent) parent.dispatchEvent(new Event("change"));
+    }
+
+    function createTable() {
+      const { tag, label, name, elements } = param;
+      const labels = elements.map((e) => e.label);
+      const thead = `
+      <thead>
+        <tr>
+          ${labels.map((r) => `<th data-col="${r}">${r}</th>`).join("")}
+          ${isTable ? `<th></th>` : ``}
+        </tr>
+      </thead>`;
+      const html = `
         <summary>${label}</summary>
-        <div id="${name}" name="${name}" data-type="object"></div>
-        <button id="${name}-clear" title="Clear all">&minus;</button>
-      </details>`;
-    const wrapper = _.createElements(html);
-    const div = _.select("#" + name, wrapper);
-    const [data, err] = _.parse(value ?? "{}");
-    if (data) {
-      const prefix = name + "-";
-      elements.forEach((element) => {
-        const { name } = element;
-        const value = data[name];
-        const id = prefix + name;
-        const e = createElement({ ...element, name: id, value });
-        div.append(e);
-      });
-    } else {
-      const e = createElement({
-        p: { text: `Error parsing data, error: ${err}` },
-      });
-      div.append(e);
+        <div id="${name}-wrapper">
+          ${isTable ? `<button id="add-btn" title="Add row">&plus;</button>` : ""}
+          <table id="${name}" name="${name}" data-type="table">
+            ${thead}
+            <tbody></tbody>
+          </table>
+        </div>`;
+
+      const details = _.createElements("details");
+      details.innerHTML = html;
+      return details;
     }
+    function createInput(param, td) {
+      const { tag } = param;
+      if (tag === "select") {
+        const select = _.createElements("select");
+        updateSelectElement(select, param);
+        return select;
+      }
+      const input = _.createElements("input");
+      updateInputElement(input, param);
+      // input.style = td.style; //.width = "100%";
+      // console.log({ input });
 
-    const clearButton = _.select("button", wrapper);
-    clearButton.addEventListener("click", () => {
-      const inputs = _.selectAll("input, select", wrapper);
-      inputs.forEach((input) => (input.value = ""));
-      triggerEvent("change");
-    });
-
-    return wrapper;
+      return input;
+    }
   }
-  static getData(wrappper, name) {
-    const prefix = `${name}-`;
-    const obj = {};
-    _.selectAll(`[name^="${prefix}"`, wrappper).forEach((input) => {
-      const key = input.name.replace(prefix, "");
-      const value = input.value;
-      obj[key] = value ? String(value).trim() : "";
-    });
-    return JSON.stringify(obj);
+  static getData(name) {
+    const dialog = _.select("dialog");
+    const div = _.select(`#${name}-wrapper`, dialog);
+    if (!div) return;
+    const isTable = _.select("#add-btn", div);
+    const trs = _.selectAll("tbody tr", div);
+    if (!trs) return "";
+    return [...trs]
+      .map((tr) => {
+        const row = [..._.selectAll("td", tr)].map((td, i) => td.textContent);
+        return isTable ? row.toSpliced(-1, 1) : row;
+      })
+      .flat()
+      .join(",");
+  }
+  static getCell(name, row, col) {
+    const div = _.select(`#${name}-wrapper`);
+    if (!div) return;
+    const trs = [..._.selectAll("tbody tr", div)];
+    if (!trs) return;
+    const tr = trs.filter((_, i) => i === row)[0];
+    if (!tr) return;
+    const td = [..._.selectAll("td", tr)].filter((_, i) => i === col)[0];
+    return td;
   }
 }
-class DateSelectUi {
+
+class xDateUi {
   static make(param) {
-    const { options, value, name, label, type = "date" } = param;
-    const optHtmls = options
-      ? options
+    const { value, name, label, type = "date", list } = param;
+    const options = list
+      ? list
           .split(",")
           .map((op) => op.trim())
-          .map((op, i) => `<option value="${op}">${op}</option>`)
-      : [];
-    optHtmls.push(`<option hidden></option>`);
-    const html = `<p id="${name}-wrapper" class="date-select">
+          .map((op, i) => `<option ${value === op?"selected":""}value="${op}">${op}</option>`)
+          .join("")
+      : "";
+    // optHtmls.push(`<option hidden></option>`);
+    const id = "list"
+    const html = `
+      <p id="${name}-wrapper" class="date-select">
           <label for="${name}">${label}</label>
-          <select id="${name}" name="${name}">${optHtmls.join("")}</select>
+          <input type="text" id="${name}" name="${name}" ${options? `list="${id}"`:""}>
+          ${options? `<datalist id="${id}"></datalist>`:""}
           <input type="date"></input>
       </p>`;
 
@@ -910,6 +851,93 @@ class DateSelectUi {
     }
   }
 }
+
+class DateUi extends HTMLElement {
+  constructor() {
+    super();
+    // this.attachShadow({ mode: "open" });
+  }
+  // connectedCallback() { this._render(); }
+
+  // attributeChangedCallback() {
+  //   if (this._shadow.innerHTML) this._update();
+  // }
+  connectedCallback() {
+    this._render();
+    this.attachEventListeners();
+  }
+
+  static get observedAttributes() {
+    return ["list", "value", "placeholder", "name", "disabled"];
+  }
+
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (oldValue !== newValue) {
+      this._render();
+      this.attachEventListeners();
+    }
+  }
+
+  _getList() {
+    const list = this.getAttribute("list");
+    return list
+      ? list
+          .split(",")
+          .map((v) => v.trim())
+          .filter((v) => v !== "")
+      : [];
+  }
+
+  _render() {
+    const list = this._getList();
+    const options = list
+      .map((o) => `<option value="${o}">${o}</option>`)
+      .join("");
+    const id = crypto.randomUUID();
+    const ph = this.getAttribute("placeholder") || ``; //placeholderFromFormat(fmt);
+    const name = this.getAttribute("name") || "";
+    const disabled = this.hasAttribute("disabled") || ``;
+    // this.shadowRoot.innerHTML = `
+    this.innerHTML = `
+          <p>
+            <input type="text" 
+              ${name ? `name="${name}"` : ""}
+              ${ph ? `placeholder="${ph}"` : ""}
+              ${disabled ? `disabled="disabled"` : ""}
+              ${options !== "" ? `list="${id}"` : ""}
+            >
+            ${options !== "" ? `<datalist id="${id}">${options}</datalist>` : ""}
+            <input type="date" style="width:2rem;overflow:hidden;cursor: pointer;">
+          </p>
+        `;
+  }
+
+  attachEventListeners() {
+    const options = this._getList();
+    // const [dateInput, display] = this.shadowRoot.querySelectorAll(`input`);
+    const [display, dateInput] = this.querySelectorAll(`input`);
+
+    this._display = display;
+
+    if (dateInput && display)
+      dateInput.addEventListener("change", (e) => triggerChange(e, this));
+
+    if (display)
+      display.addEventListener("change", (e) => triggerChange(e, this));
+
+    function triggerChange(e, el) {
+      display.value = e.target.value || "";
+      el.dispatchEvent(new CustomEvent("change", { bubbles: true }));
+    }
+  }
+  get value() {
+    return this._display.value;
+  }
+  set value(val) {
+    this._display.value = val;
+  }
+}
+
 function test(action, name, value) {
   if (!dialog) return;
   if (action === "set") {

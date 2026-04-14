@@ -61,53 +61,6 @@ function getChartsWithFilter() {
   }
   return filters;
 }
-/////////////////////////////////////////////////////////////dshboard dialog
-// function showLayoutDialog(reCreateCharts) {
-//   const { reportTitle, reportDate, definedValues } = Param.getParam("config");
-//   const layoutDialog = [
-//     { tag: "h2", label: `Configure dashboard` },
-//     { tag: "hr" },
-//     { tag: "text", name: "reportTitle" },
-//     { tag: "date", name: "reportDate" },
-//     { tag: "hr" },
-//     { tag: "button", label: "Cancel" },
-//     { tag: "button", label: "Apply", class: "disable-on-error" },
-//   ];
-
-//   if (!reportDate) return;
-//   Dialog.make(layoutDialog, {
-//     callback,
-//     classes: "dialog medium",
-//     legend: "Config dashboard",
-//   }).show();
-//   function callback({ type, target }) {
-//     if (type === "click-button") {
-//       const label = target.textContent;
-//       if (label === "Cancel") Dialog.close();
-//       if (label === "Apply") layoutApply(reCreateCharts);
-//       return;
-//     }
-//     const label = target.textContent;
-//   }
-
-//   function layoutApply(reCreateCharts) {
-//     const { reportTitle, reportDate } = Dialog.data();
-//     Dialog.markErrors();
-//     if (reportTitle.trim() == "") {
-//       Dialog.markErrors({ reportTitle: "Required" });
-//     }
-//     if (reportDate.trim() == "") {
-//       Dialog.markErrors({ reportDate: "Required" });
-//     }
-//     if (Dialog.hasErrors) return;
-//     const config = Param.getParam("config");
-//     config.reportTitle = reportTitle.trim();
-//     config.reportDate = reportDate;
-//     // Param.setParam("config", {config});
-//     Dialog.close();
-//     reCreateCharts();
-//   }
-// }
 
 function showChartMenus(chartID, reCreateCharts) {
   const key = getKey(chartID);
@@ -207,15 +160,15 @@ function updateInitialValues(elements, values) {
   if (!values) return elements;
 
   const elementsWithValue = elements.map((e) => {
-    if (e.elements)
-      return { ...e, elements: updateInitialValues(e.elements, values) };
     const name = e.name;
+    const value = name ? values[name] : undefined;
+    if (e.elements)
+      return { ...e, value, elements: updateInitialValues(e.elements, values) };
+
     if (!name) return e;
-    const value = values[name];
-    if (!value) return e;
     return { ...e, value };
   });
-
+  
   return elementsWithValue;
 }
 function configChart(chartID, reCreateCharts) {
@@ -250,9 +203,9 @@ function configChart(chartID, reCreateCharts) {
   function configChartApply(chartID) {
     validateConfig();
     if (Dialog.hasErrors) return;
-    Dialog.close();
     const key = getKey(chartID);
-    const properties = Dialog.data(true);
+    const properties = Dialog.data();
+    Dialog.close();
     if (Param.setParam("chart-properties", { properties, index: key }))
       reCreateCharts(key, true);
   }
