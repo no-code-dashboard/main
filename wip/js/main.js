@@ -8,8 +8,6 @@ import {
   setItem,
   getItem,
   getChartId,
-  getChartContainer,
-  getKey,
   clearCounts,
 } from "./modules/util.js";
 
@@ -23,12 +21,12 @@ import {
   drawChart,
   createCallout,
   destroyAllCharts,
-  amimateChart,
+  // amimateChart,
 } from "./modules/chart.js";
 import {
   showChartMenus,
   showCalloutMenu,
-} from "./modules/dialog/chart-callout-.js";
+} from "./modules/dialog/chart-callout.js";
 import { showLoadFileDialog } from "./modules/dialog/loadfile.js";
 import { showLayoutDialog } from "./modules/dialog/dashborad-layout.js";
 import { Dialog } from "./modules/dialog/dialog.js";
@@ -50,10 +48,10 @@ window.addEventListener("load", (event) => {
   else loadConfigFile(preset);
 });
 window.addEventListener("click", (e) => {
-  const id = e.target.id;
-  if (id && id.startsWith("chart-")) {
-    selectDiv("#" + id);
-  }
+  const div = e.target.closest(".callout, .chart");
+  if (!div) return;
+  const id = div.id;
+  selectDiv("#" + id);
 });
 window.addEventListener("error", (event) => {
   const message = `Unhandled error. ${event.type}: ${event.message}`;
@@ -61,6 +59,9 @@ window.addEventListener("error", (event) => {
   showErrorInDash(message);
   Dialog.close();
 });
+window.__smokeTest = (duration) =>
+  smokeTest(loadConfigFile, loadPresetFile, scrollToChart, duration);
+
 function addMenuListeners() {
   const menus = _.selectAll(".menu");
   for (const m of menus) {
@@ -85,6 +86,7 @@ function setLoader(action) {
 }
 
 function readyDashboard() {
+  _.clearHTML("#severe-error");
   _.clearHTML("#data-source");
   _.clearHTML("#log");
   const reportTitles = _.select("#report-titles");
@@ -111,10 +113,15 @@ async function loadPresetFile(presetType) {
 async function showInitialChoice({ url, loadNewData }) {
   //to do get first row and compare
   const response = await Dialog.alert(
-    ``,
+    "Select to proceed...",
     ["Load file", "Show demo", "Cancel"],
-    "Select to proceed",
+    "Welcome to no-code-dashboard",
   );
+  // const action = await Dialog.alert(
+  //     "Select to proceed...",
+  //     ["Keep Config", "Reset Config", "Abort Load"],
+  //     "A config is already present",
+  //   );
   if (response == "Show demo") {
     window.open("index.html?demo", "_self");
   }
@@ -137,9 +144,10 @@ async function countNow(filter) {
 }
 
 function createTag(text, colorClass, tooltip) {
-  return _.createElements({
-    span: { class: colorClass, text, "data-title": tooltip },
-  });
+  const title = tooltip ? `data-title="${tooltip}"` : "";
+  return _.createElements(
+    `<span class="${colorClass}" ${title}>${text}</span>`,
+  );
 }
 
 function showFilters() {
@@ -187,29 +195,30 @@ function showCharts() {
     reportSubtitle ??
     "Data as of: " + _.formatDate(reportDate, "DDD DD-MMM-YYYY");
 
-  const callOutWrapper = _.clearHTML(".callout-container");
+  const calloutContainer = _.clearHTML(".callout-container");
   const wrapper = _.clearHTML(".chart-container");
   const toc = _.clearHTML("#toc");
   const dropdownTOC = _.clearHTML("#dropdown-toc");
   dropdownTOC.addEventListener("click", () => toggleDropdown());
   const allCounts = getCounts();
+  const button = `<button tabindex="0">&#8942;</button>`;
 
   for (const key in allCounts.callouts) {
     const div = _.createElements(
-      `<div class="callout" id="callout-${key}">
+      `<article class="callout" id="callout-${key}">
+        ${button}
         <div id="value"></div>
         <hr style="margin:0.5rem">
-        <button id="message"></button>
-      </div>`,
+        <p id="message"></p>
+      </article>`,
     );
 
-    const button = _.select("#message", div);
-    button.addEventListener("click", () => {
-      selectDiv(`#callout-${key}`);
+    _.select("button", div).addEventListener("click", () => {
+      // selectDiv(`#callout-${key}`);
       showCalloutMenu(key, reCreateCharts, scrollToChart);
     });
 
-    callOutWrapper.append(div);
+    calloutContainer.append(div);
     createCallout(key, allCounts.callouts[key], scrollToChart);
   }
 
@@ -221,74 +230,57 @@ function showCharts() {
     );
     const spanClass = "" + chartSize.toLowerCase();
 
-    const id = getChartId(key);
     // const chartTemplate = _.select("#wrapper-loader .chart");
-    const chartTemplate = _.select("#chart-template");
+    // const chartTemplate = _.select("#chart-template");
     createChartPlaceholder();
     createTOCentry();
 
     const data = allCounts.data[key];
     // const memo = allCounts.memo[key]
-    drawChart(id, data, chartClick);
+    drawChart(key, data, chartClick);
 
     function createChartPlaceholder() {
-      const containerId = getChartContainer(key);
+      const containerId = getChartId(key);
       const div = _.createElements(`
-      <div class="surface-1 chart ${spanClass}" data-chart-type="${chartType}" id="${containerId}">
-        <h4>
-          <span>${chartTitleWithIndex}</span>
-          <button tabindex="0">&#8942;</button>
-        </h4>
-        <div id="chart-${key}"></div>
+      <article class="chart ${spanClass}" data-chart-type="${chartType}" id="${containerId}">
+        ${button}
+        <h4>${chartTitleWithIndex}</h4>
+        <div id="plot"></div>
         <div class="tags"></div>
         <div class="chart-footer"></div>
-      </div>`);
+      </article>`);
 
       _.select("button", div).addEventListener("click", () => {
-        selectDiv(`#${containerId}`);
-        showChartMenus(id, reCreateCharts, showCharts);
+        // selectDiv(`#${containerId}`);
+        showChartMenus(key, reCreateCharts, showCharts);
       });
       wrapper.appendChild(div);
     }
 
     function createTOCentry() {
-      const a = {
-        a: {
-          href: "#" + getChartContainer(key),
-          text: chartTitleWithIndex,
-        },
-      };
+      const a = `<a href="#${getChartId(key)}">${chartTitleWithIndex}</a>`;
 
-      const tocEntry = _.createElements({ div: a });
+      const tocEntry = _.createElements(`<div>${a}</div>`);
       toc.appendChild(tocEntry);
       const tocEntryDup = _.createElements(a);
-
       dropdownTOC.appendChild(tocEntryDup);
       // dropdownTOC.setAttribute("onclick", "toggleDropdown()");
     }
   }
 }
 
-async function chartClick(chartId, category) {
-  selectDiv("#chart-container" + chartId.replace("chart", ""));
+async function chartClick(key, category) {
+  const chartContainer = "#chart-container" + key;
+  selectDiv(chartContainer);
   if (!category) return;
   const allCounts = getCounts();
-  const key = getKey(chartId);
 
   const oneCount = allCounts.counts[key];
   for (const [k, v] of Object.entries(oneCount))
     if (k !== category) v.include = !v.include;
 
   await countNow(allCounts);
-  selectDiv("#chart-container" + chartId.replace("chart", ""));
-}
-async function chartResetFilter(chartId) {
-  let allCounts = getCounts();
-  const key = getKey(chartId);
-  const oneCount = allCounts[key].counts;
-
-  for (const [k, v] of Object.entries(oneCount)) v.include = true;
-  await countNow(allCounts);
+  selectDiv(chartContainer);
 }
 
 function menu(action) {
@@ -298,12 +290,12 @@ function menu(action) {
   }
 
   hideDropdown();
-  if (action === "print") {
-    //adjust toc for print
-    window.print();
-    //adjust toc for sceen
-    return;
-  }
+  // if (action === "print") {
+  //   //adjust toc for print
+  //   window.print();
+  //   //adjust toc for sceen
+  //   return;
+  // }
 
   if (action === "load-file") {
     loadFile();
@@ -341,11 +333,6 @@ function menu(action) {
     return;
   }
 
-  if (action === "smoke-test") {
-    smokeTest(loadConfigFile, loadPresetFile, scrollToChart);
-    return;
-  }
-
   showErrorInDash(`"${action}" not implemented`);
 }
 
@@ -354,17 +341,12 @@ function updateDataSource(sources, names) {
   dataSource.appendChild(createTag(`Data source`, "tag-info"));
 
   sources.forEach((source, i) => {
-    const a = _.createElements({
-      span: {
-        a: {
-          href: source,
-          target: "_blank",
-          text: names?.[i] ?? filename(source),
-          "data-title": "Click to view/download the file",
-        },
-        class: "tag-info",
-      },
-    });
+    const text = names?.[i] ?? filename(source);
+    const a = _.createElements(
+      `<span class="tag-info">
+          <a target="_blank" href="${source}" data-title="Click to view the file",">${text}</a>
+        </span`,
+    );
     dataSource.appendChild(a);
   });
   function filename(name) {
@@ -407,157 +389,176 @@ async function reCreateCharts(key, removeFilter = false) {
 
 function scrollToChart(key) {
   if (!key) return;
-  const chart = _.select(`#${getChartContainer(key)}`);
+  const chart = _.select(`#${getChartId(key)}`);
   if (!chart) return;
   chart.scrollIntoView(false);
-  selectDiv(`#${getChartContainer(key)}`);
+  selectDiv(`#${getChartId(key)}`);
 }
 
 function selectDiv(selector) {
+  const theDiv = _.select(selector);
+  if (!theDiv) return;
+  const isSelected = theDiv.classList.contains("selected");
   const divs = _.selectAll(".selected");
   divs.forEach((div) => {
     div.classList.remove("selected");
   });
-
-  const div = _.select(selector);
-  if (!div) return;
-  amimateChart(selector, "bar");
-  div.classList.add("selected", "flash-border");
-  _.sleep(1500).then(() => {
-    div.classList.remove("flash-border");
-  });
+  if (isSelected) return;
+  // amimateChart(selector, "bar");
+  theDiv.classList.add("selected");
 }
 
 /////////////////
 function loadFile() {
   showLoadFileDialog({
     header: "Load file",
-    loadData: loadNewData,
+    loadNewData,
     loadConfigFile,
   });
 }
-async function loadNewData(blob, filename) {
+//to do remove blob for local
+async function loadNewData(file, filename, url) {
   /**
   Data present?	Action
   No	          Load data and create config
   Yes	          Ask if data be loaded
   */
   Logger.clearLogs();
+
+  const blob = file instanceof File ? URL.createObjectURL(file) : file;
   const config = Param.getParam("config");
-  const action = _.isEmptyObject(config)
-    ? "Reset Config"
-    : await actionOnConfig();
-  if (action === "Abort Load") return;
-  setLoader("show-progress");
-  readyDashboard();
-  if (action === "Reset Config") {
+  if (!_.isEmptyObject(config)) {
+    const nextStep = await Dialog.alert(
+      "Select to proceed...",
+      ["Keep Config", "Reset Config", "Abort Load"],
+      "A config is already present",
+    );
+    if (nextStep === "Abort Load") return;
+    if (nextStep === "Reset Config") {
+      const dataDescription = await Counter.getCountsFromFile(
+        _.stringify({ blob }),
+      );
+      Param.autoCreateConfig(blob, dataDescription);
+    }
+    Param.setParam("config-file", { file: blob });
+  } else {
     const dataDescription = await Counter.getCountsFromFile(
       _.stringify({ blob }),
     );
+    console.log({ dataDescription });
     Param.autoCreateConfig(blob, dataDescription);
   }
-  if (action === "Keep Config") Param.setParam("config-file", { file: blob });
+
+  // const action = await (_.isEmptyObject(config)
+  //   ? "Reset Config"
+  //   : Dialog.alert(
+  //       "Select to proceed...",
+  //       ["Keep Config", "Reset Config", "Abort Load"],
+  //       "A config is already present",
+  //     )); //://actionOnConfig();
+  // console.log({ x, config, action });
+  // if (action === "Abort Load") return;
+  setLoader("show-progress");
+  readyDashboard();
+  // if (action === "Reset Config") {
+  //   const dataDescription = await Counter.getCountsFromFile(
+  //     _.stringify({ blob }),
+  //   );
+  //   Param.autoCreateConfig(blob, dataDescription);
+  // }
+  // if (action === "Keep Config") Param.setParam("config-file", { file: blob });
   updateDataSource([blob], [filename]);
   await countNow();
 
-  adjustMenusDisplay(
-    ["show-toc", "configure-dashboard", "save-config", "print"],
-    "",
-  );
+  adjustMenusDisplay(["show-toc", "configure-dashboard", "save-config"], "");
   setLoader("hide");
   async function actionOnConfig() {
-    //to do get first row and compare
-    const areHeadersSame = false;
-    if (areHeadersSame) return "Keep Config";
-    return await Dialog.alert(`Config present`, [
-      "Keep Config",
-      "Reset Config",
-      "Abort Load",
-    ]);
+    //todo get first row and compare
+
+    // const doHeadersMatch = false;
+    // if (doHeadersMatch) return "Keep Config";
+
+    const action = await Dialog.alert(
+      "Select to proceed...",
+      ["Keep Config", "Reset Config", "Abort Load"],
+      "A config is already present",
+    );
+    console.trace(); //{ action });
     return action;
   }
 }
 /* 
-mvp
+todo
 bug - table showing more that 10 (done: was a bug for new files)
 bug - config bar not updating current values (done)
 fix tag: table and tag: objcet - to do button highlights (done)
+fix callout (done)
+add donut to call out (done)
 
-fix callout
-add donut to call out
 read 2000 record limit on new file
 change language for the demo, help text
 
+oprand 1 can be column name or const (number or date)
+
 */
 
-async function loadConfigFile(fileOrUrl, isSmokeTest = false) {
-  if (!fileOrUrl) {
+async function loadConfigFile(file, isSmokeTest = false) {
+  if (!file) {
     showErrorInDash(`No input file provided`);
     return;
   }
 
-  const filename = _.stringify(fileOrUrl);
+  const [text, fileErr] = await readFile(file);
 
-  const [text, fileReadErr] =
-    fileOrUrl instanceof File
-      ? await readFile(fileOrUrl)
-      : typeof fileOrUrl === "string"
-        ? await readUrl(fileOrUrl)
-        : [null, `Invalid file type. File: ${filename}`];
-
-  if (fileReadErr) {
-    showErrorInDash(
-      `Cannot read file. File: ${filename}; error: ${fileReadErr}`,
-    );
+  if (fileErr) {
+    showErrorInDash(fileErr);
     return;
   }
 
-  const [configs, invalidJsonErr] = _.parse(text);
+  const [configs, jsonErr] = _.parse(text);
 
-  if (invalidJsonErr) {
-    showErrorInDash(
-      `File is not JSON. File: ${filename}; error: ${invalidJsonErr}`,
-    );
+  if (jsonErr) {
+    showErrorInDash(jsonErr);
     return;
   }
+
   if (isSmokeTest) return configs;
-  else loadConfigs(configs);
+  loadConfigs(configs);
 
   async function readFile(file) {
     try {
-      const text = await file.text();
-      return [text, null];
-    } catch (error) {
-      return [null, error];
-    }
-  }
-  async function readUrl(url) {
-    try {
-      const response = await fetch(url);
-      if (!response.ok) {
-        return [null, `HTTP error! status: ${response.status}`];
+      if (file instanceof File) {
+        const text = await file.text();
+        return [text, null];
       }
-      const text = await response.text();
-      return [text, null];
+      if (typeof file === "string") {
+        const response = await fetch(file);
+        if (!response.ok) {
+          return [null, `HTTP error! status: ${response.status}`];
+        }
+        const text = await response.text();
+        return [text, null];
+      }
+      return [null, `Invalid file type. File: ${_.stringify(file)}`];
     } catch (error) {
       return [null, error];
     }
   }
 }
 async function loadConfigs(configs) {
-  setLoader("show-progress");
-  hideDropdown();
-  readyDashboard();
+  // setLoader("show-progress");
+  // hideDropdown();
+  // readyDashboard();
 
-  const [keys, error] = validateConfigs(configs);
+  const [keys, error, config] = validateConfigs(configs);
 
   if (error) {
     showErrorInDash(error);
     return;
   }
 
-  if (keys.length === 1) {
-    loadAConfig(configs[keys[0]]);
+  if (keys.length === 0) {
+    loadAConfig(config);
     return;
   }
   const presetDiv = _.select("#top-nav #preset");
@@ -572,53 +573,98 @@ async function loadConfigs(configs) {
     presetDiv.appendChild(clone);
   });
   notPresetDiv.style.display = "none";
-  adjustMenusDisplay(["show-toc", "print"], "");
+  adjustMenusDisplay(["show-toc"], "");
   _.selectAll("#top-nav #preset .menu")[0].click();
 }
 
 async function loadAConfig(config, isPreset = false) {
-  setLoader("show-progress");
   hideDropdown();
   readyDashboard();
+  const [, err] = validateConfig(config);
 
-  const [, invalidConfigErr] = validateConfig(config);
-
-  if (invalidConfigErr) {
-    showErrorInDash(invalidConfigErr);
+  if (err) {
+    showErrorInDash(err);
     return;
   }
-  const { files } = config;
-  const isValidFile = files && (await _.isValidFile(files[0]));
 
-  if (isPreset && !isValidFile) {
+  const { files } = config;
+  if (files.length === 0) {
+    Param.setParam("config-replace", { newConfig: config });
+    console.log({config})
+    return;
+  }
+  setLoader("show-progress");
+  const fileSize = await _.getFileSize(files[0]);
+  const isValid = fileSize > -1;
+  if (isPreset && !isValid) {
     showErrorInDash(`Invalid file: ${files[0]}`);
     return;
   }
   Param.setParam("config-replace", { newConfig: config });
-  if (!isValidFile) return;
+  if (!isValid) return;
   updateDataSource([files[0]]);
   if (!isPreset)
-    adjustMenusDisplay(
-      ["show-toc", "configure-dashboard", "save-config", "print"],
-      "",
-    );
+    adjustMenusDisplay(["show-toc", "configure-dashboard", "save-config"], "");
   await countNow();
 }
-function showErrorInDash(msg, type = "error") {
-  Logger.logValues(msg, type);
+
+function showErrorInDash(msg, type = "severe") {
+  _.select("#severe-error").textContent = msg;
+  // Logger.logValues(msg, type);
   Logger.showLogs();
   setLoader("hide");
 }
+async function newCountNow(filter) {
+  Logger.startLogs();
+  const config = Param.getParam("config");
+  const json = JSON.stringify({ filter, config });
+  // const allCounts = await Counter.getCountsFromFile(json);
+  const allCounts = await runInBrowser();
 
-//////////quick test area
-// import X from "../xxxx/van-1.6.0.js";
-// const { p } = X.tags;
-// console.log(typeof p);
+  saveCounts(allCounts);
+  showCharts();
+  showFilters();
+  Logger.showLogs();
+  setLoader("hide");
+  // --- Browser runner: stream straight into the shared counting function ---
+  async function runInBrowser(file) {
+    if (file instanceof File) return countColumns(file.stream());
+    //introduce auth
+    const res = await fetch(file); // remote server must allow CORS
+    if (!res.ok)
+      throw new Error(`Remote fetch failed: ${res.status} ${res.statusText}`);
+    return countColumns(res.body);
+  }
 
-// function tryCatch(value, errsToCatch) {
-//   try {
-//     return [value, null];
-//   } catch (error) {
-//     return [null, error];
-//   }
-// }
+  // --- Worker runner: same inputs the Worker expects ---
+  async function runInWorker(file) {
+    const request =
+      file instanceof File
+        ? {
+            method: "POST",
+            headers: { "Content-Type": "text/csv" },
+            body: file,
+          }
+        : {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ file }),
+          };
+    const res = await fetch(WORKER_URL, request);
+    const data = await res.json();
+    if (!res.ok)
+      throw new Error(data.error || `Request failed (${res.status})`);
+    return data;
+  }
+  async function countColumns() {
+    //todo
+  }
+}
+
+async function waitAtLeast(asyncFn, seconds) {
+  const timerPromise = _.sleep(seconds * 1000);
+  const functionPromise = asyncFn();
+  const [, result] = await Promise.all([timerPromise, functionPromise]);
+
+  return result;
+}
