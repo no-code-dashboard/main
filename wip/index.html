@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <title>No-code-dashboard</title>
@@ -34,34 +34,13 @@
     />
     <link rel="manifest" href="./images/site.webmanifest" />
 
-    <!-- the props -->
-    <link rel="stylesheet" href="https://unpkg.com/open-props" />
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/open-props/normalize.min.css"
-    />
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/open-props/buttons.min.css"
-    />
-    <!-- pico -->
-    <!-- <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.fluid.classless.min.css"
-    /> -->
-    <link rel="stylesheet" href="./css/brand.css" />
     <link rel="stylesheet" href="./css/main.css" />
-    <link rel="stylesheet" href="./css/dialog.css" />
-    <link rel="stylesheet" href="./css/animation.css" />
-    <link rel="stylesheet" href="./css/markdown.css" />
-    <link rel="stylesheet" href="./css/print.css" />
-
     <script src="./js/main.js" type="module" charset="utf-8" defer></script>
+    <!-- <script src="bundle.js" type="module" charset="utf-8" defer></script> -->
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.5.3/papaparse.min.js"></script>
   </head>
 
   <body>
-    <input type="file" id="file" style="display: none" />
     <nav id="top-nav">
       <button id="show-toc" style="display: none" class="menu">Content</button>
       <span id="not-preset">
@@ -69,22 +48,30 @@
         <button id="configure-dashboard" style="display: none" class="menu">
           Configure dashboard
         </button>
-        <button id="save-config" style="display: none" class="menu">Save config</button>
+        <button id="save-config" style="display: none" class="menu">
+          Save config
+        </button>
       </span>
       <span id="preset"></span>
-      <span id="common">
-        <button id="print" style="display: none" class="menu">Print</button>
-      </span>
+      <span id="common"></span>
       <div id="dropdown-toc" style="display: none"></div>
     </nav>
     <br />
-    <div id="loader-wrapper" style="visibility:hidden">
+    <div id="loader-wrapper" style="visibility: hidden">
       <h1>Building dashboard...</h1>
       <progress style="width: 100%"></progress>
+      <!-- <div class="bar-spinner">
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+      </div> -->
     </div>
+    <div id="severe-error" class="always-visible"></div>
     <main>
       <section>
-        <div id="report-titles">
+        <div id="report-titles" class="always-visible">
           <h1 id="main-title"></h1>
           <h2 id="sub-title"></h2>
         </div>
@@ -94,18 +81,21 @@
           <br />
           <div id="toc"></div>
         </div>
+        <div class="page-break"></div>
       </section>
       <br />
-      <section class="callout-container"></section>
-      <section class="chart-container"></section>
-      <section>
+      <section class="always-visible">
+        <section class="callout-container"></section>
+        <div class="page-break"></div>
+        <section class="chart-container"></section>
+      </section>
+      <section class="always-visible">
         <div id="data-source" class="tags"></div>
         <div id="log" class="tags"></div>
       </section>
-      <section>
+      <section class="always-visible">
         <footer></footer>
       </section>
-      <button class="menu" id="smoke-test">Smoke test</button>
     </main>
   </body>
   <script type="module">
