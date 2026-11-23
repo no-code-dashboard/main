@@ -3,55 +3,93 @@
 import { _ } from "../util.js";
 // import { AxisUi, ChartFilterUi, CountTypeUi } from "./uis.js";
 export { noChart };
+const options = ["Days-to-date", "Workdays-to-date", "Bespoke"];
+
 const noChart = {
   cannotFilter: true,
   validateChart: (chartProps) => {
     const [errors, warnings, attributes] = [[], [], []];
     return [errors, warnings, attributes];
   },
-  presets: (chartPtops, calloutProps) => {
-    // return { chartTitle: "DATA TABLE" };
-  },
-  validateCallout: (calloutProps ) => {
+  // presets: (chartPtops, calloutProps) => {
+  //   // return { chartTitle: "DATA TABLE" };
+  // },
+  validateCallout: (calloutProps) => {
     const errors = [],
-      attributes = [];
-    const { targetDate, value } = calloutProps;
-    if (!_.isValidDate(targetDate))
-      errors.push({ name: "targetDate", message: "Invalid date" });
+      attributes = [
+        {
+          name: ["targetDate", "targetValue"],
+          attrs: ["class-add", "hide"],
+          applyTo: "wrapper",
+        },
+      ];
 
-    attributes.push({ name: "message", attrs: ["placeholder", value] });
-    return [errors,[],attributes]; 
+    const { targetDate, targetValue, value, message } = calloutProps;
+    if (!options.includes(value))
+      errors.push({ name: "value", message: "Invalid value" });
+    else {
+      if (value === options[2]) checkBespoke();
+      else checkDate();
+    }
+    const placeholder = value.replaceAll("-", " ").replace("date", targetDate);
+    attributes.push({ name: "message", attrs: ["placeholder", placeholder] });
+    return [
+      errors,
+      [],
+      attributes,
+      { ...calloutProps, message: message ?? placeholder },
+    ];
+    function checkBespoke() {
+      attributes.push({
+        name: "targetValue",
+        attrs: ["class-remove", "hide"],
+        applyTo: "wrapper",
+      });
+      if (!_.isString(targetValue))
+        errors.push({ name: "targetValue", message: "Required" });
+    }
+    function checkDate() {
+      attributes.push({
+        name: "targetDate",
+        attrs: ["class-remove", "hide"],
+        applyTo: "wrapper",
+      });
+      if (!_.isValidDate(targetDate))
+        errors.push({ name: "targetDate", message: "Invalid date" });
+    }
   },
-  calloutOverlay: (options) => [
+  calloutOverlay: () => [
     {
       tag: "select",
       name: "value",
       label: "Value type",
-      options: ["Days-to-date", "Workdays-to-date"],
+      options,
     },
     { tag: "date", label: "Target date", name: "targetDate" },
-    { tag: "text", label: "Message", name: "xmessage" },
+    { tag: "text", label: "Value", name: "targetValue" },
+    { tag: "text", label: "Message", name: "message" },
   ],
   getCallout: (calloutProps, chartProps, data, config) => {
+    const [err, , , { value, targetDate, targetValue, message }] =
+      noChart.validateCallout(calloutProps);
+    if (err.length > 0) {
+      console.error("Invalid properties", e);
+      return { value: "ERR", message: "Invalid properties" };
+    }
+
     const { reportDate } = config;
-    // return { value: "ERR", message: "No report date" };
     if (!reportDate) return { value: "ERR", message: "No report date" };
-    const { value, targetDate, message } = calloutProps;
-    const msg = message ?? "Get palceholder";
-    if (!value) return { value: "ERR", message: "No type" };
-    // if (value === "report-date")
-    //   return { value: _.formatDate(reportDate, "DD-MMM-YY"), message: msg };
-    if (!targetDate) return { value: "ERR", message: "No target date" };
-    if (value === "Days-to-date")
-      return {
-        value: _.dateTimeDiff(reportDate, targetDate, "days"),
-        message: msg,
-      };
-    if (value === "Workdays-to-date")
-      return {
-        value: _.dateTimeDiff(reportDate, targetDate, "workdays"),
-        message: msg,
-      };
-    return { value: "ERR", message: `Invalid value: ${value}` };
+
+    return {
+      value:
+        value === options[2]
+          ? targetValue
+          : _.dateTimeDiff(
+              reportDate,
+              targetDate,
+              value === options[0] ? "days" : "workdays",
+            ),
+      message,
+    };
   },
 };
