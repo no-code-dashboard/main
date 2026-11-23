@@ -1,15 +1,17 @@
-{
+{ "multi-config": true,
   "Introduction": {
     "covertDatesToToday": true,
     "reportDate": "2023-08-01",
     "reportTitle": "Welcome to No-code-dashboard",
     "reportSubtitle": "From raw data to insights, instantly",
     "maxValues": 30,
+    "dates": ["report-date", "2023-08-01", "R1-start", "2023-08-15"],
     "files": [
       "https://raw.githubusercontent.com/abhijitmajumdar2020/MAAS/main/datafiles/notes.csv"
     ],
     "columnNames": ["Notes"],
     "columnTypes": ["String"],
+    "callouts": [],
     "chartProperties": [
       {
         "chartTitle": "Introduction",
@@ -40,7 +42,8 @@
   "Basic": {
     "covertDatesToToday": true,
     "reportDate": "2023-06-12",
-    "reportTitle": "Auto-generated Dashboard",
+    "dates": ["report-date", "2023-06-12"],
+    "reportTitle": "No Code Dashboard",
     "maxValues": 30,
     "files": [
       "https://raw.githubusercontent.com/abhijitmajumdar2020/MAAS/main/datafiles/incidents.csv"
@@ -66,14 +69,14 @@
       "String"
     ],
     "callouts": [
-      { "chartNumber": "1", "value": "Max" },
-      { "chartNumber": "2", "value": "Max" },
-      { "chartNumber": "3", "value": "Max" },
-      { "chartNumber": "4", "value": "Max" },
-      { "chartNumber": "5", "value": "Max" },
-      { "chartNumber": "6", "value": "Max" },
-      { "chartNumber": "7", "value": "Max" },
-      { "chartNumber": "8", "value": "Min" }
+      { "chartNumber": "1", "valueType": "Max" },
+      { "chartNumber": "2", "valueType": "Max" },
+      { "chartNumber": "3", "valueType":"Max" },
+      { "chartNumber": "4", "valueType":"Max" },
+      { "chartNumber": "5", "valueType":"Max" },
+      { "chartNumber": "6", "valueType":"Max" },
+      { "chartNumber": "7", "valueType":"Max" },
+      { "chartNumber": "8", "valueType":"Min" }
     ],
     "chartProperties": [
       {
@@ -156,7 +159,8 @@
   "Modified Basic": {
     "covertDatesToToday": true,
     "reportDate": "2023-06-12",
-    "reportTitle": "Modified Auto-generated Dashboard",
+    "dates": ["report-date", "2023-06-12", "R1-start", "2023-08-15"],
+    "reportTitle": "Modified No Code Dashboard",
     "maxValues": 30,
     "files": [
       "https://raw.githubusercontent.com/abhijitmajumdar2020/MAAS/main/datafiles/incidents.csv"
@@ -182,10 +186,10 @@
       "String"
     ],
     "callouts": [
-      { "chartNumber": "4", "value": "Min" },
-      { "chartNumber": "5", "value": "Max" },
-      { "chartNumber": "6", "value": "Min" },
-      { "chartNumber": "8", "value": "Max" }
+      { "chartNumber": "4", "valueType":"Min" },
+      { "chartNumber": "5", "valueType":"Max" },
+      { "chartNumber": "6", "valueType":"Min" },
+      { "chartNumber": "8", "valueType":"Max" }
     ],
     "chartProperties": [
       {
@@ -198,15 +202,17 @@
         "chartSize": "Small",
         "chartType": "Trend",
         "x_column": "CREATE DATE",
+        "aggrateType": "cumulative",
         "trendStartDate": "2023-01-12",
         "x_label": "Incident Creation"
       },
       {
         "chartSize": "Small",
-        "chartType": "Trend OC",
+        "chartType": "Trend",
         "trendStartDate": "2023-01-12",
-        "openDateCol": "CREATE DATE",
-        "closeDateCol": "CLOSE DATE",
+        "x_column": "CREATE DATE",
+        "aggrateType": "cumulative",
+        "x1_column": "CLOSE DATE",
         "x_label": "Open Incidents"
       },
       {
@@ -221,7 +227,7 @@
         "countType": "Count",
         "x_column": "STATUS",
         "x_dataType": "String",
-        "x_labels": "New, WIP, In Test, Closed",
+        "x_categories": "New, WIP, In Test, Closed",
         "chartType": "Bar"
       },
       {
@@ -271,7 +277,19 @@
   "Test Execution": {
     "covertDatesToToday": true,
     "reportDate": "2023-08-01",
-    "reportTitle": "Test Execution Dashboard",
+    "dates": [
+      "report-date",
+      "2023-08-01",
+      "6w-before-report-date",
+      "2023-06-20",
+      "test-start",
+      "2023-01-14",
+      "R1-start",
+      "2023-07-01",
+      "R1-end",
+      "2023-09-15"
+    ],
+    "reportTitle": "Test Execution",
     "maxValues": 30,
     "files": [
       "https://raw.githubusercontent.com/abhijitmajumdar2020/MAAS/main/datafiles/testexecution.csv"
@@ -297,9 +315,9 @@
       "String"
     ],
     "callouts": [
-      { "chartNumber": "6", "value": "Min" },
-      { "chartNumber": "7", "value": "Max" },
-      { "chartNumber": "8", "value": "Max" }
+      { "chartNumber": "6", "valueType":"Min" },
+      { "chartNumber": "7", "valueType":"Max" },
+      { "chartNumber": "8", "valueType":"Max" }
     ],
     "validations": [],
     "chartProperties": [
@@ -315,23 +333,39 @@
         "countType": "Count",
         "chartSize": "Medium",
         "x_label": "Test Creation",
-        "plan": "2023-02-01,2023-06-27,0,max,line,Test Creation Plan",
+        "plan": [
+          "2023-02-01",
+          "2023-06-27",
+          "0",
+          "max",
+          "line",
+          "Test Creation Plan"
+        ],
         "x_column": "Create Date",
+        "aggrateType": "cumulative",
         "trendStartDate": "2023-01-14",
-        "annotations": "2023-08-01, Report Date, mv"
+        "annotations": ["report-date", "Report Date", "mv"]
       },
       {
         "chartType": "Trend",
         "countType": "Count",
         "chartSize": "Medium",
         "x_label": "Test Execution",
-        "plan": "2023-05-01,2023-09-01,0,max,sigmoid,Test Execution Plan",
+        "plan": [
+          "2023-05-01",
+          "2023-09-01",
+          "0",
+          "max",
+          "sigmoid",
+          "Test Execution Plan"
+        ],
+
         "x_column": "Execution Date",
-        "chartFilter": "and,STATUS, in, pass fail",
+        "aggrateType": "cumulative",
+        "chartFilter": ["and", "STATUS", "in", "pass fail"],
         "trendStartDate": "2023-01-14",
-        "_forecast": "{\"lookBack\":\"14\",\"forecastTo\":\"max\",\"label\":\"Forecast (14 days)\"}",
-        "forecast": "14,max,Forecast (14 days)",
-        "annotations": "2023-08-01, Report Date, th"
+        "forecast": ["14", "max", "Forecast (14 days)"],
+        "annotations": ["2023-08-01", "Report Date", "th"]
       },
       {
         "chartTitle": "NOTE ON PLAN",
@@ -352,13 +386,20 @@
         "countType": "Count",
         "chartSize": "Medium",
         "x_label": "Test Execution",
-        "plan": "2023-05-01,2023-09-01,0,max,sigmoid,Test Execution Plan",
+        "plan": [
+          "2023-05-01",
+          "2023-09-01",
+          "0",
+          "max",
+          "sigmoid",
+          "Test Execution Plan"
+        ],
         "x_column": "Execution Date",
-        "chartFilter": "and,STATUS, in, pass fail",
+        "aggrateType": "cumulative",
+        "chartFilter": ["and", "STATUS", "in", "pass fail"],
         "trendStartDate": "2023-01-14",
-        "_forecast": "{\"lookBack\":\"7\",\"forecastTo\":\"max\",\"label\":\"Forecast (7 days)\"}",
-        "forecast": "7,max,Forecast (7 days)",
-        "annotations": "2023-08-01, Report Date, th"
+        "forecast": ["7", "max", "Forecast (7 days)"],
+        "annotations": ["2023-08-01", "Report Date", "th"]
       },
       {
         "x_column": "Linked Defects",
@@ -415,7 +456,8 @@
   "State Change": {
     "covertDatesToToday": true,
     "reportDate": "2023-08-01",
-    "reportTitle": "State Change Dashboard",
+    "dates": ["report-date", "2023-08-01"],
+    "reportTitle": "State Change",
     "maxValues": 30,
     "files": [
       "https://raw.githubusercontent.com/abhijitmajumdar2020/MAAS/main/datafiles/statuschange.csv"
@@ -423,11 +465,11 @@
     "columnNames": ["ID", "When", "From", "To", "Priority", "Responsibility"],
     "columnTypes": ["String", "Date", "String", "String", "String", "String"],
     "callouts": [
-      { "chartNumber": "1", "value": "Max" },
-      { "chartNumber": "2", "value": "Max" },
-      { "chartNumber": "3", "value": "Max" },
-      { "chartNumber": "4", "value": "Max" },
-      { "chartNumber": "5", "value": "Max" }
+      { "chartNumber": "1", "valueType":"Max" },
+      { "chartNumber": "2", "valueType":"Max" },
+      { "chartNumber": "3", "valueType":"Max" },
+      { "chartNumber": "4", "valueType":"Max" },
+      { "chartNumber": "5", "valueType":"Max" }
     ],
     "chartProperties": [
       {
@@ -444,8 +486,8 @@
         "chartSize": "Medium",
         "idCol": "ID",
         "x_column": "To",
-        "x_labels": "ASSIGNED,FIXED,READY TO TEST,READY TO DEPLOY,CLOSED",
-        "y_labels": "NEW,ASSIGNED,FIXED,READY TO TEST,READY TO DEPLOY,CLOSED",
+        "x_categories": "ASSIGNED,FIXED,READY TO TEST,READY TO DEPLOY,CLOSED",
+        "y_categories": "NEW,ASSIGNED,FIXED,READY TO TEST,READY TO DEPLOY,CLOSED",
         "y_column": "From",
         "timestampCol": "When"
       },
@@ -521,7 +563,8 @@
   "Risk": {
     "covertDatesToToday": true,
     "reportDate": "2023-08-01",
-    "reportTitle": "Risk Dashboard",
+    "dates": ["report-date", "2023-08-01"],
+    "reportTitle": "Risk",
     "maxValues": 30,
     "files": [
       "https://raw.githubusercontent.com/abhijitmajumdar2020/MAAS/main/datafiles/risks.csv"
@@ -553,13 +596,13 @@
       "Date"
     ],
     "callouts": [
-      { "chartNumber": "1", "value": "Max" },
-      { "chartNumber": "2", "value": "Min" },
-      { "chartNumber": "4", "value": "Min" },
-      { "chartNumber": "5", "value": "Max" },
-      { "chartNumber": "6", "value": "Min" },
-      { "chartNumber": "7", "value": "Max" },
-      { "chartNumber": "8", "value": "Max" }
+      { "chartNumber": "1", "valueType":"Max" },
+      { "chartNumber": "2", "valueType":"Min" },
+      { "chartNumber": "4", "valueType":"Min" },
+      { "chartNumber": "5", "valueType":"Max" },
+      { "chartNumber": "6", "valueType":"Min" },
+      { "chartNumber": "7", "valueType":"Max" },
+      { "chartNumber": "8", "valueType":"Max" }
     ],
     "chartProperties": [
       {
@@ -572,10 +615,10 @@
         "chartSize": "Medium",
         "countType": "Count",
         "chartType": "Risk",
-        "y_column": "Impact",
-        "y_labels": "1,Very Low,2,Low,3,Medium, 4,High, 5,Very High",
-        "x_column": "Likelihood",
-        "x_labels": "1,Rare, 2,Unlikely, 3,Likely, 4,Very Likely, 5, Most Likely",
+        "x_column": "Impact",
+        "x_map": "1,Very Low,2,Low,3,Medium, 4,High, 5,Very High",
+        "y_column": "Likelihood",
+        "y_map": "1,Rare, 2,Unlikely, 3,Likely, 4,Very Likely, 5, Most Likely",
         "countLabels": "VL,L,M,H,VH"
       },
       {
@@ -584,17 +627,18 @@
         "countLabels": "VL,L,M,H,VH",
         "chartType": "Risk",
         "colOver": "AGE",
-        "y_column": "Impact",
-        "y_labels": "1,Very Low, 2,Low,3, Medium, 4,High, 5,Very High",
-        "x_column": "Likelihood",
-        "x_labels": "1,Rare, 2,Unlikely, 3,Likely, 4,Very Likely, 5,Most Likely"
+        "x_column": "Impact",
+        "x_map": "1,Very Low, 2,Low,3, Medium, 4,High, 5,Very High",
+        "y_column": "Likelihood",
+        "y_map": "1,Rare, 2,Unlikely, 3,Likely, 4,Very Likely, 5,Most Likely"
       },
       {
         "chartSize": "Small",
-        "chartType": "Trend OC",
+        "chartType": "Trend",
         "trendStartDate": "2023-01-04",
-        "openDateCol": "CREATE DATE",
-        "closeDateCol": "CLOSE DATE",
+        "x_column": "CREATE DATE",
+        "aggrateType": "cumulative",
+        "x1_column": "CLOSE DATE",
         "x_label": "Open Risks"
       },
       {
@@ -671,7 +715,8 @@
   "Plan": {
     "covertDatesToToday": true,
     "reportDate": "2023-08-01",
-    "reportTitle": "Plan Dashboard",
+    "dates": ["report-date", "2023-08-01", "r1-start", "2023-06-10"],
+    "reportTitle": "Plan",
     "maxValues": 30,
     "files": [
       "https://raw.githubusercontent.com/abhijitmajumdar2020/MAAS/main/datafiles/plan.csv"
@@ -699,12 +744,12 @@
       "String"
     ],
     "callouts": [
-      { "chartNumber": "3", "value": "Max" },
-      { "chartNumber": "4", "value": "Min" },
-      { "chartNumber": "5", "value": "Max" },
-      { "chartNumber": "6", "value": "Min" },
-      { "chartNumber": "7", "value": "Max" },
-      { "chartNumber": "8", "value": "Max" }
+      { "chartNumber": "3", "valueType":"Max" },
+      { "chartNumber": "4", "valueType":"Min" },
+      { "chartNumber": "5", "valueType":"Max" },
+      { "chartNumber": "6", "valueType":"Min" },
+      { "chartNumber": "7", "valueType":"Max" },
+      { "chartNumber": "8", "valueType":"Max" }
     ],
     "chartProperties": [
       {
@@ -717,7 +762,7 @@
       {
         "chartTitle": "LEVEL 1 PLAN",
         "chartSize": "Medium",
-        "chartFilter": "and,Level, eq, 1",
+        "chartFilter": ["and", "Level", "eq", "1"],
         "chartType": "Plan",
         "descriptionCol": "Desc",
         "startDateCol": "Start",
@@ -727,7 +772,18 @@
         "secondStartDateCol": "Actual start",
         "secondEndDateCol": "Actual/estimated end",
         "ragCol": "RAG",
-        "annotations": "2023-08-01, Report Date, th, 2023-06-10, R1, bh, 2023-10-06, R2, mh"
+        "ragMap": "B,B,R,R,A,A,G,G",
+        "annotations": [
+          "report-date",
+          "Report Date",
+          "th",
+          "r1-start",
+          "R1",
+          "bh",
+          "2023-10-06",
+          "R2",
+          "mh"
+        ]
       },
       {
         "chartTitle": "OVERALL PLAN",
@@ -741,7 +797,18 @@
         "firstLabel": "Plan",
         "secondLabel": "Actual",
         "ragCol": "RAG",
-        "annotations": "2023-08-01, Report Date, th, 2023-06-10, R1, mh, 2023-10-06, R2, th"
+        "ragMap": "B,B,R,R,A,A,G,G",
+        "annotations": [
+          "2023-08-01",
+          "Report Date",
+          "th",
+          "2023-06-10",
+          "R1",
+          "bh",
+          "2023-10-06",
+          "R2",
+          "mh"
+        ]
       },
       {
         "chartTitle": "COUNT BY LEVEL",
@@ -819,7 +886,7 @@
         "chartType": "Bar",
         "x_column": "RAG",
         "x_dataType": "String",
-        "x_labels": "B,G,A,R"
+        "x_categories": "B,G,A,R"
       },
       {
         "chartType": "Data Table",
@@ -837,7 +904,8 @@
   "File Error": {
     "covertDatesToToday": true,
     "reportDate": "2023-08-01",
-    "reportTitle": "Test Execution Dashboard",
+    "dates": ["report-date", "2023-08-01"],
+    "reportTitle": "Test Execution",
     "maxValues": 30,
     "files": [
       "file:///Users/abhijitmajumdar/Desktop/dummyFileToForceError/TestData/plan.csv"
@@ -849,6 +917,7 @@
   "Error Reporting": {
     "covertDatesToToday": true,
     "reportDate": "2023-08-01",
+    "dates": ["report-date", "2023-08-01"],
     "reportTitle": "Error Reporting",
     "maxValues": 30,
     "files": [
@@ -881,14 +950,15 @@
       "String"
     ],
     "callouts": [
-      { "value": "Max" },
-      { "chartNumber": "22", "value": "Min" },
-      { "chartNumber": "3", "value": "Max" },
-      { "chartNumber": "4", "value": "Min" },
-      { "chartNumber": "5", "value": "Max" },
-      { "chartNumber": "6", "value": "Min" },
-      { "chartNumber": "7", "value": "Max" },
-      { "chartNumber": "8", "value": "Max" }
+      { "valueType":"Max" },
+      { "chartNumber": "22", "valueType":"Min" },
+      { "chartNumber": "3", "valueType":"Max" },
+      { "chartNumber": "4", "valueType":"Min" },
+      { "chartNumber": "5", "valueType":"Max" },
+      { "chartNumber": "6", "valueType":"Min" },
+      { "chartNumber": "7", "valueType":"Max" },
+      { "chartNumber": "8", "valueType":"Max" },
+       { "chartNumber": "15", "valueType":"Max" }
     ],
     "chartProperties": [
       {
@@ -911,7 +981,17 @@
         "firstLabel": "Plan",
         "secondLabel": "Actual",
         "ragCol": "RAG",
-        "annotations": "2023-08-01, Report Date, th, 2023-06-10, R1, bh, 2023-10-06, R2, mh"
+        "ragMap": "B,B,R,R,A,A,G,G",
+        "annotations": [
+          "2023-08-01",
+          "Report Date",
+          "th",
+          "2023-06-10",
+          "R1",
+          "2023-10-06",
+          "R2",
+          "mh"
+        ]
       },
       {
         "chartTitle": "OVERALL PLAN",
@@ -925,7 +1005,18 @@
         "firstLabel": "Plan",
         "secondLabel": "Actual",
         "ragCol": "RAG",
-        "annotations": "2023-08-01, Report Date, th, 2023-06-10, R1, bh, 2023-10-06, R2, mh"
+        "ragMap": "B,B,R,R,A,A,G,G",
+        "annotations": [
+          "2023-08-01",
+          "Report Date",
+          "th",
+          "2023-06-10",
+          "R1",
+          "bh",
+          "2023-10-06",
+          "R2",
+          "mh"
+        ]
       },
       {
         "chartTitle": "COUNT BY LEVEL",
@@ -1001,7 +1092,7 @@
         "chartType": "Bar",
         "x_column": "RAG",
         "x_dataType": "String",
-        "x_labels": "B,G,A,R"
+        "x_categories": "B,G,A,R"
       },
       {
         "chartTitle": "ERROR REPORTING",

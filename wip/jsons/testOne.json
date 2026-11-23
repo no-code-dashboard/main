@@ -1,0 +1,189 @@
+{
+  "covertDatesToToday": true,
+  "reportDate": "2023-08-01",
+  "dates": ["report-date", "2023-08-01", "r1-start", "2023-06-10"],
+  "reportTitle": "Plan",
+  "maxValues": 30,
+  "files": [
+    "https://raw.githubusercontent.com/abhijitmajumdar2020/MAAS/main/datafiles/plan.csv"
+  ],
+  "columnNames": [
+    "Level",
+    "Desc",
+    "Start",
+    "End",
+    "Critical",
+    "Actual start",
+    "Actual/estimated end",
+    "Responsibility",
+    "RAG"
+  ],
+  "columnTypes": [
+    "Number",
+    "String",
+    "Date",
+    "Date",
+    "String",
+    "Date",
+    "Date",
+    "String",
+    "String"
+  ],
+  "callouts": [
+    { "chartNumber": "3", "valueType": "Max" },
+    { "chartNumber": "4", "valueType": "Min" },
+    { "chartNumber": "5", "valueType": "Max" },
+    { "chartNumber": "6", "valueType": "Min" },
+    { "chartNumber": "7", "valueType": "Max" },
+    { "chartNumber": "8", "valueType": "Max" }
+  ],
+  "chartProperties": [
+    {
+      "chartTitle": "INTRODUCTION",
+      "chartType": "Note",
+      "countType": "Count",
+      "chartSize": "Small",
+      "message": "This dashboad shows the data on \"plan\"\nCharts 2 and 3 shows the plan.  Remaining charts show other attributes of the plan.  Click on these bar charts to see how the display for the plan changes.\nThese charts are useful in identifying possible areas of the plan that needs attention."
+    },
+    {
+      "chartTitle": "LEVEL 1 PLAN",
+      "chartSize": "Medium",
+      "chartFilter": ["and", "Level", "eq", "1"],
+      "chartType": "Plan",
+      "descriptionCol": "Desc",
+      "startDateCol": "Start",
+      "endDateCol": "End",
+      "firstLabel": "Plan",
+      "secondLabel": "Actual",
+      "secondStartDateCol": "Actual start",
+      "secondEndDateCol": "Actual/estimated end",
+      "ragCol": "RAG",
+      "ragMap": "B,B,R,R,A,A,G,G",
+      "annotations": [
+        "report-date",
+        "Report Date",
+        "th",
+        "r1-start",
+        "R1",
+        "bh",
+        "2023-10-06",
+        "R2",
+        "mh"
+      ]
+    },
+    {
+      "chartTitle": "OVERALL PLAN",
+      "chartSize": "Medium",
+      "chartType": "Plan",
+      "descriptionCol": "Desc",
+      "startDateCol": "Start",
+      "endDateCol": "End",
+      "secondStartDateCol": "Actual start",
+      "secondEndDateCol": "Actual/estimated end",
+      "firstLabel": "Plan",
+      "secondLabel": "Actual",
+      "ragCol": "RAG",
+      "ragMap": "B,B,R,R,A,A,G,G",
+      "annotations": [
+        "2023-08-01",
+        "Report Date",
+        "th",
+        "2023-06-10",
+        "R1",
+        "bh",
+        "2023-10-06",
+        "R2",
+        "mh"
+      ]
+    },
+    {
+      "chartTitle": "COUNT BY LEVEL",
+      "chartSize": "Small",
+      "countType": "Count",
+      "chartType": "Bar",
+      "x_column": "Level",
+      "x_dataType": "Number"
+    },
+    {
+      "chartTitle": "COUNT BY CRITICAL",
+      "chartSize": "Small",
+      "countType": "Count",
+      "chartType": "Bar",
+      "x_column": "Critical",
+      "x_dataType": "String"
+    },
+    {
+      "chartTitle": "COUNT BY RESPONSIBILITY",
+      "chartSize": "Small",
+      "countType": "Count",
+      "chartType": "Bar",
+      "x_column": "Responsibility",
+      "x_dataType": "String"
+    },
+    {
+      "chartSize": "Small",
+      "chartTitle": "COUNT BY RESPONSIBILITY AND CRITICAL",
+      "chartType": "2X2",
+      "countType": "Count",
+      "countLabels": "Lo, Lo-M, M , M-Hi, Hi",
+      "x_column": "Responsibility",
+      "y_column": "Critical"
+    },
+    {
+      "chartTitle": "COUNT BY START",
+      "chartSize": "Small",
+      "countType": "Count",
+      "chartType": "Bar",
+      "x_column": "Start",
+      "x_dataType": "Date",
+      "x_dateFormat": "MMM"
+    },
+    {
+      "chartTitle": "COUNT BY END",
+      "chartSize": "Small",
+      "countType": "Count",
+      "chartType": "Bar",
+      "x_column": "End",
+      "x_dataType": "Date",
+      "x_dateFormat": "MMM"
+    },
+    {
+      "chartTitle": "COUNT BY ACTUAL START",
+      "chartSize": "Small",
+      "countType": "Count",
+      "chartType": "Bar",
+      "x_column": "Actual start",
+      "x_dataType": "Date",
+      "x_dateFormat": "MMM"
+    },
+    {
+      "chartTitle": "COUNT BY ACTUAL/ESTIMATED END",
+      "chartSize": "Small",
+      "countType": "Count",
+      "chartType": "Bar",
+      "x_column": "Actual/estimated end",
+      "x_dataType": "Date",
+      "x_dateFormat": "MMM"
+    },
+    {
+      "chartTitle": "COUNT BY RAG",
+      "chartSize": "Small",
+      "countType": "Count",
+      "chartType": "Bar",
+      "x_column": "RAG",
+      "x_dataType": "String",
+      "x_categories": "B,G,A,R"
+    },
+    {
+      "chartType": "Data Table",
+      "countType": "Count",
+      "chartSize": "Large",
+      "rowsToDisplay": 10
+    },
+    {
+      "chartType": "Data Description",
+      "countType": "Count",
+      "chartSize": "Large"
+    }
+  ]
+}
