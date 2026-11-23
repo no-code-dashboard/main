@@ -9,7 +9,7 @@
   --brand-font-family:
     "Trebuchet MS", system-elements, -apple-system, Segoe UI, Roboto, Ubuntu,
     Cantarell, Noto Sans, sans-serif;
-  /* --color-brand: light-dark( hsl(240, 88%, 39%), hsl(240, 52%, 30%)); */
+  /* --color-brand: light-dark( hsl(240, 88%, 39%), hsl(240, 52%, 50%)); */
   --color-brand: hsl(240, 88%, 39%);
   --chart-footer: "No-code-dashboard";
 

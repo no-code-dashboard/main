@@ -1,66 +1,71 @@
 @media print {
-  /* @page {
-        margin: 2cm;
-        & :first {
-            margin-top: auto;
-        }
-    } */
-  /* @page {
-        size: landscape;
-        margin: 10%;
+  /* 1. Set the page margins you want (e.g., 15mm or 1 inch) */
+  @page {
+    size: auto;
+    /* margin: 10mm; */
+  }
 
-        @bottom-center {
-            content: "Page " counter(page) " of " counter(pages);
-        }
-    }
+  /* 2. Hide everything on the page except your chart container */
+  body * {
+    visibility: hidden;
+  }
+  nav {
+    display: none;
+  }
+  .always-visible,
+  .always-visible * {
+    visibility: visible;
+  }
 
-    @page: left {
-        @bottom-left {
-            content: "Page " counter(page) " of " counter(pages);
-        }
-    } */
+  /* 3. Disable the grid layout for print so items stack sequentially */
+  /* .callout-container, */
+  .chart-container {
+    display: block !important;
+    /* position: absolute; */
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
 
-  .only-print {
+  /* 4. Style each individual chart card */
+  .callout,
+  .chart {
+    box-shadow: var(--shadow-4);
+  }
+  .chart {
+    /* border: 1px solid grey; */
+    width: 100%; /* Full width of the printable area (minus margins) */
+    height: auto; /* Height scales naturally based on width */
+    /* max-width: 100%; */
+    /* max-height: 95vh; */
+    box-sizing: border-box;
+
+    /* Force each chart onto its own printed page */
+    page-break-after: always;
+    break-after: page;
+    /* Prevent a single chart from awkwardly splitting across two pages */
+    page-break-inside: avoid;
+    break-inside: avoid;
+
+    /* Optional spacing or padding inside the printed card */
+    margin-bottom: 20px;
+  }
+
+  /* Ensure SVGs or charts scale properly to the 100% width */
+  .chart svg,
+  .chart canvas {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  .only-print,
+  .only-print * {
     visibility: visible;
     display: block;
   }
 
   .page-break {
-    display: block;
-    page-break-before: always;
-  }
-
-  .chart-container {
-    display: block;
-    /* max-width: 1200px; */
-    margin: 0 auto;
-    padding: 0.5rem;
-  }
-
-  .chart {
-    border: 1px solid gray;
-    padding: 1rem;
-    /* height: 100%; */
-    /* width: 400px;  */
-    /* max-height: 15cm; */
-    page-break-after: always;
-    /* break-inside: avoid-page;
-        break-before: auto; */
-    /* scale: "90%"; */
-  }
-
-  .small .medium .large {
-    grid-column: span 1;
-  }
-
-  button,
-  .noPrint {
-    visibility: hidden;
-    display: none;
-  }
-
-  .onlyPrint {
     visibility: visible;
-    display: block;
+    page-break-before: always;
   }
 }
