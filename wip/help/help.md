@@ -1,306 +1,317 @@
-# Data to do
-
-Generate random data for testing. There should be 200 records. Each record will have follwoing information:
-
-1. Region - possible values are US, Europe and Asia
-2. Country - a country appropriate to the region
-3. Sales amount - number between 10,000 and 1,000,000
-4. Sales status - possible values are "sold", "wip", "lost"
-5. Client location - possible values are country name
-
 # No-code-dashboard Help
 
 ## What is No-code-dashboard?
 
-No-code-dashboard is a web-app designed to **instantly transform raw data into professional quality visual insights**.
+No-code-dashboard is a web app designed to **instantly transform raw data into professional-quality visual insights**.
 
-The App's process is very simple: you provide a standard CSV file, and it immediately renders your data as a set of callouts and interactive charts.
+The process is simple: you provide a standard CSV file, and the App immediately renders your data as a set of callouts and interactive charts.
 
-You can slice and dice the information in these charts to easily perform in-depth analysis. Simply click directly on any bar within a chart to instantly filters all visuals on the screen, allowing you to isolate and focus on specific data segments (e.g., viewing sales data only for a single region or product).
+You can slice and dice the information in these charts to perform in-depth analysis. Click directly on any bar within a chart to instantly filter all visuals on the screen, allowing you to isolate and focus on specific data segments (for example, viewing sales data for a single region or product).
 
-The first dashboard is built in seconds by just loading data. The dashboard can then be easily configured. The App does not any require specialist skills, equipment or software other than an internet connection and the App. It allows the data held in the collaborative tools (such as Jira, DevOps, Service Now, HP/QC, and good old excel) to be the single source of truth. All stakeholders from execs to PMs to developers/testers use same data to make decisions.
+The first dashboard is built in seconds, just by loading data, and can then be easily configured. The App does not require any specialist skills, equipment or software other than an internet connection and the App itself. It allows the data held in collaborative tools (such as Jira, DevOps, ServiceNow, HP/QC and good old Excel) to be the single source of truth, so all stakeholders, from executives to PMs to developers and testers, use the same data to make decisions.
 
-The App is based on years of experience of successfully building dashboards to support many projects, large or small.
+The App is based on years of experience building dashboards that successfully support projects large and small.
 
-## How to use the App?
+## How to use the App
 
-When the App starts up it presents a dialog to select **Load data** or **Show demo** to proceed:
+When the App starts up, it presents a dialog to select **Load data** or **Show demo**:
 
-![Select to proceed dialog](select-to-proceed.png)
+![Select to proceed dialog](select-to-proceed.png "Select to proceed")
 
-**Load data** allows loading of a data or config file as described [here](#menu-load-file). Once data is loaded the [menu items](#menu-items) show on the top of the screen followed by callouts and charts.
+**Load data** allows you to load a data or config file as described [here](#load-file). Once data is loaded, the [menu items](#menu-items) appear at the top of the screen, followed by callouts and charts. If a data file is selected, the input is expected to be a CSV (comma-separated values) file.
 
-**Show demo** start a pre-prepaired [demos](#what-are-the-demos) to highligh the No-code-dashboard. 
+**Show demo** starts a pre-prepared [demo](#what-are-the-demos) to highlight No-code-dashboard.
 
-## Menu items <a id="menu-items"></a>
-The main menu on the top of the screen shows the options available.
-If no data is loaded it has only [Load file](#menu-load-file) availbale. Once data is loaded the menu options are described below.
+## Menu items
 
-### Content <a id="menu-content"></a>
-shows a table-of-content
+The main menu at the top of the screen shows the available options. If no data is loaded, only [Load file](#load-file) is available. Once data is loaded, the menu options are as described below.
 
-### Load file <a id="menu-load-file"></a>
+### Content
 
-Load file dialog allows to select local/remote and data/config file as shown below:
+Shows a table of contents.
 
-![Load file dialog](load-file.png)
+### Load file
 
-If data file is selected the input data is expected as a csv (comma separated value) file. The App expects the date fields to be in DD-MMM-YYYY or YYYY-MM-DD format. This is to avoid misinterpreting American and European date formats. 
+The Load file dialog allows you to select local or remote, and data or config, files:
 
-When data is loaded first time a config is created automatically which can be modified as described [later](#configure-dashboard). The action by the App depends if data is loaded while a dashbard is already visible: 
+![Load file dialog](load-file.png "Load file")
 
-|Dashboard with data|Config is applicable|App action|
-|---|---|---|
-|No|Not relevent|Loads the data and creates a config automatically|
-|Yes|Yes|Loads data and uses current config |
-|Yes|No|Asks if current config should be used or overwritten and acts as per user feedback |
+When data is loaded for the first time, a config is created automatically, which can be modified as described [later](#configure-dashboard). If data is loaded while a dashboard is already visible, the App checks whether the current config is applicable (that is, the column names and types match the data being loaded). The App's action depends on the situation:
 
-If config file is selected the input is expected to be json preferably previously [saved](#menu-save-config) by the App. If data is loaded while an existing dashboard is displayed the App checks if the current config is applicable (the column names and types match) to the data being loaded.   
+| Config is present | App action |
+|---|---|
+| No | Creates a config based on the data and loads the data|
+| Yes | Asks whether the current config should be used or overwritten, and acts accordingly |
 
-|Config with remote data|Data present|App action|
-|---|---|---|
-|Yes|Don't care|Loads confi and the data referred in the config.  This is useful when a dashboard has been authoured for distribution to others |
-|No|No|Stores config for a subsequent data load|
-|No|Yes|Asks if the config should be used to redraw the dashboard or not and acts as per user feedback|
+If a config file is selected, the input is expected to be JSON, preferably [saved](#save-config) previously by the App.
 
-### Configure dashboard <a id="menu-configure-dashboard"></a>
-This menu option allows modification to the dashboard layout such report title, report date.  Callouts and charts can be modified as described [later](#how-configure-dashboard).
+| Config with data file defined |App action |
+|---|---|
+| Yes | Loads the config and the data referred to in the config. This is useful when a dashboard has been authored for distribution to others |
+| No | Stores the config for a subsequent data load |
 
-### Save Config <a id="menu-save-config"></a>
-allows you to download the current config. You can use the file later. For some reason the download is not working consistently in all browsers. It download is unsuccessful the config is copied to clipboard and the workaround is to open a new text file, paste the config and save the file
 
-### Print <a id="menu-print"></a>
-When selected it creates a PDF version of the dashboard. The print output does not include the interactive elements (menus, buttons etc) of the dashboard on the screen.
+### Configure dashboard
 
-In [demo mode](#what-are-the-demos) a list of predefined options are shown between TOC and Print PDF
+This menu option allows you to modify the dashboard layout, such as the report title and report date. Callouts and charts can be modified as described [later](#how-to-configure-the-dashboard).
 
-## How to configure the dashboard <a id="how-to-configure-the-dashboard"></a>
+### Save config
+
+Allows you to download the current config so you can use the file later.
+
+> **Note:** Downloads do not work consistently in all browsers. If the download is unsuccessful, the config is copied to the clipboard. As a workaround, open a new text file, paste the config and save the file.
+
+In [demo mode](#what-are-the-demos), a list of predefined options is shown between the table of contents and Print PDF.
+
+## How to configure the dashboard
 
 The dashboard can be modified in three ways:
 
-|Dashboad component|Details|
+| Dashboard component | Details |
 |---|---|
-|[Layout](#menu-configure-dashboard)|Modify dashboard layout such report title, report date.|
-|[Charts](#how-to-configure-charts)||
-|Callouts|To do|
+| [Layout](#configure-dashboard) | Modify the dashboard layout, such as the report title and report date |
+| [Charts](#how-to-configure-charts) | Modify individual charts (see below) |
+| Callouts | To do |
 
-## What is a Chart menu? <a id="what-is-a-chart-menu"></a>
+## What is a Chart menu?
 
-On the top-right corner of every chart there is a hamburger menu. When you click on this the App will offer following options:
+In the top-right corner of every chart there is a hamburger menu. Clicking it offers the following options:
 
-| Menu option  | Description                                                                                                                                                                                          |
-| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Filter Chart | This shows all the values in the x-axis where you can select the values that you want filtered: check to show and uncheck to hide. Note this option is only shown for the charts that are filterable |
-| [Config Chart](#how-to-configure-charts) | This option gives you the option to change the chart as you see fit.This is described in detail in a separate section                                                                                |
-| Remove Chart | deletes the chart. The App asks for a confirmation from you before deleting chart                                                                                                                    |
-| Clone Chart  | lets you add a copy of the chart at the current position. Once copied you can change the config                                                                                                      |
-| Close        | closes the dialogue                                                                                                                                                                                  |
-
-## How to configure charts? <a id="how-to-configure-charts"></a>
-
-On the top-right corner of every chart there is a hamburger menu. When you click on this the App will offer options including one to to configure the chart; all available options are described [here](#what-is-a-chart-menu").
-
-When the **Config chart** is clicked the App shows a dialog with the chart attributes.  Top of the dialog shows the common attributes for all charts.  Following the common attributes chart specific attributes are displayed. A dialog for [bar chart](#chart-type-bar) is shown below:
-
-
-The common attributes are described below
-| Common Attributes|Description|
- ---- |----|
- | Chart title | Lets you change the title of a chart. If left blank the placeholder shows the default title. It is recommended that you keep this blank while you are configuring the charts. Once you are done, you enter a title if you prefer to override the default. |
-| Chart size | This can be `small/medium/large`. On larger screens, such as PC or laptop, the three types will show appropriately. On a smaller screen, such as mobile, all charts will show in one size|
-| Chart position    | Allows you to re-position a chart. Select a new position and the App move that particular chart to the desired position|
-| Chart type | Select a chart type and the App will trfresh the chart specific attributes for possible modifications.  See the table below for a summary on the chart types|
-
-The configurable attributes are dependent on the **Chart type**. A summary of all **Chart type**s are shown below; click on the chart type in the first column to see the chart specific attributes 
-
-|Chart type|Description|
+| Menu option | Description |
 |---|---|
-|[2x2 ](#chart-type-2x2)|This chart shows the cross tabulated data for two columns.|
-|[Data Description](#chart-type-data-description) |describes that input data, i.e. type of data, counts, man and min values|
-|[Data Table](#chart-type-data-table) |This display lists the rows of the input data.|
-|[Bar](#chart-type-bar)|This is column chart perhaps the most familier chart type.|
-|[Note](#chart-type-note)| allows to specify a message in the dashboard. It is not a chart but useful in embedding key messages in the dashboard. The demos make use of these to describe the charts|
-|[Plan](#chart-type-plan) |This shows the data as a Gantt chart.|
-|[Risk](#chart-type-risk) |This chart displays data in standard 5x5 risk matrix.|
-|[State Change](#chart-type-state-change) |This chart shows data on transition times between different states.|
-|[Trend](#chart-type-trend) |This shows trend of values; for example, test execution trend.|
-|[Trend OC](#chart-type-trend-oc)| This chart is very similar to **Trend** except it calculates the trend using open and close dates.|
+| Filter Chart | Shows all the values on the x-axis so you can select which to show (checked) or hide (unchecked). This option is only shown for charts that are filterable |
+| [Config Chart](#how-to-configure-charts) | Lets you change the chart as you see fit. This is described in detail in a separate section |
+| Remove Chart | Deletes the chart. The App asks for confirmation before deleting |
+| Clone Chart | Adds a copy of the chart at the current position. Once copied, you can change its config |
+| Close | Closes the menu |
 
+## How to configure charts
 
-## Chart type: 2x2 <a id="chart-type-2x2"></a>
+In the top-right corner of every chart there is a hamburger menu. Clicking it offers a number of options, including one to configure the chart; all available options are described [here](#what-is-a-chart-menu).
 
-This chart shows the cross tabulated data for two columns. You can select the x and y axes. There is an option of average/sum and count if.  The chart specific attributes are as follows:
+When **Config Chart** is clicked, the App shows a dialog with the chart attributes. The top of the dialog shows the attributes common to all charts, followed by the attributes specific to the chart type. A dialog for a [bar chart](#chart-type-bar) is shown below:
 
-|Attribute|Description|
+<!-- Image of the bar chart config dialog to be added -->
+
+The common attributes are:
+
+| Common attribute | Description |
 |---|---|
-|Horizontal axis|
-|Column  name| Specifies the column that is used as the horizontal axis. Data I type is assumed string|
-|Order||
-|Axis title| this will be the label for the axis in the chart if left blank column name is used|
-|Vertical axis|
-|Column  name| Specifies the column that is used as the axis. Data I type is assumed string|
-|Order||
-|Axis title| this will be the label for the vertical axis in the chart if left blank column name is used|
-|Chart filter| See [here](#chart-filter) for deatils|
-|Count type|See [here](#count-type) for deatils|
+| Chart title | Lets you change the title of a chart. If left blank, the placeholder shows the default title. It is recommended that you keep this blank while you are configuring the charts, and enter a title afterwards only if you want to override the default |
+| Chart size | Can be `small`, `medium` or `large`. On larger screens, such as a PC or laptop, the three sizes display as expected. On a smaller screen, such as a mobile, all charts show in one size |
+| Chart position | Allows you to re-position a chart. Select a new position and the App moves the chart there |
+| Chart type | Select a chart type and the App refreshes the chart-specific attributes for possible modification. See the table below for a summary of the chart types |
 
-## Chart type: Bar <a id="chart-type-bar"></a>
+The configurable attributes depend on the **Chart type**. A summary of all chart types is shown below; the attributes for each type are described in later sections. Click a chart type in the first column to jump to its chart-specific attributes.
 
-This is same as column chart, perhaps the most familier chart type. 
-
-
-
-There is an option of average/sum and count if as described in the next section. List Count is useful when a column contains a list of values, for example list of tags or list of linked defects to a test script. You have to indicate a separator for the list, such as comma. The separator defaults to a space if not provided. There is an option count if as described in the next section. List Members is useful when a column contains a list of values as described above. The chart shows the count of tags in the input. You can further define count if value as described in the next section
-
-The chart specific attributes are as follows:
-
-|Attribute|Description|
+| Chart type | Description |
 |---|---|
-|Column  name|Column  name. Specifies the column that is used as the horizontal axis.|
-|Data type| This can be date/number/string/list/ and it specifies how the data is aggregated. These data types are explained later|
-|Axis title| this will be the label for the horizontal axis in the chart if left blank no label will be shown which makes the chart more compact|
-|Chart filter| See [here](#chart-filter) for deatils|
-|Count type|See [here](#count-type) for deatils|
+| [Bar](#chart-type-bar) | A column chart, perhaps the most familiar chart type |
+| [2x2](#chart-type-2x2) | Shows cross-tabulated data for two columns |
+| [Note](#chart-type-note) | Lets you add a message to the dashboard. It is not a chart, but is useful for embedding key messages. The demos use these to describe the charts |
+| [Data Description](#chart-type-data-description) | Describes the input data in a table showing data type, counts, and maximum and minimum values |
+| [Data Table](#chart-type-data-table) | Lists the first and last *n* rows of the input data |
+| [Plan](#chart-type-plan) | A specialist chart that shows the data as a Gantt chart |
+| [Risk](#chart-type-risk) | A specialist chart that displays data in a 5x5 risk matrix |
+| [State Change](#chart-type-state-change) | A specialist chart that shows transition times between different states |
+| [Trend](#chart-type-trend) | Shows the trend of values, for example a test execution trend |
 
-The data types cab as follows:
+## Chart type 2x2
 
-| Data type| Description|
-| --------- | ---- |
-| Date      | Date is used when the x-axis has date values. Choose the data table chart type date means the x-axis state at the column ID. You can select the column to show in the x-axis. Different formats available such as `DD` (day of the month, e.g. 01, 02... 31), `DDD` (day of the week, e.g. Mon, Tue... Sun), `MMM` (short month, e.g. Jan, Feb... Dec), `MMM-YY` (specific month in a year, e.g. Jan-25), Wx (weeks from report date) and `Days Elapsed/Days Bussiness` (age in days from report date). |
-| Number    | Number is used when the x-axis has numbers. There is an option for youth enter `bin` to show chart by bin values. The bin if entered must be a comma separated list of numbers in ascending order. 
-| String    | String is a is used when the axis is a string.  You can define an `Axis labels` that will make sure the axis will be ordered accordingly. For example if "Build, Test, Deploy" is entered for `Axis labels` the axis will show these labels in that ordred followed by any other labels present in data. `Axis labels` is also useful to show specific data even if the value is absent in data. For instance, you want to show P1 even if zero then enter "P1" in `Axis labels`. |
-|List|TBD|
+This chart shows cross-tabulated data for two columns, specified for the horizontal (x) and vertical (y) axes. You can select the attributes for each axis as follows:
 
-## Chart type: Data table <a id="chart-type-data-table"></a>
-This display lists the rows of the input data. You can select the number of rows to display.
-
-The chart specific attributes are as follows:
-
-|Attribute|Description|
-|---|---|
-|To do|To do|
-
-## Chart type: Data description <a id="chart-type-data-description"></a>
-This chart describes the input data, i.e. type of data, counts, man and min values. 
-
-The chart specific attributes are as follows:
-
-|Attribute|Description|
-|---|---|
-|To do|To do|
-
-## Chart type: Note <a id="chart-type-note"></a>
-**Note** allows to specify a message in the dashboard. It is not a chart but very useful in embedding key messages in the dashboard. The [demos](#what-are-the-demos) make use of these to describe the charts.
-
-The chart specific attributes are as follows:
-
-|Attribute|Description|
-|---|---|
-|Message|Markdown input to be shown in the chart |
-
-## Chart type: Plan <a id="chart-type-plan"></a>
-
-This shows the data as a Gantt chart.  The inputs required are column that has the description to show in the plan, cowman for start date and column for the end date. Columns for start and end dates must contain dates. You can further define count if as described in the next section. The chart specific attributes are as follows:
-
-|Attribute|Description|
-|---|---|
-|Description column |column to contain the description of the activity|
-|First set of dates||
-|Start date column| column to contain the start date of the activity|
-|End date column| column to contain the end date of the activity|
-|Second set of dates (optional)|
-|Start date column| column to contain the start date of the activity|
-|End date column| column to contain the end date of the activity|
-|Label| describes how second set of dates will be labeled, defaults to `Actuals`
-|RAG (optional)||
-|RAG column|Column that shows where the data for rag colour should be picked up|
-|RAG map|**Describe the map**|
-|Chart filter| See [here](#chart-filter) for deatils|
-|Annotatons| See [here](#annotations-) for deatils|
-
-
-## Chart type: Risk <a id="chart-type-risk"></a>
-
-This chart displays data in standard 5x5 risk matrix. You can select the likelihood and impact columns. The App will expect the values 1 to 5 in these columns. You can define the likelihood and impact values as well. There are options of average/sum and count if as described in the next section. The chart specific attributes are as follows:
-
-|Attribute|Description|
-|---|---|
-|To do|To do|
-
-## Chart type: Sate change <a id="chart-type-state-change"></a>
-
-This chart shows data on transition times between different states. It expects that the data source is sorted in acceding order for each item. You have to select the columns from where the App picks the values: Time stamp shows the time of the transition while From and To give the values at the point of transition. There is an option to count the number of transition or calculate the total time of transition or average time for transition. There is also an option of count if as described in the next section. The chart specific attributes are as follows:
-
-|Attribute|Description|
-|---|---|
-|To do|To do|
-
-## Chart type: Trend <a id="chart-type-trend"></a>
-This shows trend of values; for example, test execution trend. You have to specify a date column. You can further define count if, plan and forecast values as described in the next section. The chart specific attributes are as follows:
-
-|Attribute|Description|
+| Attribute | Description |
 |---|---|
 |Horizontal axis||
-|Column  name|Specifies the column that is used as the horizontal axis. Data I type I must be date|
-|Axis label |this will be the label for the horizontal axis in the chart if left blank column name is used| 
-|chart filter||
-|plan||
-|forecast||
-|annotations| see later|
+| Column | Specifies the column used as the horizontal axis |
+| Data type | Is always `string` |
+|Categories|See [datat type string](#string) for detail|
+| Axis label | The label for the horizontal axis. If left blank, no label is shown, which makes the chart more compact |
+|Vertical axis||
+Identical to horizontal axis||
+| Chart filter | See [Chart filter](#chart-filter) for details |
+| Count type | See [Count type](#count-type) for details |
 
-## Chart type: Trend OC <a id="chart-type-trend-oc"></a>
-This chart is very similar to **Trend** except it calculates the trend using open and close dates. The chart specific attributes are as follows:
+## Chart type Bar
 
-|Attribute|Description|
+This is the same as a column chart, perhaps the most familiar chart type.
+
+The chart-specific attributes are:
+
+| Attribute | Description |
 |---|---|
-|To do|To do|The chart specific attributes are as follows:
+|Horizontal axis||
+| Column | Specifies the column used as the horizontal axis |
+| Data type | Is always `string` or `list`, and specifies how the data is aggregated. These data types are explained below |
+| Axis label | The label for the horizontal axis. If left blank, no label is shown, which makes the chart more compact |
+| Chart filter | See [Chart filter](#chart-filter) for details |
+| Count type | See [Count type](#count-type) for details |
 
-|Attribute|Description|
+The data types are as follows.
+
+### Date
+
+Date is used when the x-axis has date values.
+
+The App expects date fields to be in `DD-MMM-YYYY` or `YYYY-MM-DD` format, to avoid misinterpreting American and European date formats.
+
+You can select the column to show on the x-axis. The available formats are:
+
+| Format | Description |
 |---|---|
-|To do|To do|
+| `DD` | Day of the month, e.g. 01, 02... 31 |
+| `DDD` | Day of the week, e.g. Mon, Tue... Sun |
+| `MMM` | Short month, e.g. Jan, Feb... Dec |
+| `MMM-YY` | Month in a year, e.g. Jan-25 |
+| `YYYY` | Four digit year, e.g. 2025, 2026,... |
+| `W8` | 8 weeks after the report date |
+| `8W` | 8 weeks before the report date |
+| `4W4` | 4 weeks on either side of the report date |
 
-## How to set average/sum, chart filter, plan and forecast?
+### Number
 
-Following parameters are set using string as an input. To aid your input, a template is displayed when the input field is first clicked. The templates are explained below (where _x_ is shown in the template, a value must be provided).
+Number is used when the x-axis has numbers. You can enter `bin` to show the chart by bin values. The bin, if entered, must be a single number or an ascending comma-separated list of numbers. If a single number, *n*, is entered, the App distributes the numbers into *n* bins. If a list is entered, the bin boundaries are set accordingly.
 
-| Attribute    | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Count        | This allows different aggregation menthod - count, sum or average                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| Chart filter | Chart filter has the template action: exclude oe include, column-name: column, op: eq/neq, operand: value/[array of values] The template means either exclude or include records where the column-name field contains any item in the array.                                                                                                                                                                                                                                                                                                                                                                       |
-| Plan         | Plan has the template start: date, end: date, scope-from number, scope-to: max/number, points: line/sigmoid/ [number array] The app draws that from start to end going form scope-from to scope to using the points. The point _arraynum_ a numeric ascending array with max value of 1. Examples: [0, 1] draws a straight line. [0, .2, 1] draws the plan using three values, scope-from at the first point, scope-to as the last point and .2 times (scope-to minus scope-from) in the middle.                                                                                                                   |
-| Forecast     | Forecast has two templates. For Chart Type as Trend the template is look-back: number, forecast-to: max/date/number The look-back indicates the number of days previous to the report date used to calculate forecast, forecast-to indicates the end point of the forecast; max means date till the maximum value is reached, date indicates the end date for the forecast, number means a date that is ...Forecast for Trend OC has the template is look-back: number, forecast-to: max/date/number The meaning of most parameters are as above except open and close that indicate how the forecast is modified. |
+### String
 
-Each of the common elements are detailed below:
+String is used when the axis is a string. You can define order of categories the chart axis is displayed. For example, if `Build, Test, Deploy` is entered for ***Categories***, the chart will show these categories in that order, followed by any others present in the data. ***Categories*** is also useful for showing specific values even when they are absent from the data. For instance, to show P1 even if its count is zero, enter `P1` in ***Categories***.
 
-### Count type <a id="count-type"></a>
+### List
 
-Average/sum where the App uses another column, called column over, that contains numeric data. The App displays the sum or average of the values form this second column.  This is used in [Bar](#chart-type-bar), [Plan](#chart-type-plan), [Trend](#chart-type-trend) and [Trend OC](#chart-type-trend-oc),
+TBD
+**List Count** is useful when a column contains a list of values, for example a list of tags or a list of defects linked to a test script. You indicate a separator for the list, such as a comma; the separator defaults to a space if not provided. You can further define the count-if value as described in [Count type](#count-type).
 
-### Chart Filter <a id="chart-filter"></a>
+**List Members** is also useful when a column contains a list of values. The chart shows the count of each tag in the input. You can further define the count-if value as described in [Count type](#count-type).
 
-Chart filter decides which input records are included. The filter is decided by an array of compares joined by `and/or`. Following are the config items for each compare:
-|Config item|Description|
+## Chart type Data Table
+
+This displays the rows of the input data. You can select the number of rows to display.
+
+## Chart type Data Description
+
+This describes the attributes of the input data in a table, i.e. data type, counts, and maximum and minimum values.
+
+There are no chart-specific attributes.
+
+## Chart type Note
+
+**Note** lets you add a message to the dashboard. It is not a chart per se, but is very useful for embedding key messages. You enter a ***Text*** in markdown, which is shown in the chart.
+
+The [demos](#what-are-the-demos) use these to describe the dashboards.
+
+## Chart type Plan
+
+This shows the data as a Gantt chart. The required inputs are a column containing the description to show in the plan, a column for the start date and a column for the end date. The start and end date columns must contain dates. You can further define count-if as described in [Count type](#count-type). The chart-specific attributes are:
+
+| Attribute | Description |
 |---|---|
-|Relational operator| Possible values are `and/or`. This decides how the row is connected to the previous row. The value in first row is ingoned |
-|LHS| Left hand side of the compare, it is alawys a column and at run time the column's content is used|
-|Logical operator| Possible values are `eq/neq/in/nin`.|
-|RHS|Right hand side of the compare.|
+| Description column | Column containing the description of the activity |
+| First set of dates||
+| Start date column | Column containing the start date of the activity |
+| End date column | Column containing the end date of the activity |
+| Label | Describes how the second set of dates is labelled. Defaults to `Plan` |
+| Second set of dates (optional) | |
+| Start date column | Column containing the start date of the activity |
+| End date column | Column containing the end date of the activity |
+| Label | Describes how the second set of dates is labelled. Defaults to `Actuals` |
+| **RAG (optional)** | |
+| RAG column | Column from which the data for the RAG colour is picked up |
+| RAG map | A mandatory field that maps input values to an integer, which is used to calculate likelihood and impact. Enter five comma-separated values, which are interpreted as numbers based on their relative position. For example, `VL,LO,MED,HI,VH` means VL is 1 and MED is 3 |
+| Chart filter | See [Chart filter](#chart-filter) for details |
+| Annotations | See [Annotations](#annotations) for details|
 
-### Plan <a id="plan-"></a>
+## Chart type Risk
 
-The app draws a line from **Start date** to **End date** starting from **Scope-from** to **Scope-to**. The trajectory of the line is decided by **Points** as decribed below:
-|Attribute|Description|
+This chart displays data in a standard 5x5 risk matrix. You select the likelihood and impact columns; the App expects values from 1 to 5 in these columns. You can also define the likelihood and impact values. Average/sum and count-if options are available, as described in [Count type](#count-type). The chart-specific attributes are:
+
+| Attribute | Description |
 |---|---|
-|Start date| Start date of the plan|
-|End date| End date of the plan|
-|Scope-from| Start numder for the plan, defaults to zero,|
-|Scope-to| The end number for the plan. This can be `Max` (instead of a number) in which case the maximum vertical axis value in the chart is used. |
-|Points| The values can be `Line/Sigmoid` or array of number that decides the points plotted. `Line`is selected the App draws a staight line; if `Sigmoid` is selected then a curve that increases slowly at the start and end with a period of a rapid rise in between is drwan. When an array of number is provided then the curve is drawn using the formula n<sup>th</sup> point equals **Scope-from** plus (**Scope-to** minus **Scope-from**) times n<sup>th</sup> array value. For example `[0, 1]` draws a straight line from 0 to **Scope-to**.|
+|| To do |
 
-### Forecast <a id="forecast-"></a>
+For Impact enter 10 comma-separated values representing 5 pairs of data-value, display-value ordered from lowest to highest severity. The app automatically assigns a score from 1 to 5 based on each pair's position.  The chart shows the corresponding display-value for the data-values.
 
-Forecast has two templates. For Chart Type as Trend the template is look-back: number, forecast-to: max/date/number The look-back indicates the number of days previous to the report date used to calculate forecast, forecast-to indicates the end point of the forecast; max means date till the maximum value is reached, date indicates the end date for the forecast, number means a date that is ...Forecast for Trend OC has the template is look-back: number, forecast-to: max/date/number The meaning of most parameters are as above except open and close that indicate how the forecast is modified.
+For Likelihood, enter 10 comma-separated values representing 5 pairs of data-value, display-value ordered from lowest to highest probability. The app automatically assigns a score from 1 to 5 based on each pair's position. The chart shows the corresponding display-value for the data-values.
 
-## What are the demos? <a id="what-are-the-demos">
 
-The demos are based on years of experience of successfully delivering many types of projects, some $100m in size. The principles learnt from this experience is embedded in the demos thereby significantly improving the value of these demo dashboards to you.
+## Chart type State Change
+
+This chart shows transition times between different states. You select the columns from which the App picks the values: Time stamp gives the time of the transition, while From and To give the values at the point of transition. You can count the number of transitions, or calculate the total or average time of transition. The chart-specific attributes are:
+
+| Attribute | Description |
+|---|---|
+| To do | To do |
+
+The App expects the data source to be sorted in ascending order of ID and timestamp.
+
+## Chart type Trend
+
+This shows the trend of values, for example a test execution trend. You must specify a date column. You can further define count-if, plan and forecast values as described in [Common elements](#common-elements). The chart-specific attributes are:
+
+| Attribute | Description |
+|---|---|
+| **Horizontal axis** | |
+| Column name | Specifies the column used as the horizontal axis. The data type must be date |
+| Axis label | The label for the horizontal axis. If left blank, the column name is used |
+| Chart filter | See [Chart filter](#chart-filter) for details |
+| Plan | See [Plan](#plan) for details |
+| Forecast | See [Forecast](#forecast) for details |
+| Annotations | See [Annotations](#annotations) |
+
+## Common elements
+
+The following elements are used in more than one type of chart:
+
+| Element | Description |
+|---|---|
+| Annotations | Allows annotations on the chart |
+| Count type | Allows different aggregation methods: counting, summing or averaging |
+| Chart filter | Allows you to choose which rows are included in the chart |
+| Plan | Allows plotting a plan in Trend charts |
+| Forecast | Allows plotting a forecast in Trend charts |
+
+Each of these is described below.
+
+### Annotations
+
+
+
+### Count type
+
+Average/sum uses another column, called *column over*, that contains numeric data. The App displays the sum or average of the values from this second column.
+
+### Chart filter
+
+The chart filter decides which input records are included. It is defined by an array of conditions joined by `and`/`or`. Each condition has the following attributes:
+
+| Config item | Description |
+|---|---|
+| Relational operator | Possible values are `and` and `or`. This decides how the row is connected to the previous row. The value in the first row is ignored |
+| LHS | Left-hand side of the comparison. This is always a column, and at run time the column's content is used |
+| Logical operator | Possible values are `eq`, `neq`, `in` and `nin` |
+| RHS | Right-hand side of the comparison |
+
+### Plan
+
+The App draws a plan line as described below:
+
+| Attribute | Description |
+|---|---|
+| Start date | Start date of the plan |
+| End date | End date of the plan |
+| Scope-from | Start number for the plan. Defaults to zero |
+| Scope-to | End number for the plan. This can be `Max` (instead of a number), in which case the maximum vertical axis value in the chart is used |
+| Points | Can be `Line`, `Sigmoid` or an array of numbers that decides the points plotted. If `Line` is selected, the App draws a straight line. If `Sigmoid` is selected, it draws a curve that rises slowly at the start and end, with a period of rapid rise in between. When an array of numbers is provided, the curve is drawn using the formula: nth point in chart = ***Scope-from*** + (***Scope-to*** − ***Scope-from***) × nth array value. For example, `[0, 1]` draws a straight line from 0 to ***Scope-to*** |
+
+### Forecast
+
+The App draws a forecast line based on the trend over the previous ***look-back*** days, as described below:
+
+| Attribute | Description |
+|---|---|
+| Look back | The number of days prior to the report date used to calculate the forecast |
+| Forecast to | Decides the end point of the forecast. The value can be `max` (forecast until the maximum value is reached) or a specific date indicating the end of the forecast |
+| Label | Decides how the forecast is labeled in the chart. If left blank, a default value is used |
+
+## What are the demos?
+
+The demos are based on years of experience successfully building dashboards for projects up to $100M in size. These core principles are embedded directly into the demos, significantly increasing their value to you.
