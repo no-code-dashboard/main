@@ -3,23 +3,25 @@ import { _ } from "../util.js";
 import { Dialog } from "./dialog.js";
 
 export { showLoadFileDialog };
-function showLoadFileDialog({ header, extention, loadData, loadConfigFile }) {
+function showLoadFileDialog({ header, loadNewData, loadConfigFile }) {
   const elements = [
-    {
-      tag: "radio",
-      name: "fileLocation",
-      label: "File location",
-      options: ["Local file", "Remote file"],
-    },
     {
       tag: "radio",
       name: "fileType",
       label: "File type",
       options: ["Data", "Config"],
     },
+    {
+      tag: "radio",
+      name: "fileLocation",
+      label: "File location",
+      options: ["Local file", "Remote file"],
+    },
     { tag: "hr" },
+    { tag: "file", name: "localFile" },
     { tag: "text", name: "remoteFileName", label: "Remote file name" },
-    { tag: "text", name: "remoteApiKey", label: "Remote file api key" },
+    { tag: "p", id: "size" },
+    // { tag: "text", name: "remoteApiKey", label: "Remote file api key" },
     { tag: "hr" },
     { tag: "button", label: "Cancel" },
     { tag: "button", label: "Load", class: "disable-on-error" },
@@ -41,9 +43,10 @@ function showLoadFileDialog({ header, extention, loadData, loadConfigFile }) {
     if (label === "Cancel") Dialog.close();
     if (label == "Load") {
       const { fileLocation, fileType } = Dialog.data();
-      Dialog.close();
+
       if (fileLocation === "Remote file") loadRemote(fileType);
       else loadLocal(fileType);
+      // Dialog.close();
       return;
     }
     if (label == "Load cookie") {
@@ -51,61 +54,61 @@ function showLoadFileDialog({ header, extention, loadData, loadConfigFile }) {
     }
 
     function loadLocal(fileType) {
-      // const input = _.createElements({input:{type:"file",accept = extention ?? ".*",value:""}}) //_.select("#file");
-      const input = _.select("#file");
-      const forceReloadOfSameFile = "";
-      input.value = forceReloadOfSameFile;
-      const extention = fileType === "Data" ? ".csv" : ".json";
-      input.accept = extention;
-
-      const clonedElement = input.cloneNode(true);
-      // Replace the original element with the new one
-      input.parentNode.replaceChild(clonedElement, input);
-      input.addEventListener("change", () => {
-        const file = input.files[0];
-        if (file) {
-          const blob = URL.createObjectURL(file);
-          Dialog.close();
-          
-          fileType === "Data"
-            ? loadData(blob, file, extention)
-            : loadConfigFile(file);
-        }
-      });
-      input.click();
+      const input = Dialog.getElement("localFile");
+      const file = input.files[0];
+      if (file) {
+        Dialog.close();
+        fileType === "Data"
+          ? loadNewData(file, file.name)
+          : loadConfigFile(file);
+      }
     }
-    // const isValid = await _.isValidFile(remoteFileName)
     function loadRemote(fileType) {
       const { remoteFileName, remoteFileApi } = Dialog.data();
-      // if (remoteFileName === "") return;
-      // if (!isValid) return;
       Dialog.close();
       fileType === "Data"
-        ? loadData(remoteFileName, null, extention)
+        ? loadNewData(remoteFileName, null)
         : loadConfigFile(remoteFileName);
     }
   }
   async function validateFilenames() {
-    const { fileLocation, fileType, remoteFileName, remoteFileApi } =
+    const { fileLocation, fileType, localFile, remoteFileName, remoteFileApi } =
       Dialog.data();
+
     Dialog.markErrors();
     const errors = [],
       attributes = [
         {
-          names: ["remoteFileName", "remoteApiKey"],
-          attrs: ["disabled", true],
+          name: ["remoteFileName", "localFile"],
+          attrs: ["class-add", "hide"],
+          applyTo: "wrapper",
         },
+        { id: "size", attrs: ["text"] },
       ];
-
+    const SHOW = { attrs: ["class-remove", "hide"], applyTo: "wrapper" };
+    if (fileLocation === "Local file") {
+      attributes.push({ name: "localFile", ...SHOW });
+      //force value to ensure new file is read
+      attributes.push({ name: "localFile", attrs: ["value", ""] });
+      const accept = fileType === "Data" ? ".csv" : ".json";
+      attributes.push({ name: "localFile", attrs: ["accept", accept] });
+      if (!localFile.name) errors.push({ localFile: "Required" });
+    }
     if (fileLocation === "Remote file") {
-      attributes.push({
-        names: ["remoteFileName", "remoteApiKey"],
-        attrs: ["disabled", false],
-      });
-      if (remoteFileName === "") errors.push({ remoteFileName: "Required" });
+      attributes.push({ name: "remoteFileName", ...SHOW });
+      if (!remoteFileName) errors.push({ remoteFileName: "Required" });
+    }
+    if (errors.length === 0) {
+      const file = fileLocation === "Local file" ? localFile : remoteFileName;
+      const size = await _.getFileSize(file);
+      if (size === -1) errors.push({ remoteFileName: "Invalid file" });
       else {
-        const isValidFile = await _.isValidFile(remoteFileName);
-        if (!isValidFile) errors.push({ remoteFileName: "Invalid file" });
+        const decimals = size < 1024 ? 2 : 1;
+        const sizeDisplay = `${(size / 1024).toFixed(decimals)} KB`;
+        attributes.push({
+          id: "size",
+          attrs: ["text", "File size: " + sizeDisplay],
+        });
       }
     }
     Dialog.setElementsAttrs(attributes);

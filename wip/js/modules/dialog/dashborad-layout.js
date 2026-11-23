@@ -1,32 +1,14 @@
 "use strict";
 
-// import {
-//   _,
-//   saveCounts,
-//   getCounts,
-//   setItem,
-//   getItem,
-//   getChartId,
-//   getChartContainer,
-//   getKey,
-//   clearCounts,
-// } from "../util.js";
+import { _ } from "../util.js";
 import { Dialog } from "./dialog.js";
-// import { Counter } from "../counter.js";
 import { Param } from "../param.js";
-
-// import {
-//   chartTypes,
-//   getChartCommon,
-//   validateChart,
-//   getCalloutOverlay,
-//   validateCallout,
-// } from "../chart-types.js";
 
 export { showLayoutDialog };
 
 function showLayoutDialog(reCreateCharts) {
-  const { reportTitle, reportDate, presetValues } = Param.getParam("config");
+  const { reportTitle, reportDate, dates } = Param.getParam("config");
+  const datesWithoutReportDate = dates.filter((_, i) => i > 1);
   const layoutDialog = [
     {
       tag: "text",
@@ -40,31 +22,25 @@ function showLayoutDialog(reCreateCharts) {
       label: "Report date",
       value: reportDate,
     },
-    // Todo: preset values
     {
       tag: "table",
-      label: "Preset values",
-      name: "presetValues",
-      value: presetValues,
+      label: "Preset dates",
+      name: "dates",
+      value: datesWithoutReportDate,
+      item: "Preset date",
       elements: [
-        {
-          tag: "select",
-          options: ["Date", "Text"],
-          label: "Type",
-          name: "type",
-        },
-        {
-          tag: "text",
-          label: "Name",
-          name: "name",
-        },
-        //   { tag: "text", label: "Value", name: "valueText" },
+        { tag: "text", label: "Name", name: "label" },
         { tag: "date", label: "Value", name: "value" },
       ],
     },
     { tag: "hr" },
-    { tag: "button", label: "Cancel" },
-    { tag: "button", label: "Apply", class: "disable-on-error" },
+    { tag: "button", label: "Cancel", "data-action": "cancel" },
+    {
+      tag: "button",
+      label: "Apply",
+      "data-action": "apply",
+      class: "disable-on-error",
+    },
   ];
 
   //   if (!reportDate) return;
@@ -87,45 +63,53 @@ function showLayoutDialog(reCreateCharts) {
 
   function validateLayout() {
     const data = Dialog.data();
-    const { reportTitle, reportDate } = data;
-    console.log({ data, type: data["presetValues-type"] });
+    const { reportTitle, reportDate, dates } = data;
+    console.log({ data, dates });
 
     Dialog.markErrors();
 
     const errors = [],
       attributes = [
-        { names: ["valueText", "valueDate"], attrs: ["disabled", true] },
+        { name: "dates_name_0", attrs: ["disabled", true] },
+        { text: "Delete Preset date 1", attrs: ["disabled", true] },
       ];
-    if (reportTitle.trim() === "") {
-      errors.push({ reportTitle: "Required" });
+    if (!_.isString(reportTitle)) {
+      errors.push({ reportTitle: "Report title is equired" });
     }
-    if (reportDate.trim() === "") {
-      errors.push({ reportDate: "Required" });
+    if (!_.isValidDate(reportDate)) {
+      errors.push({ reportDate: "Invalid report date" });
     }
-
-    if (data["presetValues--"]) {
-      const name = data["presetValues-name"];
-      const type = data["presetValues-type"];
-      const value = data["presetValues-value"];
-      const input = Dialog.getElement("presetValues-value");
-      input.type = type === "Text" ? "text" : "date";
-      if (value && !name) errors.push({ "presetValues-name": "Required" });
-      if (!value && name) errors.push({ "presetValues-value": "Required" });
-    }
-
+    validateDates(dates);
     if (errors.length > 0) Dialog.markErrors(errors);
     Dialog.setElementsAttrs(attributes);
+
+    function validateDates(dates) {
+      if (!dates) return;
+      const _dates = _.toTuples(dates, 2);
+      _dates.forEach(([label, value], i) => {
+        if (!_.isString(label))
+          errors.push({ [`dates_label_${i}`]: "Label required" });
+        else if (label === "report-date")
+          errors.push({
+            [`dates_label_${i}`]: `Label must be different to "report-date"`,
+          });
+
+        if (!_.isValidDate(value))
+          errors.push({ [`dates_value_${i}`]: "Valid date required" });
+      });
+    }
   }
 
   function layoutApply(reCreateCharts) {
     validateLayout();
     if (Dialog.hasErrors) return;
-    const { reportTitle, reportDate, presetValues } = Dialog.data();
-    // const config = Param.getParam("config");
-    // config.reportTitle = reportTitle.trim();
-    // config.reportDate = reportDate;
+    const { reportTitle, reportDate, dates } = Dialog.data();
     console.log(Dialog.data());
-    Param.setParam("config", { reportTitle, reportDate, presetValues });
+    Param.setParam("config", {
+      reportTitle,
+      reportDate,
+      dates: ["report-date", reportDate, ...dates],
+    });
     Dialog.close();
     reCreateCharts();
   }
