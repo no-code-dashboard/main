@@ -5,9 +5,6 @@ const footer = `<hr style="margin: 0.5rem" />
           <p>&copy; 2025</p>
           <p>
             Powered by
-            <a href="https://www.w3schools.com" target="_blank"
-              >HTML5, CSS3, JS,</a
-            >
             <a href="https://www.papaparse.com" target="_blank">Papaparse, </a>
             <a href="https://observablehq.com/plot/" target="_blank"
               >Observable Plot,</a

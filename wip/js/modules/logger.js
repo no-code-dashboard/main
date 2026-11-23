@@ -1,5 +1,5 @@
 "use strict";
-import { _, getCounts, getChartContainer } from "./util.js";
+import { _, getCounts, getChartId } from "./util.js";
 export { Logger };
 //steps comment const $.. () {  and the last return {} & }
 const Logger = (function () {
@@ -25,16 +25,18 @@ const Logger = (function () {
     function resetChartLogs() {
       const counts = allCounts.counts;
       for (const key in counts) {
-        const chartContainerId = getChartContainer(key);
+        const chartContainerId = getChartId(key);
         _.clearHTML(`#${chartContainerId} .tags`);
       }
     }
     function addP(message, severity, chartNo) {
       const messageClass = "tag-" + severity.toLowerCase();
-      const span = _.createElements({
-        span: { class: messageClass, text: message },
-      });
-      const chartContainerId = getChartContainer(chartNo);
+      const title = ""; //tooltip ? `data-title="${tooltip}"` : "";
+      const span = _.createElements(
+        `<span class="${messageClass}" ${title}>${message}</span>`,
+      );
+
+      const chartContainerId = getChartId(chartNo);
       const msg = _.select(`#${chartContainerId} .tags`);
       (msg ? msg : logDiv).appendChild(span);
     }

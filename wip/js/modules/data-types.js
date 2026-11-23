@@ -1,4 +1,4 @@
-"use strict"
+"use strict";
 import { _ } from "./util.js";
 import {
   DISPLAY_OTHERS,
@@ -12,9 +12,6 @@ import {
   displayOrder,
   MONTHS,
   WEEKDAYS,
-  WORKDAYS,
-  MAX_BAR_CATS,
-  MAX_2X2_CATS,
 } from "./common.js";
 
 export const dataTypes = {
@@ -87,7 +84,7 @@ export const dataTypes = {
         const i = bin.findIndex((e) => v <= e);
         return label(i);
       }
-      const binArray = Array.isArray(bin) ? bin : _.cleanArray(bin, "Number");
+      const binArray = _.isArray(bin) ? bin : _.cleanArray(bin, "Number");
 
       return binnedValues(number, binArray);
     },

@@ -81,13 +81,13 @@ const Param = (function () {
     if (newPositions) {
       // console.log(index, newPositions);
       //move the chart
-      const newchartsXXX = newPositions.map((i) =>
-        JSON.stringify(chartProperties[i]),
+      const newcharts = newPositions.map((i) =>
+        _.stringify(chartProperties[i]),
       );
       chartProperties.forEach(
-        (_, i) => (chartProperties[i] = JSON.parse(newchartsXXX[i])),
+        (c, i) => ([chartProperties[i]] = _.parse(newcharts[i])),
       );
-      //move callouts
+      //update callouts
       const callouts = config.callouts;
       if (callouts)
         callouts.forEach((v) => {
@@ -142,55 +142,6 @@ const Param = (function () {
     return true;
   }
 
-  function getAutoTitle(chartProps) {
-    return "delete";
-    if (!chartProps) return "";
-    const {
-      chartType,
-      countType,
-      colOver,
-      x_bin,
-      x_column,
-      x_label,
-      x_labels,
-      y_column,
-      y_label,
-      y_labels,
-    } = chartProps;
-    const x = _.pick1stNonBlank(x_label, x_column);
-    const y = _.pick1stNonBlank(y_label, y_column);
-    if (!chartType) return "";
-    //     string, date
-    const countPrefix = () => {
-      if (countType === "Count") return "Count";
-      if (countType === "Sum") return `Sum of ${colOver}`;
-      return `Av of ${colOver}`;
-    };
-
-    if (["Note", "Data Description", "Data Table", "Plan"].includes(chartType))
-      return chartType.toUpperCase();
-
-    if (chartType === "Trend" || chartType === "Trend OC")
-      return `${x} over time`.toUpperCase();
-
-    if (chartType === "Risk") return `${countPrefix()} by Risk`.toUpperCase();
-
-    if (chartType === "2X2")
-      return `${countPrefix()} by ${x} and ${y}`.toUpperCase();
-
-    if (chartType === "State Change")
-      return `State Change: ${countType}`.toLocaleUpperCase();
-
-    if (chartType === "Bar") {
-      const binned = x_bin ? "Binned " : "";
-      // const list = chartType === "List" ? "Members in " : ""
-      // const list = chartType === "List Members"? "Members in " : ""
-      return `${binned}${countPrefix()} by ${x}`.toUpperCase();
-    }
-
-    return `undefined: ${chartType}`.toUpperCase();
-  }
-
   function removeCallOut(index) {
     if (!config.callouts) return false;
     if (index === undefined) return false;
@@ -202,23 +153,21 @@ const Param = (function () {
   function getCallOutProps(index) {
     return config.callouts[index];
   }
-  function setCallOutProps({ index, calloutProps }) {
-    const newValue = { ...calloutProps };
+  function setCalloutProps({ index, properties }) {
     if (!config.callouts) config.callouts = [];
-    const cleanedNewValue = _.cleanObject(newValue);
+    const _properties = _.cleanObject(properties);
 
-    if (index === undefined) {
-      config.callouts.push(cleanedNewValue);
+    if (typeof index === "undefined") {
+      config.callouts.push(_properties);
       return true;
     }
     if (!config.callouts[index]) return false;
-
-    const position = Number(cleanedNewValue.position) - 1;
-    delete cleanedNewValue.position;
+    const position = Number(_properties.position) - 1;
+    delete _properties.position;
 
     const callout = config.callouts[index];
     for (const key in callout) delete callout[key];
-    for (const key in cleanedNewValue) callout[key] = cleanedNewValue[key];
+    Object.assign(callout, _properties);
 
     const callouts = config.callouts;
     const newPositions = arrayMove(
@@ -227,8 +176,8 @@ const Param = (function () {
       position,
     );
     if (newPositions) {
-      const newCallouts = newPositions.map((i) => JSON.stringify(callouts[i]));
-      callouts.forEach((_, i) => (callouts[i] = JSON.parse(newCallouts[i])));
+      const newCallouts = newPositions.map((i) => _.stringify(callouts[i]));
+      callouts.forEach((c, i) => ([callouts[i]] = _.parse(newCallouts[i])));
     }
     return true;
   }
@@ -246,9 +195,10 @@ const Param = (function () {
       return "String";
     }
     function createDefaultConfig() {
-      const d = new Date();
-      config.reportDate = d.toISOString().substring(0, 10);
-      config.reportTitle = "Auto-generated Dashboard";
+      const today = _.formatDate(new Date());
+      config.reportDate = today;
+      config.dates = ["report-date", today];
+      config.reportTitle = "No-Code Dashboard";
       config.maxValues = "30";
       config.files = [file];
       config.preview = 2000;
@@ -307,8 +257,8 @@ const Param = (function () {
       for (let i = 0; i < config.chartProperties.length; i++)
         if (config.chartProperties[i].chartType === "Bar")
           config.callouts.push({
-            chartNumber: i,
-            value: "max",
+            chartNumber: i + "",
+            valueType: "Max",
           });
     }
   }
@@ -320,34 +270,11 @@ const Param = (function () {
     if (!newConfig) return false;
     config = structuredClone(newConfig);
     return true;
-
-    function deepCopy(val) {
-      // 1. Handle null or non-object types (primitives)
-      if (val === null || typeof val !== "object") {
-        return val;
-      }
-
-      // 2. Handle Arrays
-      if (Array.isArray(val)) {
-        // Use spread to create a new array and map each element through deepCopy
-        return [...val].map((item) => deepCopy(item));
-      }
-
-      // 3. Handle Objects
-      const result = {};
-      for (const key in val) {
-        if (val.hasOwnProperty(key)) {
-          // Recursively call deepCopy for every property
-          result[key] = deepCopy(val[key]);
-        }
-      }
-      return result;
-    }
   }
   // if (type === "config-file") return setConfigFile(newValues);
   function setConfigFile({ file }) {
     if (!file) return false;
-    config.file = [file];
+    config.files = [file];
   }
 
   function setConfig(options) {
@@ -376,32 +303,32 @@ const Param = (function () {
       }
       return false;
     }
-    function set(one, two) {
-      let isUpdated = false;
-      const typeOne = typeof one;
-      // if (typeOne  !== typeof two) return false
-      if (typeOne === "string" || typeOne === "number") one = two;
-      return true;
-      if (typeOne === "object") {
-        onestr = JSON.stringify(one);
-        twoStr = JSON.stringify(two);
-        return oneStr === twoStr;
-      }
-      return false;
-    }
+    // function set(one, two) {
+    //   let isUpdated = false;
+    //   const typeOne = typeof one;
+    //   // if (typeOne  !== typeof two) return false
+    //   if (typeOne === "string" || typeOne === "number") one = two;
+    //   return true;
+    //   if (typeOne === "object") {
+    //     onestr = JSON.stringify(one);
+    //     twoStr = JSON.stringify(two);
+    //     return oneStr === twoStr;
+    //   }
+    //   return false;
+    // }
     return isUpdated;
 
-    if (replace) {
-      Object.assign(config, newConfig);
-      return true;
-    }
-    if (!newConfig && !dataDescription) {
-      config.file = [file];
-      return;
-    }
-    Object.assign(config, {});
-    Object.assign(config, newConfig);
-    return true;
+    // if (replace) {
+    //   Object.assign(config, newConfig);
+    //   return true;
+    // }
+    // if (!newConfig && !dataDescription) {
+    //   config.file = [file];
+    //   return;
+    // }
+    // Object.assign(config, {});
+    // Object.assign(config, newConfig);
+    // return true;
   }
   function getParam(type, index, getDefaults) {
     if (type === "chart-count") return getCountOf("chart");
@@ -409,10 +336,11 @@ const Param = (function () {
     if (type === "chart-properties") return getChartProps(index, getDefaults);
     if (type === "callouts") return getCallOutProps(index, getDefaults);
     if (type === "config") return getConfig();
+    if (type === "dates") return config.dates;
   }
   function setParam(type, newValues) {
     if (type === "chart-properties") return setChartProps(newValues);
-    if (type === "callouts") return setCallOutProps(newValues);
+    if (type === "callouts") return setCalloutProps(newValues);
     if (type === "config") return setConfig(newValues);
     if (type === "config-replace") return replaceConfig(newValues);
     if (type === "config-file") return setConfigFile(newValues);
@@ -426,30 +354,3 @@ const Param = (function () {
     autoCreateConfig,
   };
 })();
-
-function toCleanObject(obj) {
-  const validPrefixes = [];
-  const seperator = "-";
-  const cleanedObject = {};
-
-  for (const key in obj) {
-    if (!key.includes(seperator)) continue;
-    const prefix = key.split(seperator)[0];
-    if (typeof obj[prefix] !== undefined)
-      if (!validPrefixes.includes(prefix)) validPrefixes.push(prefix);
-  }
-  for (const key in obj) {
-    const value = obj[key];
-    if (!value) continue;
-    if (!key.includes(seperator)) {
-      cleanedObject[key] = value;
-      continue;
-    }
-
-    const prefix = key.split(seperator)[0];
-    if (validPrefixes.includes(prefix)) continue;
-
-    cleanedObject[key] = value;
-  }
-  return cleanedObject;
-}

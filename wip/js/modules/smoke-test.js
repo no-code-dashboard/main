@@ -3,13 +3,20 @@ import { _, getCounts } from "./util.js";
 import { getPresetConfig, validateConfigs } from "./preset.js";
 import { Dialog } from "./dialog/dialog.js";
 import { Param } from "./param.js";
-import { configChart } from "./dialog/chart-callout-.js";
+import { configChart } from "./dialog/chart-callout.js";
 
 export { smokeTest };
 
 let testType = ["charts", "configs"]; //"configs", "charts" , "callouts", "quick"
 let duration = testType.includes("quick") ? 300 : 700;
-async function smokeTest(loadConfigFile, loadPresetFile, scrollToChart) {
+async function smokeTest(
+  loadConfigFile,
+  loadPresetFile,
+  scrollToChart,
+  d = 300,
+) {
+  // console.trace("Trace");
+  if (d) duration = d;
   const startSmoke = new Date();
   console.clear();
   const elements = [{ tag: "h2", label: "Smoke test results" }, { tag: "hr" }];
@@ -93,7 +100,7 @@ async function smokeTest(loadConfigFile, loadPresetFile, scrollToChart) {
     for (let j = 0; j < numberOfCharts; j++) {
       const startLap = new Date();
       // scrollToChart(j);
-      configChart("chart-" + j);
+      configChart(j);
       await _.sleep(duration);
       // console.log(_.select("dialog"))
       const dialog = _.select("dialog");
@@ -110,7 +117,6 @@ async function smokeTest(loadConfigFile, loadPresetFile, scrollToChart) {
         "State Change",
         "Data Table",
         "Trend",
-        "Trend OC",
         "Data Description",
       ];
 
@@ -134,14 +140,14 @@ async function smokeTest(loadConfigFile, loadPresetFile, scrollToChart) {
     const end = new Date();
     return Math.round(_.dateTimeDiff(start, end, "Milliseconds") / 1000);
   }
-  function record(label) {
-    if (!label) {
+  function record(text) {
+    if (!text) {
       elements.push({ tag: "hr" });
       console.log("-------------------------");
       return;
     }
-    elements.push({ tag: "p", label });
-    console.log(label);
+    elements.push({ tag: "p", text });
+    console.log(text);
   }
 }
 
@@ -154,6 +160,7 @@ async function scrollToEndAndBack(start, end) {
 }
 import { chartTypes } from "./chart-types/chart-types.js";
 function validateObjects() {
+  console.trace("XX");
   const invalids = {};
   for (const ct in chartTypes) {
     console.log(ct);
